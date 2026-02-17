@@ -1,8 +1,20 @@
 import { Global, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { EventsGateway } from './gateways/events.gateway';
+import { NotificationService } from './services/notification.service';
 
 @Global()
 @Module({
-  providers: [],
-  exports: [],
+  imports: [
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_ACCESS_SECRET'),
+      }),
+    }),
+  ],
+  providers: [EventsGateway, NotificationService],
+  exports: [EventsGateway, NotificationService],
 })
 export class CommonModule {}
