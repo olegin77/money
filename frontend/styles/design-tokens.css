@@ -1,0 +1,179 @@
+/* FinTrack Pro Design System - Data Serenity 2026 */
+
+:root {
+  /* === COLORS: Deep Ocean Calm Palette === */
+
+  /* Primary Colors */
+  --primary-indigo: #6366F1;
+  --primary-violet: #8B5CF6;
+  --primary-purple: #A78BFA;
+
+  /* Accent Colors */
+  --accent-pink: #EC4899;
+  --accent-rose: #F472B6;
+  --accent-orange: #FB923C;
+  --accent-amber: #FBBF24;
+  --accent-cyan: #06B6D4;
+  --accent-teal: #14B8A6;
+
+  /* Semantic Colors */
+  --success: #10B981;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --info: #3B82F6;
+
+  /* Neutral - Light Mode */
+  --neutral-50: #F9FAFB;
+  --neutral-100: #F3F4F6;
+  --neutral-200: #E5E7EB;
+  --neutral-300: #D1D5DB;
+  --neutral-400: #9CA3AF;
+  --neutral-500: #6B7280;
+  --neutral-600: #4B5563;
+  --neutral-700: #374151;
+  --neutral-800: #1F2937;
+  --neutral-900: #111827;
+
+  /* Deep Ocean - Dark Mode */
+  --ocean-50: #F0F4F8;
+  --ocean-100: #D9E2EC;
+  --ocean-200: #BCCCDC;
+  --ocean-300: #9FB3C8;
+  --ocean-400: #829AB1;
+  --ocean-500: #627D98;
+  --ocean-600: #486581;
+  --ocean-700: #334E68;
+  --ocean-800: #243B53;
+  --ocean-900: #141D2B;
+  --ocean-950: #0F1419;
+
+  /* === GRADIENTS === */
+  --gradient-aurora: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
+  --gradient-sunset: linear-gradient(135deg, #F59E0B 0%, #EC4899 50%, #8B5CF6 100%);
+  --gradient-ocean: linear-gradient(180deg, #243B53 0%, #141D2B 100%);
+  --gradient-mesh: radial-gradient(at 40% 20%, #6366F1 0px, transparent 50%),
+                   radial-gradient(at 80% 0%, #8B5CF6 0px, transparent 50%),
+                   radial-gradient(at 0% 50%, #06B6D4 0px, transparent 50%);
+
+  /* === TYPOGRAPHY === */
+  --font-satoshi: 'Satoshi', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  --text-5xl: 3rem;      /* 48px */
+  --text-6xl: 3.75rem;   /* 60px */
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* === SPACING: 8px Grid === */
+  --spacing-2xs: 0.25rem;  /* 4px */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+  --spacing-4xl: 6rem;     /* 96px */
+
+  /* === BORDER RADIUS === */
+  --radius-xs: 0.25rem;   /* 4px */
+  --radius-sm: 0.5rem;    /* 8px */
+  --radius-md: 0.75rem;   /* 12px */
+  --radius-lg: 1rem;      /* 16px */
+  --radius-xl: 1.25rem;   /* 20px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-3xl: 2rem;     /* 32px */
+  --radius-full: 9999px;
+
+  /* === SHADOWS: Soft Elevation System === */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.10);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.15);
+
+  /* Dark mode shadows */
+  --shadow-dark-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-dark-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-dark-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* === GLASSMORPHISM === */
+  --glass-bg-light: rgba(255, 255, 255, 0.85);
+  --glass-bg-dark: rgba(20, 29, 43, 0.85);
+  --glass-border-light: rgba(255, 255, 255, 0.2);
+  --glass-border-dark: rgba(255, 255, 255, 0.06);
+  --glass-blur: 20px;
+  --glass-saturate: 180%;
+
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === Z-INDEX === */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+}
+
+/* === LIGHT MODE === */
+:root {
+  --background: var(--neutral-50);
+  --foreground: var(--ocean-900);
+  --card: var(--neutral-50);
+  --card-foreground: var(--ocean-900);
+  --primary: var(--primary-indigo);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--ocean-100);
+  --secondary-foreground: var(--ocean-900);
+  --muted: var(--ocean-100);
+  --muted-foreground: var(--ocean-600);
+  --accent: var(--primary-violet);
+  --destructive: var(--error);
+  --border: var(--ocean-200);
+  --input: var(--ocean-200);
+  --ring: var(--primary-indigo);
+}
+
+/* === DARK MODE === */
+.dark {
+  --background: var(--ocean-900);
+  --foreground: var(--ocean-50);
+  --card: var(--ocean-800);
+  --card-foreground: var(--ocean-50);
+  --primary: var(--primary-indigo);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--ocean-700);
+  --secondary-foreground: var(--ocean-50);
+  --muted: var(--ocean-700);
+  --muted-foreground: var(--ocean-400);
+  --accent: var(--primary-violet);
+  --destructive: var(--error);
+  --border: var(--ocean-700);
+  --input: var(--ocean-700);
+  --ring: var(--primary-violet);
+}
