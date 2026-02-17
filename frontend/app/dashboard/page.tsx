@@ -113,14 +113,16 @@ export default function DashboardPage() {
                   💰 View Income
                 </Button>
               </Link>
+              <Link href="/categories">
+                <Button className="w-full" variant="outline">
+                  📁 Categories
+                </Button>
+              </Link>
               <Link href="/analytics">
                 <Button className="w-full" variant="outline">
                   📈 Analytics
                 </Button>
               </Link>
-              <Button className="w-full" variant="outline" disabled>
-                ⚙️ Settings
-              </Button>
             </div>
           </CardContent>
         </Card>
