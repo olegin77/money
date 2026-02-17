@@ -55,9 +55,16 @@ export default function DashboardPage() {
               Here's your financial overview
             </p>
           </div>
-          <Button onClick={logout} variant="outline">
-            Logout
-          </Button>
+          <div className="flex gap-3">
+            {user?.isAdmin && (
+              <Link href="/admin">
+                <Button variant="outline">👑 Admin Panel</Button>
+              </Link>
+            )}
+            <Button onClick={logout} variant="outline">
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}
