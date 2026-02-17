@@ -105,12 +105,12 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link href="/expenses">
                 <Button className="w-full" variant="outline">
-                  📊 View Expenses
+                  📊 Expenses
                 </Button>
               </Link>
               <Link href="/income">
                 <Button className="w-full" variant="outline">
-                  💰 View Income
+                  💰 Income
                 </Button>
               </Link>
               <Link href="/categories">
@@ -121,6 +121,11 @@ export default function DashboardPage() {
               <Link href="/analytics">
                 <Button className="w-full" variant="outline">
                   📈 Analytics
+                </Button>
+              </Link>
+              <Link href="/friends">
+                <Button className="w-full" variant="outline">
+                  👥 Friends
                 </Button>
               </Link>
             </div>
