@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Perimeter } from '../entities/perimeter.entity';
 import { PerimeterShare } from '../entities/perimeter-share.entity';
 import { CreatePerimeterDto } from '../dto/create-perimeter.dto';
