@@ -1,4 +1,21 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/auth.store';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
 export default function Home() {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="text-center">
@@ -9,12 +26,14 @@ export default function Home() {
           Data Serenity • Modern Finance Management
         </p>
         <div className="flex gap-4 justify-center">
-          <button className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl font-semibold hover:opacity-90 transition-opacity">
-            Get Started
-          </button>
-          <button className="px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-2xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            Learn More
-          </button>
+          <Link href="/register">
+            <Button size="lg">Get Started</Button>
+          </Link>
+          <Link href="/login">
+            <Button size="lg" variant="outline">
+              Sign In
+            </Button>
+          </Link>
         </div>
       </div>
     </main>
