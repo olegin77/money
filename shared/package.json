@@ -1,0 +1,22 @@
+{
+  "name": "@fintrack/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FinTrack Pro Shared Types & Utilities",
+  "author": "OLEGIN77",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2",
+    "rimraf": "^5.0.5"
+  }
+}
