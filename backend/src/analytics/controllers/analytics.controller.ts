@@ -1,11 +1,13 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AnalyticsService } from '../services/analytics.service';
 import { DashboardQueryDto } from '../dto/dashboard-query.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
+import { CacheInterceptor } from '../../common/interceptors/cache.interceptor';
 
 @Controller('analytics')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(CacheInterceptor)
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 

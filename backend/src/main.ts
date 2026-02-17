@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import * as compression from 'compression';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -13,6 +14,9 @@ async function bootstrap() {
 
   // Security
   app.use(helmet());
+
+  // Compression
+  app.use(compression());
 
   // CORS
   app.enableCors({

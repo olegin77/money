@@ -17,6 +17,7 @@
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "analyze": "ANALYZE=true next build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -73,6 +74,7 @@
     "@storybook/react": "^7.6.17",
     "@storybook/nextjs": "^7.6.17",
     "@storybook/addon-essentials": "^7.6.17",
-    "storybook": "^7.6.17"
+    "storybook": "^7.6.17",
+    "@next/bundle-analyzer": "^14.1.3"
   }
 }
