@@ -1,17 +1,107 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { IncomeService } from '../services/income.service';
+import { CreateIncomeDto } from '../dto/create-income.dto';
+import { UpdateIncomeDto } from '../dto/update-income.dto';
+import { QueryIncomeDto } from '../dto/query-income.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
 @Controller('income')
+@UseGuards(JwtAuthGuard)
 export class IncomeController {
   constructor(private readonly incomeService: IncomeService) {}
 
-  @Get()
-  findAll() {
-    return { message: 'Get all income - TODO' };
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@CurrentUser() user: CurrentUserData, @Body() createIncomeDto: CreateIncomeDto) {
+    const income = await this.incomeService.create(user.id, createIncomeDto);
+
+    return {
+      success: true,
+      message: 'Income created successfully',
+      data: income,
+    };
   }
 
-  @Post()
-  create() {
-    return { message: 'Create income - TODO' };
+  @Get()
+  async findAll(@CurrentUser() user: CurrentUserData, @Query() query: QueryIncomeDto) {
+    const result = await this.incomeService.findAll(user.id, query);
+
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  @Get('stats')
+  async getStats(
+    @CurrentUser() user: CurrentUserData,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
+  ) {
+    const stats = await this.incomeService.getStats(user.id, startDate, endDate);
+
+    return {
+      success: true,
+      data: stats,
+    };
+  }
+
+  @Get('trend')
+  async getTrend(@CurrentUser() user: CurrentUserData, @Query('days') days?: number) {
+    const trend = await this.incomeService.getTrend(user.id, days ? Number(days) : 30);
+
+    return {
+      success: true,
+      data: trend,
+    };
+  }
+
+  @Get(':id')
+  async findOne(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
+    const income = await this.incomeService.findOne(id, user.id);
+
+    return {
+      success: true,
+      data: income,
+    };
+  }
+
+  @Patch(':id')
+  async update(
+    @CurrentUser() user: CurrentUserData,
+    @Param('id') id: string,
+    @Body() updateIncomeDto: UpdateIncomeDto
+  ) {
+    const income = await this.incomeService.update(id, user.id, updateIncomeDto);
+
+    return {
+      success: true,
+      message: 'Income updated successfully',
+      data: income,
+    };
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async remove(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
+    await this.incomeService.remove(id, user.id);
+
+    return {
+      success: true,
+      message: 'Income deleted successfully',
+    };
   }
 }
