@@ -21,10 +21,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:unit": "jest --config ./test/jest-unit.json",
-    "migration:generate": "typeorm migration:generate -d src/config/typeorm.config.ts",
-    "migration:create": "typeorm migration:create",
-    "migration:run": "typeorm migration:run -d src/config/typeorm.config.ts",
-    "migration:revert": "typeorm migration:revert -d src/config/typeorm.config.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/config/typeorm.config.ts",
+    "migration:create": "npm run typeorm -- migration:create",
+    "migration:run": "npm run typeorm -- migration:run -d src/config/typeorm.config.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/config/typeorm.config.ts",
+    "migration:show": "npm run typeorm -- migration:show -d src/config/typeorm.config.ts",
     "seed": "ts-node src/database/seeds/main.seed.ts"
   },
   "dependencies": {
@@ -59,7 +61,8 @@
     "rxjs": "^7.8.1",
     "reflect-metadata": "^0.2.1",
     "uuid": "^9.0.1",
-    "date-fns": "^3.3.1"
+    "date-fns": "^3.3.1",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",
