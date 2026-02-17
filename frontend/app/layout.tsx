@@ -1,6 +1,5 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, Inter } from 'next/font/google';
-import localFont from 'next/font/local';
 import './globals.css';
 import { OfflineIndicator } from '@/components/layout/offline-indicator';
 
@@ -12,7 +11,7 @@ const dmSans = DM_Sans({
   display: 'swap',
 });
 
-// Satoshi fallback to Inter (Satoshi is paid font, using Inter as free alternative)
+// Satoshi fallback to Inter
 const satoshi = Inter({
   subsets: ['latin'],
   variable: '--font-satoshi',
@@ -20,15 +19,23 @@ const satoshi = Inter({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'FinTrack Pro - Data Serenity Finance Management',
-  description: 'Modern finance management application with Data Serenity design - Track expenses, manage budgets, analyze spending with beautiful charts',
-  manifest: '/manifest.json',
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#F9FAFB' },
     { media: '(prefers-color-scheme: dark)', color: '#141D2B' },
   ],
-  viewport: 'minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover',
+};
+
+export const metadata: Metadata = {
+  title: 'FinTrack Pro - Data Serenity Finance Management',
+  description: 'Modern finance management application with Data Serenity design - Track expenses, manage budgets, analyze spending with beautiful charts',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -53,6 +60,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
+      <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className={`${dmSans.variable} ${satoshi.variable} font-sans antialiased`}>
         <div className="texture-noise min-h-screen">
           {children}
