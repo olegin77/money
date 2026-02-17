@@ -29,10 +29,7 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() registerDto: RegisterDto, @Req() req: Request) {
-    const userAgent = req.headers['user-agent'] || 'unknown';
-    const ipAddress = req.ip || 'unknown';
-
+  async register(@Body() registerDto: RegisterDto) {
     const result = await this.authService.register(registerDto);
 
     return {
