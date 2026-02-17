@@ -30,8 +30,8 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto, @Req() req: Request) {
-    const userAgent = req.headers['user-agent'];
-    const ipAddress = req.ip;
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const ipAddress = req.ip || 'unknown';
 
     const result = await this.authService.register(registerDto);
 
@@ -46,8 +46,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto, @Req() req: Request) {
-    const userAgent = req.headers['user-agent'];
-    const ipAddress = req.ip;
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const ipAddress = req.ip || 'unknown';
 
     const result = await this.authService.login(loginDto, userAgent, ipAddress);
 

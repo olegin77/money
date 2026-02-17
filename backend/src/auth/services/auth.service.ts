@@ -297,7 +297,7 @@ export class AuthService {
     // 2. Send email with reset link
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<void> {
+  async resetPassword(_token: string, _newPassword: string): Promise<void> {
     // TODO: Implement password reset logic
     // For now, throw not implemented
     throw new BadRequestException('Password reset not yet implemented');
