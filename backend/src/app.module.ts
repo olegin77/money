@@ -4,8 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
-import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
 
 // Modules
 import { AuthModule } from './auth/auth.module';
@@ -48,21 +46,6 @@ import { AppService } from './app.service';
         logging: configService.get('DB_LOGGING') === 'true',
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         migrationsRun: false,
-      }),
-    }),
-
-    // Redis Cache
-    CacheModule.registerAsync({
-      isGlobal: true,
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        store: redisStore,
-        host: configService.get('REDIS_HOST'),
-        port: configService.get('REDIS_PORT'),
-        password: configService.get('REDIS_PASSWORD'),
-        ttl: 60,
-        max: 1000,
       }),
     }),
 

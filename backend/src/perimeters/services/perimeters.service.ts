@@ -171,7 +171,7 @@ export class PerimetersService {
     });
   }
 
-  async getBudgetStatus(id: string, userId: string, period?: string) {
+  async getBudgetStatus(id: string, userId: string) {
     await this.checkAccess(id, userId, 'viewer');
 
     const perimeter = await this.findOne(id, userId);
