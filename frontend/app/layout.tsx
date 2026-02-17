@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans } from 'next/font/google';
 import './globals.css';
+import { OfflineIndicator } from '@/components/layout/offline-indicator';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${dmSans.variable} font-sans antialiased`}>
         {children}
+        <OfflineIndicator />
       </body>
     </html>
   );
