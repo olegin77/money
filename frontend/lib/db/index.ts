@@ -94,11 +94,11 @@ export const offlineSync = {
   },
 
   async getUnsyncedExpenses() {
-    return db.offlineExpenses.where('synced').equals(0).toArray();
+    return db.offlineExpenses.filter(e => !e.synced).toArray();
   },
 
   async getUnsyncedIncomes() {
-    return db.offlineIncomes.where('synced').equals(0).toArray();
+    return db.offlineIncomes.filter(e => !e.synced).toArray();
   },
 
   async markExpenseSynced(tempId: string) {

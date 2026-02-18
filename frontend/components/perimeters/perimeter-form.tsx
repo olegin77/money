@@ -13,8 +13,15 @@ interface PerimeterFormProps {
 }
 
 const COLORS = [
-  '#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981',
-  '#3B82F6', '#EF4444', '#8B5CF6', '#14B8A6'
+  '#6366F1',
+  '#8B5CF6',
+  '#EC4899',
+  '#F59E0B',
+  '#10B981',
+  '#3B82F6',
+  '#EF4444',
+  '#8B5CF6',
+  '#14B8A6',
 ];
 
 const ICONS = ['💰', '🏠', '🚗', '🍔', '🎮', '👕', '💊', '✈️', '📱', '🎓'];
@@ -41,7 +48,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
   };
 
   const handleChange = (field: keyof CreatePerimeterData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -53,7 +60,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
           type="text"
           placeholder="e.g., Food & Dining"
           value={formData.name}
-          onChange={(e) => handleChange('name', e.target.value)}
+          onChange={e => handleChange('name', e.target.value)}
           required
           disabled={loading}
           maxLength={100}
@@ -67,7 +74,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
           type="text"
           placeholder="Brief description of this category"
           value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          onChange={e => handleChange('description', e.target.value)}
           disabled={loading}
           maxLength={500}
         />
@@ -77,14 +84,14 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
         <div className="space-y-2">
           <Label>Icon</Label>
           <div className="grid grid-cols-5 gap-2">
-            {ICONS.map((icon) => (
+            {ICONS.map(icon => (
               <button
                 key={icon}
                 type="button"
                 onClick={() => handleChange('icon', icon)}
-                className={`text-2xl p-2 rounded-lg transition-all ${
+                className={`rounded-lg p-2 text-2xl transition-all ${
                   formData.icon === icon
-                    ? 'ring-2 ring-primary bg-primary/10'
+                    ? 'ring-primary bg-primary/10 ring-2'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
                 disabled={loading}
@@ -98,13 +105,13 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
         <div className="space-y-2">
           <Label>Color</Label>
           <div className="grid grid-cols-3 gap-2">
-            {COLORS.map((color) => (
+            {COLORS.map(color => (
               <button
                 key={color}
                 type="button"
                 onClick={() => handleChange('color', color)}
                 className={`h-10 rounded-lg transition-all ${
-                  formData.color === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''
+                  formData.color === color ? 'ring-2 ring-gray-400 ring-offset-2' : ''
                 }`}
                 style={{ backgroundColor: color }}
                 disabled={loading}
@@ -114,13 +121,13 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
         </div>
       </div>
 
-      <div className="space-y-4 p-4 glass rounded-xl">
+      <div className="glass space-y-4 rounded-xl p-4">
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
             id="enableBudget"
             checked={formData.budget !== undefined}
-            onChange={(e) => handleChange('budget', e.target.checked ? 0 : undefined)}
+            onChange={e => handleChange('budget', e.target.checked ? 0 : undefined)}
             className="rounded"
           />
           <Label htmlFor="enableBudget" className="cursor-pointer">
@@ -139,7 +146,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
                 min="0"
                 placeholder="0.00"
                 value={formData.budget || ''}
-                onChange={(e) => handleChange('budget', parseFloat(e.target.value))}
+                onChange={e => handleChange('budget', parseFloat(e.target.value))}
                 disabled={loading}
               />
             </div>
@@ -149,8 +156,8 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
               <select
                 id="budgetPeriod"
                 value={formData.budgetPeriod}
-                onChange={(e) => handleChange('budgetPeriod', e.target.value)}
-                className="flex h-12 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-background px-4 py-3 text-sm"
+                onChange={e => handleChange('budgetPeriod', e.target.value)}
+                className="bg-background flex h-12 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm dark:border-gray-700"
                 disabled={loading}
               >
                 <option value="daily">Daily</option>

@@ -44,7 +44,7 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
     setSendingTo(userId);
     try {
       await onSendRequest(userId);
-      setResults(results.filter((u) => u.id !== userId));
+      setResults(results.filter(u => u.id !== userId));
     } finally {
       setSendingTo(null);
     }
@@ -56,19 +56,19 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
         type="text"
         placeholder="Search by username or email..."
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={e => setQuery(e.target.value)}
       />
 
       {loading && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Searching...</p>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">Searching...</p>
       )}
 
       {results.length > 0 && (
         <div className="space-y-2">
-          {results.map((user) => (
+          {results.map(user => (
             <Card key={user.id} className="flex items-center justify-between p-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 font-bold text-white">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -89,7 +89,7 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
       )}
 
       {query.length >= 2 && !loading && results.length === 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">No users found</p>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400">No users found</p>
       )}
     </div>
   );

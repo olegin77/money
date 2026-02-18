@@ -27,10 +27,10 @@ export function Sheet({ open, onOpenChange, children, side = 'bottom' }: SheetPr
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
-      <div className={cn('fixed glass p-6 animate-scale-in', sideClasses[side])}>
+      <div className={cn('glass animate-scale-in fixed p-6', sideClasses[side])}>
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10"
+          className="absolute right-4 top-4 rounded-full p-2 hover:bg-white/10"
         >
           <X size={20} />
         </button>
@@ -49,5 +49,5 @@ export function SheetTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function SheetDescription({ children }: { children: React.ReactNode }) {
-  return <p className="text-gray-600 dark:text-gray-400 mt-2">{children}</p>;
+  return <p className="mt-2 text-gray-600 dark:text-gray-400">{children}</p>;
 }

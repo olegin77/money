@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
+import { CacheModule } from '@nestjs/cache-manager';
 
 // Modules
 import { AuthModule } from './auth/auth.module';
@@ -72,6 +73,20 @@ import { AppService } from './app.service';
           limit: configService.get('THROTTLE_LIMIT_API') || 300,
         },
       ],
+    }),
+
+    // Cache (Redis)
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        store: 'redis',
+        host: configService.get('REDIS_HOST') || 'localhost',
+        port: configService.get('REDIS_PORT') || 6379,
+        password: configService.get('REDIS_PASSWORD'),
+        ttl: 60,
+      }),
     }),
 
     // Schedule (CRON)

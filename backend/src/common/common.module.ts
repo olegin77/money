@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventsGateway } from './gateways/events.gateway';
 import { NotificationService } from './services/notification.service';
+import { CacheService } from './services/cache.service';
 
 @Global()
 @Module({
@@ -14,7 +15,7 @@ import { NotificationService } from './services/notification.service';
       }),
     }),
   ],
-  providers: [EventsGateway, NotificationService],
-  exports: [EventsGateway, NotificationService],
+  providers: [EventsGateway, NotificationService, CacheService],
+  exports: [EventsGateway, NotificationService, CacheService],
 })
 export class CommonModule {}

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  BarChart,
   Bar,
   XAxis,
   YAxis,
@@ -25,7 +24,7 @@ interface MonthlyComparisonProps {
 }
 
 export function MonthlyComparison({ data }: MonthlyComparisonProps) {
-  const chartData = data.map((item) => ({
+  const chartData = data.map(item => ({
     ...item,
     savingsRate: parseFloat(item.savingsRate),
   }));

@@ -1,4 +1,5 @@
-import { Controller, Get, Patch, Body, UseGuards, Delete } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Delete, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { UsersService } from '../services/users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
@@ -45,5 +46,17 @@ export class UsersController {
       success: true,
       message: 'Account deleted successfully',
     };
+  }
+
+  // GDPR: Data portability export
+  @Get('me/export')
+  async exportData(@CurrentUser() currentUser: CurrentUserData, @Res() res: Response) {
+    const data = await this.usersService.exportUserData(currentUser.id);
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="fintrack-export-${currentUser.id}.json"`
+    );
+    res.send(JSON.stringify(data, null, 2));
   }
 }

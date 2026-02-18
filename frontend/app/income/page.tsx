@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { IncomeForm } from '@/components/income/income-form';
 import { IncomeList } from '@/components/income/income-list';
+import { ResponsiveContainer } from '@/components/layout/responsive-container';
+import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { incomeApi, Income, CreateIncomeData } from '@/lib/api/income';
 
 export default function IncomePage() {
@@ -49,7 +52,6 @@ export default function IncomePage() {
 
   const handleUpdate = async (data: CreateIncomeData) => {
     if (!editingIncome) return;
-
     try {
       await incomeApi.update(editingIncome.id, data);
       setEditingIncome(null);
@@ -62,7 +64,6 @@ export default function IncomePage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this income?')) return;
-
     try {
       await incomeApi.delete(id);
       loadIncomes();
@@ -71,91 +72,102 @@ export default function IncomePage() {
     }
   };
 
-  const handleEdit = (income: Income) => {
-    setEditingIncome(income);
-  };
-
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 text-4xl">⏳</div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      <ResponsiveContainer>
+        <div className="min-h-screen p-4 md:p-8">
+          <div className="mx-auto max-w-4xl space-y-4">
+            <Skeleton className="h-10 w-40" />
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-2xl" />
+            ))}
+          </div>
         </div>
-      </div>
+      </ResponsiveContainer>
     );
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Income</h1>
-            <p className="text-gray-600 dark:text-gray-400">Track your earnings</p>
+    <ResponsiveContainer>
+      <div className="min-h-screen p-4 md:p-8">
+        <div className="mx-auto max-w-4xl">
+          {/* Desktop Header */}
+          <div className="mb-8 hidden items-center justify-between md:flex">
+            <div>
+              <h1 className="font-satoshi mb-2 text-4xl font-bold">Income</h1>
+              <p className="text-gray-600 dark:text-gray-400">Track your earnings</p>
+            </div>
+            <Button onClick={() => setShowForm(true)}>+ New Income</Button>
           </div>
-          <Button onClick={() => setShowForm(true)}>
-            + New Income
-          </Button>
-        </div>
 
-        <IncomeList
-          incomes={incomes}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Previous
-            </Button>
-            <span className="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400">
-              Page {page} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-
-        {/* Create Dialog */}
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>New Income</DialogTitle>
-            </DialogHeader>
-            <IncomeForm
-              onSubmit={handleCreate}
-              onCancel={() => setShowForm(false)}
-            />
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit Dialog */}
-        <Dialog open={!!editingIncome} onOpenChange={(open) => !open && setEditingIncome(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Income</DialogTitle>
-            </DialogHeader>
-            {editingIncome && (
-              <IncomeForm
-                onSubmit={handleUpdate}
-                onCancel={() => setEditingIncome(null)}
-                initialData={editingIncome}
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-20 rounded-2xl" />
+              ))}
+            </div>
+          ) : (
+            <>
+              <IncomeList
+                incomes={incomes}
+                onEdit={income => setEditingIncome(income)}
+                onDelete={handleDelete}
               />
-            )}
-          </DialogContent>
-        </Dialog>
+
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <span className="flex items-center px-4 text-sm tabular-nums text-gray-600 dark:text-gray-400">
+                    Page {page} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* FAB for mobile */}
+      <FloatingActionButton onClick={() => setShowForm(true)} />
+
+      {/* Create Dialog */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Income</DialogTitle>
+          </DialogHeader>
+          <IncomeForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingIncome} onOpenChange={open => !open && setEditingIncome(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Income</DialogTitle>
+          </DialogHeader>
+          {editingIncome && (
+            <IncomeForm
+              onSubmit={handleUpdate}
+              onCancel={() => setEditingIncome(null)}
+              initialData={editingIncome}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </ResponsiveContainer>
   );
 }

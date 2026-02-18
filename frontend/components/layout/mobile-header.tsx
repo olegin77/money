@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { ArrowLeft, Menu, Bell } from 'lucide-react';
+import { ArrowLeft, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const pageTitles: Record<string, string> = {
@@ -18,7 +18,12 @@ export function MobileHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password') {
+  if (
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password'
+  ) {
     return null;
   }
 
@@ -26,16 +31,11 @@ export function MobileHeader() {
   const showBack = pathname !== '/dashboard';
 
   return (
-    <header className="sticky top-0 z-40 md:hidden glass border-b border-white/10 px-4 py-3">
+    <header className="glass sticky top-0 z-40 border-b border-white/10 px-4 py-3 md:hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {showBack && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.back()}
-              className="h-8 w-8"
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
               <ArrowLeft size={20} />
             </Button>
           )}

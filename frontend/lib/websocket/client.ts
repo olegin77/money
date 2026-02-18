@@ -1,8 +1,10 @@
 import { io, Socket } from 'socket.io-client';
 
+type EventCallback = (...args: unknown[]) => void;
+
 class WebSocketClient {
   private socket: Socket | null = null;
-  private listeners: Map<string, Set<Function>> = new Map();
+  private listeners: Map<string, Set<EventCallback>> = new Map();
 
   connect(token: string) {
     if (this.socket?.connected) {
@@ -20,21 +22,21 @@ class WebSocketClient {
     });
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected');
+      // WebSocket connected
     });
 
     this.socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
+      // WebSocket disconnected
     });
 
-    this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
+    this.socket.on('connect_error', () => {
+      // Connection error - will auto-retry
     });
 
-    // Set up event listeners
+    // Restore existing event listeners after reconnect
     this.listeners.forEach((callbacks, event) => {
-      callbacks.forEach((callback) => {
-        this.socket?.on(event, callback as any);
+      callbacks.forEach(callback => {
+        this.socket?.on(event, callback);
       });
     });
   }
@@ -46,28 +48,28 @@ class WebSocketClient {
     }
   }
 
-  on(event: string, callback: Function) {
+  on(event: string, callback: EventCallback) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
     this.listeners.get(event)!.add(callback);
 
     if (this.socket?.connected) {
-      this.socket.on(event, callback as any);
+      this.socket.on(event, callback);
     }
   }
 
-  off(event: string, callback?: Function) {
+  off(event: string, callback?: EventCallback) {
     if (callback) {
       this.listeners.get(event)?.delete(callback);
-      this.socket?.off(event, callback as any);
+      this.socket?.off(event, callback);
     } else {
       this.listeners.delete(event);
       this.socket?.off(event);
     }
   }
 
-  emit(event: string, data: any) {
+  emit(event: string, data: unknown) {
     this.socket?.emit(event, data);
   }
 

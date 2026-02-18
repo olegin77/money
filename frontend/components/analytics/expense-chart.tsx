@@ -1,6 +1,14 @@
 'use client';
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface ExpenseChartProps {
@@ -21,7 +29,7 @@ export function ExpenseChart({ data }: ExpenseChartProps) {
               dataKey="date"
               stroke="#9CA3AF"
               fontSize={12}
-              tickFormatter={(value) => {
+              tickFormatter={value => {
                 const date = new Date(value);
                 return `${date.getMonth() + 1}/${date.getDate()}`;
               }}

@@ -78,7 +78,7 @@ export class AuthService {
     ipAddress?: string
   ): Promise<{
     user: Partial<User>;
-    tokens: { accessToken: string; refreshToken: string };
+    tokens: { accessToken: string; refreshToken: string } | null;
     requires2FA?: boolean;
   }> {
     const { email, password, twoFaCode } = loginDto;

@@ -1,4 +1,4 @@
-import { db, offlineSync } from '@/lib/db';
+import { offlineSync } from '@/lib/db';
 import { expensesApi } from '@/lib/api/expenses';
 import { incomeApi } from '@/lib/api/income';
 
@@ -55,12 +55,10 @@ class SyncManager {
             await offlineSync.removeSyncItem(item.id!);
             success++;
           }
-        } catch (error: any) {
-          console.error(`Failed to sync ${item.type}:`, error);
-          await offlineSync.updateSyncItemRetry(
-            item.id!,
-            error.message || 'Sync failed'
-          );
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Sync failed';
+          console.error(`Failed to sync ${item.type}:`, err);
+          await offlineSync.updateSyncItemRetry(item.id!, message);
           failed++;
 
           // Remove after 5 failed attempts

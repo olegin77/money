@@ -11,7 +11,7 @@ import { useAuthStore } from '@/stores/auth.store';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useAuthStore(state => state.setUser);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -24,7 +24,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -68,7 +68,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="glass w-full max-w-md rounded-3xl p-8">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-3xl font-bold text-transparent">
             Create Account
           </h1>
           <p className="text-gray-600 dark:text-gray-400">Start tracking your finances today</p>
@@ -155,7 +155,7 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="rounded-xl bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400">
+            <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
               {error}
             </div>
           )}

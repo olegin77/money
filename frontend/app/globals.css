@@ -92,6 +92,19 @@
     box-shadow: var(--shadow-2xl);
   }
 
+  /* Tabular Numbers (TZ requirement: font-variant-numeric: tabular-nums for all financial amounts) */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Number display with monospace alignment */
+  .money {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    font-family: var(--font-satoshi), 'Inter', monospace;
+  }
+
   /* Smooth Transitions */
   .transition-smooth {
     transition: all var(--transition-base);

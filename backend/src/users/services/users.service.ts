@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { AdminUpdateUserDto } from '../dto/admin-update-user.dto';
 
@@ -8,7 +8,8 @@ import { AdminUpdateUserDto } from '../dto/admin-update-user.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly dataSource: DataSource
   ) {}
 
   async findById(id: string): Promise<User | null> {
@@ -105,5 +106,35 @@ export class UsersService {
   async adminUpdate(id: string, dto: AdminUpdateUserDto): Promise<User> {
     await this.userRepository.update(id, dto);
     return this.findById(id);
+  }
+
+  // GDPR: Export all user data (data portability)
+  async exportUserData(userId: string): Promise<object> {
+    const user = await this.findById(userId);
+    const { password, twoFaSecret, ...safeUser } = user;
+
+    // Fetch all related data
+    const [expenses, incomes, perimeters] = await Promise.all([
+      this.dataSource.query(
+        'SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC',
+        [userId]
+      ),
+      this.dataSource.query(
+        'SELECT * FROM income_records WHERE user_id = $1 ORDER BY date DESC',
+        [userId]
+      ),
+      this.dataSource.query(
+        'SELECT * FROM perimeters WHERE owner_id = $1',
+        [userId]
+      ),
+    ]);
+
+    return {
+      exportedAt: new Date().toISOString(),
+      user: safeUser,
+      expenses,
+      incomes,
+      perimeters,
+    };
   }
 }

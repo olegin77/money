@@ -11,7 +11,7 @@ import { useAuthStore } from '@/stores/auth.store';
 
 export default function LoginPage() {
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useAuthStore(state => state.setUser);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -52,7 +52,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="glass w-full max-w-md rounded-3xl p-8">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-3xl font-bold text-transparent">
             Welcome Back
           </h1>
           <p className="text-gray-600 dark:text-gray-400">Sign in to your account</p>
@@ -68,7 +68,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                   disabled={loading}
                 />
@@ -77,10 +77,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm text-indigo-500 hover:underline"
-                  >
+                  <Link href="/forgot-password" className="text-sm text-indigo-500 hover:underline">
                     Forgot password?
                   </Link>
                 </div>
@@ -89,7 +86,7 @@ export default function LoginPage() {
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
                   disabled={loading}
                 />
@@ -104,7 +101,7 @@ export default function LoginPage() {
                 placeholder="000000"
                 maxLength={6}
                 value={twoFaCode}
-                onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
+                onChange={e => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
                 required
                 disabled={loading}
                 autoFocus
@@ -116,7 +113,7 @@ export default function LoginPage() {
           )}
 
           {error && (
-            <div className="rounded-xl bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400">
+            <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
               {error}
             </div>
           )}

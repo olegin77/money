@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import { wsClient } from '@/lib/websocket/client';
 import { useAuthStore } from '@/stores/auth.store';
 
+type EventCallback = (...args: unknown[]) => void;
+
 export function useWebSocket() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -20,15 +22,15 @@ export function useWebSocket() {
     };
   }, [isAuthenticated]);
 
-  const on = (event: string, callback: Function) => {
+  const on = (event: string, callback: EventCallback) => {
     wsClient.on(event, callback);
   };
 
-  const off = (event: string, callback?: Function) => {
+  const off = (event: string, callback?: EventCallback) => {
     wsClient.off(event, callback);
   };
 
-  const emit = (event: string, data: any) => {
+  const emit = (event: string, data: unknown) => {
     wsClient.emit(event, data);
   };
 

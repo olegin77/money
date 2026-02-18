@@ -12,13 +12,13 @@ export function OfflineIndicator() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <div className="glass rounded-2xl p-4 shadow-lg max-w-sm">
+      <div className="glass max-w-sm rounded-2xl p-4 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'} animate-pulse`} />
+          <div
+            className={`h-3 w-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'} animate-pulse`}
+          />
           <div className="flex-1">
-            <p className="font-semibold text-sm">
-              {isOnline ? 'Online' : 'Offline Mode'}
-            </p>
+            <p className="text-sm font-semibold">{isOnline ? 'Online' : 'Offline Mode'}</p>
             {syncStatus.pending > 0 && (
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 {syncStatus.pending} item{syncStatus.pending > 1 ? 's' : ''} pending sync
@@ -30,9 +30,7 @@ export function OfflineIndicator() {
               Sync Now
             </Button>
           )}
-          {syncStatus.isSyncing && (
-            <div className="text-sm text-gray-500">Syncing...</div>
-          )}
+          {syncStatus.isSyncing && <div className="text-sm text-gray-500">Syncing...</div>}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface CategoryBreakdownProps {
@@ -14,7 +14,7 @@ interface CategoryBreakdownProps {
 const COLORS = ['#6366F1', '#8B5CF6', '#A78BFA', '#EC4899', '#F472B6', '#FB923C', '#FBBF24'];
 
 export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
-  const chartData = data.map((item) => ({
+  const chartData = data.map(item => ({
     name: item.categoryId === 'uncategorized' ? 'Uncategorized' : item.categoryId,
     value: item.total,
     percentage: item.percentage,
@@ -27,7 +27,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             No expense data available
           </div>
         ) : (
@@ -64,7 +64,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                 <div key={item.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div
-                      className="w-3 h-3 rounded-full"
+                      className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
                     <span className="text-gray-700 dark:text-gray-300">{item.name}</span>
@@ -73,7 +73,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                     <span className="text-gray-600 dark:text-gray-400">
                       ${item.value.toFixed(2)}
                     </span>
-                    <span className="text-gray-500 dark:text-gray-500 w-12 text-right">
+                    <span className="w-12 text-right text-gray-500 dark:text-gray-500">
                       {item.percentage}%
                     </span>
                   </div>

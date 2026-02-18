@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Perimeter, PerimeterShare, perimetersApi } from '@/lib/api/perimeters';
-import { authApi } from '@/lib/api/auth';
 
 interface ShareDialogProps {
   perimeter: Perimeter | null;
@@ -81,7 +80,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
 
         <div className="space-y-6">
           {/* Add User Form */}
-          <div className="space-y-4 p-4 glass rounded-xl">
+          <div className="glass space-y-4 rounded-xl p-4">
             <div className="space-y-2">
               <Label htmlFor="email">User Email</Label>
               <Input
@@ -89,7 +88,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
                 type="email"
                 placeholder="user@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -99,8 +98,8 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
               <select
                 id="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as any)}
-                className="flex h-12 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-background px-4 py-3 text-sm"
+                onChange={e => setRole(e.target.value as any)}
+                className="bg-background flex h-12 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm dark:border-gray-700"
                 disabled={loading}
               >
                 <option value="viewer">Viewer (View only)</option>
@@ -117,13 +116,13 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
           {/* Current Shares */}
           {shares.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-semibold text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
                 Shared with ({shares.length})
               </h3>
-              {shares.map((share) => (
+              {shares.map(share => (
                 <div
                   key={share.id}
-                  className="flex items-center justify-between p-3 glass rounded-xl"
+                  className="glass flex items-center justify-between rounded-xl p-3"
                 >
                   <div>
                     <p className="font-medium">{share.sharedWith.username}</p>
@@ -132,7 +131,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">
+                    <span className="bg-primary/20 text-primary rounded-full px-2 py-1 text-xs">
                       {share.role}
                     </span>
                     <Button
@@ -150,7 +149,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
           )}
 
           {shares.length === 0 && (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
               Not shared with anyone yet
             </div>
           )}

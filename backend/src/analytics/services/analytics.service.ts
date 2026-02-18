@@ -93,7 +93,10 @@ export class AnalyticsService {
     }));
   }
 
-  async getExpensesTrend(userId: string, startDate: string, endDate: string, groupBy = 'day') {
+  async getExpensesTrend(userId: string, startDate?: string, endDate?: string, groupBy = 'day') {
+    const range = this.calculateDateRange('month');
+    startDate = startDate || range.start;
+    endDate = endDate || range.end;
     const expenses = await this.expenseRepository
       .createQueryBuilder('expense')
       .where('expense.userId = :userId', { userId })
@@ -104,7 +107,10 @@ export class AnalyticsService {
     return this.groupByPeriod(expenses, groupBy);
   }
 
-  async getIncomeTrend(userId: string, startDate: string, endDate: string, groupBy = 'day') {
+  async getIncomeTrend(userId: string, startDate?: string, endDate?: string, groupBy = 'day') {
+    const range = this.calculateDateRange('month');
+    startDate = startDate || range.start;
+    endDate = endDate || range.end;
     const incomes = await this.incomeRepository
       .createQueryBuilder('income')
       .where('income.userId = :userId', { userId })
@@ -115,7 +121,10 @@ export class AnalyticsService {
     return this.groupByPeriod(incomes, groupBy);
   }
 
-  async getCashFlow(userId: string, startDate: string, endDate: string) {
+  async getCashFlow(userId: string, startDate?: string, endDate?: string) {
+    const range = this.calculateDateRange('month');
+    startDate = startDate || range.start;
+    endDate = endDate || range.end;
     const [expenses, incomes] = await Promise.all([
       this.getExpensesInRange(userId, startDate, endDate),
       this.getIncomesInRange(userId, startDate, endDate),
@@ -258,6 +267,10 @@ export class AnalyticsService {
         break;
       case 'year':
         start = startOfYear(now);
+        break;
+      case 'all':
+        // Return a wide range covering all historical data
+        start = new Date('2000-01-01');
         break;
       default:
         start = subDays(now, 30); // Default to last 30 days

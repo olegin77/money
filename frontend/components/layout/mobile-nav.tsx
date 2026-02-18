@@ -3,15 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import {
-  Home,
-  TrendingDown,
-  TrendingUp,
-  BarChart3,
-  FolderOpen,
-  Users,
-  Settings,
-} from 'lucide-react';
+import { Home, TrendingDown, TrendingUp, BarChart3, FolderOpen, Users } from 'lucide-react';
 
 const navigation = [
   { name: 'Home', href: '/dashboard', icon: Home },
@@ -25,14 +17,19 @@ const navigation = [
 export function MobileNav() {
   const pathname = usePathname();
 
-  if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password') {
+  if (
+    pathname === '/' ||
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password'
+  ) {
     return null;
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-white/10">
+    <nav className="glass fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 md:hidden">
       <div className="flex items-center justify-around px-2 py-3">
-        {navigation.map((item) => {
+        {navigation.map(item => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
 
@@ -41,10 +38,10 @@ export function MobileNav() {
               key={item.name}
               href={item.href}
               className={cn(
-                'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all',
+                'flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all',
                 isActive
                   ? 'text-primary bg-primary/10'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-primary/5'
+                  : 'hover:text-primary hover:bg-primary/5 text-gray-600 dark:text-gray-400'
               )}
             >
               <Icon size={20} strokeWidth={2} />

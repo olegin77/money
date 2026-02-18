@@ -16,9 +16,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-50 max-h-[90vh] w-full max-w-lg overflow-y-auto">
-        {children}
-      </div>
+      <div className="relative z-50 max-h-[90vh] w-full max-w-lg overflow-y-auto">{children}</div>
     </div>
   );
 }
@@ -29,11 +27,7 @@ interface DialogContentProps {
 }
 
 export function DialogContent({ children, className }: DialogContentProps) {
-  return (
-    <div className={cn('glass rounded-3xl p-8 m-4', className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn('glass m-4 rounded-3xl p-8', className)}>{children}</div>;
 }
 
 interface DialogHeaderProps {
@@ -57,5 +51,5 @@ interface DialogDescriptionProps {
 }
 
 export function DialogDescription({ children }: DialogDescriptionProps) {
-  return <p className="text-gray-600 dark:text-gray-400 mt-2">{children}</p>;
+  return <p className="mt-2 text-gray-600 dark:text-gray-400">{children}</p>;
 }

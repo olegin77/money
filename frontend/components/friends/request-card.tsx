@@ -15,15 +15,13 @@ export function RequestCard({ request, onAccept, onReject }: RequestCardProps) {
   return (
     <Card className="flex items-center justify-between p-4">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-lg font-bold text-white">
           {request.requester.username.charAt(0).toUpperCase()}
         </div>
         <div>
           <p className="font-semibold">{request.requester.username}</p>
           {request.requester.fullName && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {request.requester.fullName}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{request.requester.fullName}</p>
           )}
           <p className="text-xs text-gray-500 dark:text-gray-500">
             {format(new Date(request.createdAt), 'MMM dd, yyyy')}
@@ -38,11 +36,7 @@ export function RequestCard({ request, onAccept, onReject }: RequestCardProps) {
         >
           Accept
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onReject(request.id)}
-        >
+        <Button size="sm" variant="outline" onClick={() => onReject(request.id)}>
           Decline
         </Button>
       </div>

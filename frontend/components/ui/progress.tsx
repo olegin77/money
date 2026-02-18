@@ -19,11 +19,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     };
 
     return (
-      <div
-        ref={ref}
-        className={cn('progress-bar', className)}
-        {...props}
-      >
+      <div ref={ref} className={cn('progress-bar', className)} {...props}>
         <div
           className={cn('progress-fill', variantClasses[variant])}
           style={{ width: `${percentage}%` }}

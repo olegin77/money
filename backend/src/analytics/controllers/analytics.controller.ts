@@ -118,25 +118,33 @@ export class AnalyticsController {
 
   private getDateRangeForPeriod(period: string): { start: string; end: string } {
     const now = new Date();
+    const end = new Date();
     let start: Date;
 
     switch (period) {
       case 'week':
-        start = new Date(now.setDate(now.getDate() - 7));
+        start = new Date(now);
+        start.setDate(start.getDate() - 7);
         break;
       case 'month':
-        start = new Date(now.setMonth(now.getMonth() - 1));
+        start = new Date(now);
+        start.setMonth(start.getMonth() - 1);
         break;
       case 'year':
-        start = new Date(now.setFullYear(now.getFullYear() - 1));
+        start = new Date(now);
+        start.setFullYear(start.getFullYear() - 1);
+        break;
+      case 'all':
+        start = new Date('2000-01-01');
         break;
       default:
-        start = new Date(now.setDate(now.getDate() - 30));
+        start = new Date(now);
+        start.setDate(start.getDate() - 30);
     }
 
     return {
       start: start.toISOString().split('T')[0],
-      end: new Date().toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
     };
   }
 }

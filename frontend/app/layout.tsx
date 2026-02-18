@@ -34,7 +34,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: 'FinTrack Pro - Data Serenity Finance Management',
-  description: 'Modern finance management application with Data Serenity design - Track expenses, manage budgets, analyze spending with beautiful charts',
+  description:
+    'Modern finance management application with Data Serenity design - Track expenses, manage budgets, analyze spending with beautiful charts',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

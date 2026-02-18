@@ -35,7 +35,7 @@ export function CashFlowChart({ data }: CashFlowChartProps) {
               dataKey="date"
               stroke="#9CA3AF"
               fontSize={12}
-              tickFormatter={(value) => {
+              tickFormatter={value => {
                 const date = new Date(value);
                 return `${date.getMonth() + 1}/${date.getDate()}`;
               }}

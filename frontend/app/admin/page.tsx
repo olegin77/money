@@ -94,13 +94,13 @@ export default function AdminPage() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Admin Panel</h1>
+          <h1 className="mb-2 text-4xl font-bold">Admin Panel</h1>
           <p className="text-gray-600 dark:text-gray-400">System management & user control</p>
         </div>
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
             <StatCard
               title="Total Users"
               value={stats.totalUsers}
@@ -124,38 +124,38 @@ export default function AdminPage() {
                 type="text"
                 placeholder="Search users..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 className="max-w-xs"
               />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {users.map((userData) => (
+              {users.map(userData => (
                 <div
                   key={userData.id}
-                  className="flex items-center justify-between p-4 glass rounded-xl"
+                  className="glass flex items-center justify-between rounded-xl p-4"
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="mb-1 flex items-center gap-2">
                       <p className="font-semibold">{userData.username}</p>
                       {userData.isAdmin && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-500">
+                        <span className="rounded-full bg-purple-500/20 px-2 py-1 text-xs text-purple-500">
                           Admin
                         </span>
                       )}
                       {!userData.isActive && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-500">
+                        <span className="rounded-full bg-red-500/20 px-2 py-1 text-xs text-red-500">
                           Inactive
                         </span>
                       )}
                       {userData.emailVerified && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-500">
+                        <span className="rounded-full bg-green-500/20 px-2 py-1 text-xs text-green-500">
                           Verified
                         </span>
                       )}
                       {userData.twoFaEnabled && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-500">
+                        <span className="rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-500">
                           2FA
                         </span>
                       )}
@@ -199,7 +199,7 @@ export default function AdminPage() {
               <div className="mt-6 flex justify-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
                   Previous
@@ -209,7 +209,7 @@ export default function AdminPage() {
                 </span>
                 <Button
                   variant="outline"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                 >
                   Next

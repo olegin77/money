@@ -14,10 +14,10 @@ interface ExpenseListProps {
 export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
-      <Card className="text-center py-12">
-        <div className="text-5xl mb-4">💰</div>
+      <Card className="py-12 text-center">
+        <div className="mb-4 text-5xl">💰</div>
         <p className="text-gray-600 dark:text-gray-400">No expenses yet</p>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">
           Create your first expense to get started
         </p>
       </Card>
@@ -26,21 +26,15 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
 
   return (
     <div className="space-y-3">
-      {expenses.map((expense) => (
+      {expenses.map(expense => (
         <Card key={expense.id} className="flex items-center justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <span className="text-2xl font-bold text-red-500">
-                -${expense.amount.toFixed(2)}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {expense.currency}
-              </span>
+            <div className="mb-1 flex items-center gap-3">
+              <span className="text-2xl font-bold text-red-500">-${expense.amount.toFixed(2)}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{expense.currency}</span>
             </div>
             {expense.description && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                {expense.description}
-              </p>
+              <p className="mb-1 text-sm text-gray-700 dark:text-gray-300">{expense.description}</p>
             )}
             <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
               <span>📅 {format(new Date(expense.date), 'MMM dd, yyyy')}</span>
@@ -48,12 +42,8 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
               {expense.location && <span>📍 {expense.location}</span>}
             </div>
           </div>
-          <div className="flex gap-2 ml-4">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onEdit(expense)}
-            >
+          <div className="ml-4 flex gap-2">
+            <Button size="sm" variant="ghost" onClick={() => onEdit(expense)}>
               Edit
             </Button>
             <Button

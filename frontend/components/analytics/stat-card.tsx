@@ -21,15 +21,13 @@ export function StatCard({ title, value, subtitle, trend, icon, className }: Sta
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{title}</p>
-            <p className="text-3xl font-bold mb-1">{value}</p>
-            {subtitle && (
-              <p className="text-xs text-gray-500 dark:text-gray-500">{subtitle}</p>
-            )}
+            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">{title}</p>
+            <p className="mb-1 text-3xl font-bold">{value}</p>
+            {subtitle && <p className="text-xs text-gray-500 dark:text-gray-500">{subtitle}</p>}
             {trend && (
               <div
                 className={cn(
-                  'text-xs font-medium mt-2',
+                  'mt-2 text-xs font-medium',
                   trend.isPositive ? 'text-green-500' : 'text-red-500'
                 )}
               >

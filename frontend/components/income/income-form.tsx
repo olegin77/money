@@ -34,7 +34,7 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
   };
 
   const handleChange = (field: keyof CreateIncomeData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -49,7 +49,7 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
             min="0.01"
             placeholder="0.00"
             value={formData.amount || ''}
-            onChange={(e) => handleChange('amount', parseFloat(e.target.value))}
+            onChange={e => handleChange('amount', parseFloat(e.target.value))}
             required
             disabled={loading}
           />
@@ -63,7 +63,7 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
             placeholder="USD"
             maxLength={3}
             value={formData.currency}
-            onChange={(e) => handleChange('currency', e.target.value.toUpperCase())}
+            onChange={e => handleChange('currency', e.target.value.toUpperCase())}
             disabled={loading}
           />
         </div>
@@ -77,7 +77,7 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
           placeholder="Monthly salary, freelance work, etc."
           maxLength={500}
           value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          onChange={e => handleChange('description', e.target.value)}
           disabled={loading}
         />
       </div>
@@ -90,7 +90,7 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
           placeholder="Company name, client, etc."
           maxLength={100}
           value={formData.source}
-          onChange={(e) => handleChange('source', e.target.value)}
+          onChange={e => handleChange('source', e.target.value)}
           disabled={loading}
         />
       </div>
@@ -101,7 +101,7 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
           id="date"
           type="date"
           value={formData.date}
-          onChange={(e) => handleChange('date', e.target.value)}
+          onChange={e => handleChange('date', e.target.value)}
           required
           disabled={loading}
         />

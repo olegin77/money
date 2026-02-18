@@ -35,7 +35,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
   };
 
   const handleChange = (field: keyof CreateExpenseData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -50,7 +50,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
             min="0.01"
             placeholder="0.00"
             value={formData.amount || ''}
-            onChange={(e) => handleChange('amount', parseFloat(e.target.value))}
+            onChange={e => handleChange('amount', parseFloat(e.target.value))}
             required
             disabled={loading}
           />
@@ -64,7 +64,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
             placeholder="USD"
             maxLength={3}
             value={formData.currency}
-            onChange={(e) => handleChange('currency', e.target.value.toUpperCase())}
+            onChange={e => handleChange('currency', e.target.value.toUpperCase())}
             disabled={loading}
           />
         </div>
@@ -78,7 +78,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
           placeholder="Groceries, coffee, etc."
           maxLength={500}
           value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          onChange={e => handleChange('description', e.target.value)}
           disabled={loading}
         />
       </div>
@@ -89,7 +89,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
           id="date"
           type="date"
           value={formData.date}
-          onChange={(e) => handleChange('date', e.target.value)}
+          onChange={e => handleChange('date', e.target.value)}
           required
           disabled={loading}
         />
@@ -103,7 +103,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
           placeholder="Credit card, cash, etc."
           maxLength={100}
           value={formData.paymentMethod}
-          onChange={(e) => handleChange('paymentMethod', e.target.value)}
+          onChange={e => handleChange('paymentMethod', e.target.value)}
           disabled={loading}
         />
       </div>
@@ -116,7 +116,7 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
           placeholder="Store name or address"
           maxLength={200}
           value={formData.location}
-          onChange={(e) => handleChange('location', e.target.value)}
+          onChange={e => handleChange('location', e.target.value)}
           disabled={loading}
         />
       </div>

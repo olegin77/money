@@ -13,9 +13,7 @@ export function ResponsiveContainer({ children, className }: ResponsiveContainer
   return (
     <>
       <MobileHeader />
-      <main className={cn('pb-20 md:pb-8', className)}>
-        {children}
-      </main>
+      <main className={cn('pb-20 md:pb-8', className)}>{children}</main>
       <MobileNav />
     </>
   );

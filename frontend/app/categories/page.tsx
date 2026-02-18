@@ -7,12 +7,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { PerimeterForm } from '@/components/perimeters/perimeter-form';
 import { PerimeterCard } from '@/components/perimeters/perimeter-card';
 import { ShareDialog } from '@/components/perimeters/share-dialog';
+import { ResponsiveContainer } from '@/components/layout/responsive-container';
+import { FloatingActionButton } from '@/components/ui/floating-action-button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { perimetersApi, Perimeter, CreatePerimeterData } from '@/lib/api/perimeters';
 
 export default function CategoriesPage() {
   const { isLoading: authLoading } = useAuth(true);
   const [perimeters, setPerimeters] = useState<Perimeter[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPerimeter, setEditingPerimeter] = useState<Perimeter | null>(null);
   const [sharingPerimeter, setSharingPerimeter] = useState<Perimeter | null>(null);
@@ -70,117 +73,126 @@ export default function CategoriesPage() {
     }
   };
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 text-4xl">⏳</div>
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      <ResponsiveContainer>
+        <div className="min-h-screen p-4 md:p-8">
+          <div className="mx-auto max-w-6xl space-y-4">
+            <Skeleton className="h-10 w-48" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-40 rounded-2xl" />
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      </ResponsiveContainer>
     );
   }
 
-  const ownedPerimeters = perimeters.filter((p) => !p.sharedRole);
-  const sharedPerimeters = perimeters.filter((p) => p.sharedRole);
+  const ownedPerimeters = perimeters.filter(p => !p.sharedRole);
+  const sharedPerimeters = perimeters.filter(p => p.sharedRole);
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Categories</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Organize your expenses with budgets
-            </p>
+    <ResponsiveContainer>
+      <div className="min-h-screen p-4 md:p-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8 hidden items-center justify-between md:flex">
+            <div>
+              <h1 className="font-satoshi mb-2 text-4xl font-bold">Categories</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Organize your expenses with budgets
+              </p>
+            </div>
+            <Button onClick={() => setShowForm(true)}>+ New Category</Button>
           </div>
-          <Button onClick={() => setShowForm(true)}>+ New Category</Button>
+
+          {/* Owned Categories */}
+          {ownedPerimeters.length > 0 && (
+            <div className="mb-8">
+              <h2 className="mb-4 text-xl font-bold">My Categories</h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {ownedPerimeters.map(perimeter => (
+                  <PerimeterCard
+                    key={perimeter.id}
+                    perimeter={perimeter}
+                    onEdit={setEditingPerimeter}
+                    onDelete={handleDelete}
+                    onShare={setSharingPerimeter}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Shared Categories */}
+          {sharedPerimeters.length > 0 && (
+            <div className="mb-8">
+              <h2 className="mb-4 text-xl font-bold">Shared with Me</h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {sharedPerimeters.map(perimeter => (
+                  <PerimeterCard
+                    key={perimeter.id}
+                    perimeter={perimeter}
+                    onEdit={setEditingPerimeter}
+                    onDelete={handleDelete}
+                    onShare={setSharingPerimeter}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {perimeters.length === 0 && (
+            <div className="glass rounded-3xl p-12 text-center">
+              <div className="mb-4 text-5xl">📁</div>
+              <p className="mb-2 text-xl font-semibold">No categories yet</p>
+              <p className="mb-6 text-gray-600 dark:text-gray-400">
+                Create your first category to organize expenses with budgets
+              </p>
+              <Button onClick={() => setShowForm(true)}>Create Category</Button>
+            </div>
+          )}
+
+          {/* Create Dialog */}
+          <Dialog open={showForm} onOpenChange={setShowForm}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>New Category</DialogTitle>
+              </DialogHeader>
+              <PerimeterForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit Dialog */}
+          <Dialog
+            open={!!editingPerimeter}
+            onOpenChange={open => !open && setEditingPerimeter(null)}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Category</DialogTitle>
+              </DialogHeader>
+              {editingPerimeter && (
+                <PerimeterForm
+                  onSubmit={handleUpdate}
+                  onCancel={() => setEditingPerimeter(null)}
+                  initialData={editingPerimeter}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Share Dialog */}
+          <ShareDialog
+            perimeter={sharingPerimeter}
+            open={!!sharingPerimeter}
+            onOpenChange={open => !open && setSharingPerimeter(null)}
+          />
         </div>
-
-        {/* Owned Categories */}
-        {ownedPerimeters.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">My Categories</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {ownedPerimeters.map((perimeter) => (
-                <PerimeterCard
-                  key={perimeter.id}
-                  perimeter={perimeter}
-                  onEdit={setEditingPerimeter}
-                  onDelete={handleDelete}
-                  onShare={setSharingPerimeter}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Shared Categories */}
-        {sharedPerimeters.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Shared with Me</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sharedPerimeters.map((perimeter) => (
-                <PerimeterCard
-                  key={perimeter.id}
-                  perimeter={perimeter}
-                  onEdit={setEditingPerimeter}
-                  onDelete={handleDelete}
-                  onShare={setSharingPerimeter}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {perimeters.length === 0 && (
-          <div className="glass rounded-3xl p-12 text-center">
-            <div className="text-5xl mb-4">📁</div>
-            <p className="text-xl font-semibold mb-2">No categories yet</p>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Create your first category to organize expenses with budgets
-            </p>
-            <Button onClick={() => setShowForm(true)}>Create Category</Button>
-          </div>
-        )}
-
-        {/* Create Dialog */}
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>New Category</DialogTitle>
-            </DialogHeader>
-            <PerimeterForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit Dialog */}
-        <Dialog
-          open={!!editingPerimeter}
-          onOpenChange={(open) => !open && setEditingPerimeter(null)}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Category</DialogTitle>
-            </DialogHeader>
-            {editingPerimeter && (
-              <PerimeterForm
-                onSubmit={handleUpdate}
-                onCancel={() => setEditingPerimeter(null)}
-                initialData={editingPerimeter}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Share Dialog */}
-        <ShareDialog
-          perimeter={sharingPerimeter}
-          open={!!sharingPerimeter}
-          onOpenChange={(open) => !open && setSharingPerimeter(null)}
-        />
       </div>
-    </div>
+      <FloatingActionButton onClick={() => setShowForm(true)} />
+    </ResponsiveContainer>
   );
 }
