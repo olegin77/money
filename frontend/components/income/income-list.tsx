@@ -4,7 +4,8 @@ import { format } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Income } from '@/lib/api/income';
-import { TrendingUp } from 'lucide-react';
+import { useT } from '@/hooks/use-t';
+import { RefreshCw, TrendingUp } from 'lucide-react';
 
 interface IncomeListProps {
   incomes: Income[];
@@ -12,15 +13,31 @@ interface IncomeListProps {
   onDelete: (id: string) => void;
 }
 
+function recurringLabel(t: ReturnType<typeof useT>, rule?: string): string {
+  if (!rule) return t('recurring_monthly');
+  try {
+    const r = JSON.parse(rule);
+    if (r.period === 'monthly' && r.day) {
+      return t('recurring_monthly_day').replace('{day}', String(r.day));
+    }
+    const key = `recurring_${r.period}` as Parameters<typeof t>[0];
+    return t(key);
+  } catch {
+    return t('recurring_monthly');
+  }
+}
+
 export function IncomeList({ incomes, onEdit, onDelete }: IncomeListProps) {
+  const t = useT();
+
   if (incomes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
           <TrendingUp size={20} className="text-muted-foreground" />
         </div>
-        <p className="text-foreground mb-1 text-base font-semibold">No income records yet</p>
-        <p className="text-muted-foreground text-sm">Add your first income to get started</p>
+        <p className="text-foreground mb-1 text-base font-semibold">{t('inc_empty')}</p>
+        <p className="text-muted-foreground text-sm">{t('inc_empty_sub')}</p>
       </div>
     );
   }
@@ -33,9 +50,15 @@ export function IncomeList({ incomes, onEdit, onDelete }: IncomeListProps) {
             <div className="min-w-0 flex-1">
               <div className="mb-0.5 flex items-baseline gap-2">
                 <span className="text-sm font-semibold tabular-nums text-emerald-500">
-                  +${income.amount.toFixed(2)}
+                  +{parseFloat(String(income.amount)).toFixed(2)}
                 </span>
                 <span className="text-muted-foreground text-xs">{income.currency}</span>
+                {income.isRecurring && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
+                    <RefreshCw size={10} />
+                    {recurringLabel(t, income.recurrenceRule)}
+                  </span>
+                )}
               </div>
               {income.description && (
                 <p className="text-foreground truncate text-sm">{income.description}</p>

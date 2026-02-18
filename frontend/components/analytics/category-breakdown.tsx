@@ -70,7 +70,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                     <span className="text-foreground max-w-[120px] truncate">{item.name}</span>
                   </div>
                   <div className="text-muted-foreground flex shrink-0 gap-3">
-                    <span className="tabular-nums">${item.value.toFixed(2)}</span>
+                    <span className="tabular-nums">${Number(item.value).toFixed(2)}</span>
                     <span className="w-10 text-right tabular-nums">{item.percentage}%</span>
                   </div>
                 </div>

@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
           <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
             <StatCard
               title={t('ana_balance')}
-              value={`$${summary.balance.toFixed(2)}`}
+              value={`$${Number(summary.balance).toFixed(2)}`}
               className={[
                 'col-span-2 md:col-span-1',
                 summary.balance >= 0
@@ -129,20 +129,20 @@ export default function AnalyticsPage() {
             />
             <StatCard
               title={t('ana_expenses')}
-              value={`$${summary.totalExpenses.toFixed(2)}`}
+              value={`$${Number(summary.totalExpenses).toFixed(2)}`}
               subtitle={`${summary.expenseCount} tx`}
               icon="📊"
             />
             <StatCard
               title={t('ana_income')}
-              value={`$${summary.totalIncome.toFixed(2)}`}
+              value={`$${Number(summary.totalIncome).toFixed(2)}`}
               subtitle={`${summary.incomeCount} tx`}
               icon="💵"
             />
             <StatCard
               title="Savings %"
               value={`${Number(summary.savingsRate).toFixed(1)}%`}
-              subtitle={`Avg: $${summary.avgIncome.toFixed(2)}`}
+              subtitle={`Avg: $${Number(summary.avgIncome).toFixed(2)}`}
               icon="📈"
             />
           </div>

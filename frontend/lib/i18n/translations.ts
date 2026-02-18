@@ -157,6 +157,54 @@ const en = {
   set_danger: 'Danger zone',
   set_delete_account: 'Delete account',
   set_delete_confirm: 'Type DELETE to confirm',
+
+  // Form shared
+  form_presets: 'Quick presets',
+  form_amount: 'Amount',
+  form_currency: 'Currency',
+  form_description: 'Description',
+  form_description_ph: 'What was this for?',
+  form_date: 'Date',
+  form_recurring: 'Recurring',
+  form_recurring_hint: 'Repeat automatically on a schedule',
+  form_recurring_day: 'Day of month',
+  form_period_daily: 'Daily',
+  form_period_weekly: 'Weekly',
+  form_period_monthly: 'Monthly',
+  form_period_yearly: 'Yearly',
+  form_period_per_year: 'per year',
+  form_payment_method: 'Payment',
+  form_payment_method_ph: 'Card, cash…',
+  form_location: 'Location',
+  form_location_ph: 'Store name…',
+  form_source: 'Source',
+  form_source_ph: 'Company, client…',
+  form_cancel: 'Cancel',
+  exp_save: 'Save expense',
+  inc_save: 'Save income',
+
+  // Expense presets
+  preset_groceries: 'Groceries',
+  preset_cafe: 'Cafe',
+  preset_transport: 'Transport',
+  preset_rent_exp: 'Rent',
+  preset_utilities: 'Utilities',
+  preset_health: 'Health',
+  preset_entertainment: 'Entertainment',
+
+  // Income presets
+  preset_salary: 'Salary',
+  preset_freelance: 'Freelance',
+  preset_rental: 'Rental',
+  preset_dividends: 'Dividends',
+  preset_gift: 'Gift',
+
+  // Recurring badge
+  recurring_daily: 'Daily',
+  recurring_weekly: 'Weekly',
+  recurring_monthly_day: 'Monthly, {day}th',
+  recurring_monthly: 'Monthly',
+  recurring_yearly: 'Yearly',
 };
 
 const ru: typeof en = {
@@ -315,6 +363,54 @@ const ru: typeof en = {
   set_danger: 'Опасная зона',
   set_delete_account: 'Удалить аккаунт',
   set_delete_confirm: 'Введите DELETE для подтверждения',
+
+  // Form shared
+  form_presets: 'Быстрые шаблоны',
+  form_amount: 'Сумма',
+  form_currency: 'Валюта',
+  form_description: 'Описание',
+  form_description_ph: 'На что?',
+  form_date: 'Дата',
+  form_recurring: 'Повторяющийся',
+  form_recurring_hint: 'Автоматически повторять по расписанию',
+  form_recurring_day: 'День месяца',
+  form_period_daily: 'Ежедневно',
+  form_period_weekly: 'Еженедельно',
+  form_period_monthly: 'Ежемесячно',
+  form_period_yearly: 'Ежегодно',
+  form_period_per_year: 'в год',
+  form_payment_method: 'Оплата',
+  form_payment_method_ph: 'Карта, наличные…',
+  form_location: 'Место',
+  form_location_ph: 'Название магазина…',
+  form_source: 'Источник',
+  form_source_ph: 'Компания, клиент…',
+  form_cancel: 'Отмена',
+  exp_save: 'Сохранить расход',
+  inc_save: 'Сохранить доход',
+
+  // Expense presets
+  preset_groceries: 'Продукты',
+  preset_cafe: 'Кафе',
+  preset_transport: 'Транспорт',
+  preset_rent_exp: 'Аренда',
+  preset_utilities: 'Коммуналка',
+  preset_health: 'Здоровье',
+  preset_entertainment: 'Развлечения',
+
+  // Income presets
+  preset_salary: 'Зарплата',
+  preset_freelance: 'Фриланс',
+  preset_rental: 'Аренда',
+  preset_dividends: 'Дивиденды',
+  preset_gift: 'Подарок',
+
+  // Recurring badge
+  recurring_daily: 'Ежедневно',
+  recurring_weekly: 'Еженедельно',
+  recurring_monthly_day: 'Ежемесячно, {day}',
+  recurring_monthly: 'Ежемесячно',
+  recurring_yearly: 'Ежегодно',
 };
 
 export const translations: Record<Lang, typeof en> = { en, ru };

@@ -94,7 +94,7 @@ export function PerimeterCard({ perimeter, onEdit, onDelete, onShare }: Perimete
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Budget · {budgetStatus.period}</span>
               <span className="text-foreground font-medium tabular-nums">
-                ${budgetStatus.spent.toFixed(2)} / ${budgetStatus.budget.toFixed(2)}
+                ${Number(budgetStatus.spent).toFixed(2)} / ${Number(budgetStatus.budget).toFixed(2)}
               </span>
             </div>
 
@@ -112,8 +112,8 @@ export function PerimeterCard({ perimeter, onEdit, onDelete, onShare }: Perimete
             </div>
 
             <div className="text-muted-foreground flex items-center justify-between text-xs">
-              <span>${budgetStatus.remaining.toFixed(2)} remaining</span>
-              <span>{budgetStatus.percentage.toFixed(1)}% used</span>
+              <span>${Number(budgetStatus.remaining).toFixed(2)} remaining</span>
+              <span>{Number(budgetStatus.percentage).toFixed(1)}% used</span>
             </div>
           </div>
         )}

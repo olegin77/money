@@ -59,7 +59,7 @@ export default function DashboardPage() {
     );
   }
 
-  const balance = (incomeStats?.total || 0) - (expenseStats?.total || 0);
+  const balance = Number(incomeStats?.total || 0) - Number(expenseStats?.total || 0);
   const balancePositive = balance >= 0;
 
   const quickLinks = [
@@ -153,7 +153,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <p className="text-3xl font-bold tabular-nums text-red-500">
-                    ${(expenseStats?.total || 0).toFixed(2)}
+                    ${Number(expenseStats?.total || 0).toFixed(2)}
                   </p>
                   <p className="text-muted-foreground mt-1.5 text-xs">
                     {expenseStats?.count || 0} txn
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <p className="text-3xl font-bold tabular-nums text-emerald-500">
-                    ${(incomeStats?.total || 0).toFixed(2)}
+                    ${Number(incomeStats?.total || 0).toFixed(2)}
                   </p>
                   <p className="text-muted-foreground mt-1.5 text-xs">
                     {incomeStats?.count || 0} txn
