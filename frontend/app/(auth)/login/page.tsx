@@ -43,7 +43,8 @@ export default function LoginPage() {
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      const msg = err.response?.data?.message;
+      setError(Array.isArray(msg) ? msg[0] : msg || err.response?.data?.error || 'Login failed');
       setLoading(false);
     }
   };

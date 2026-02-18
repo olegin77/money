@@ -56,7 +56,10 @@ export default function RegisterPage() {
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed');
+      const msg = err.response?.data?.message;
+      setError(
+        Array.isArray(msg) ? msg[0] : msg || err.response?.data?.error || 'Registration failed'
+      );
       setLoading(false);
     }
   };
@@ -141,6 +144,9 @@ export default function RegisterPage() {
               disabled={loading}
               minLength={8}
             />
+            <p className="text-muted-foreground text-xs">
+              At least 8 characters with uppercase, lowercase, number & special character
+            </p>
           </div>
 
           <div className="space-y-1.5">
