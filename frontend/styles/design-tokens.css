@@ -4,72 +4,73 @@
   /* === COLORS: Deep Ocean Calm Palette === */
 
   /* Primary Colors */
-  --primary-indigo: #6366F1;
-  --primary-violet: #8B5CF6;
-  --primary-purple: #A78BFA;
+  --primary-indigo: #6366f1;
+  --primary-violet: #8b5cf6;
+  --primary-purple: #a78bfa;
 
   /* Accent Colors */
-  --accent-pink: #EC4899;
-  --accent-rose: #F472B6;
-  --accent-orange: #FB923C;
-  --accent-amber: #FBBF24;
-  --accent-cyan: #06B6D4;
-  --accent-teal: #14B8A6;
+  --accent-pink: #ec4899;
+  --accent-rose: #f472b6;
+  --accent-orange: #fb923c;
+  --accent-amber: #fbbf24;
+  --accent-cyan: #06b6d4;
+  --accent-teal: #14b8a6;
 
   /* Semantic Colors */
-  --success: #10B981;
-  --error: #EF4444;
-  --warning: #F59E0B;
-  --info: #3B82F6;
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
 
   /* Neutral - Light Mode */
-  --neutral-50: #F9FAFB;
-  --neutral-100: #F3F4F6;
-  --neutral-200: #E5E7EB;
-  --neutral-300: #D1D5DB;
-  --neutral-400: #9CA3AF;
-  --neutral-500: #6B7280;
-  --neutral-600: #4B5563;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
   --neutral-700: #374151;
-  --neutral-800: #1F2937;
+  --neutral-800: #1f2937;
   --neutral-900: #111827;
 
   /* Deep Ocean - Dark Mode */
-  --ocean-50: #F0F4F8;
-  --ocean-100: #D9E2EC;
-  --ocean-200: #BCCCDC;
-  --ocean-300: #9FB3C8;
-  --ocean-400: #829AB1;
-  --ocean-500: #627D98;
+  --ocean-50: #f0f4f8;
+  --ocean-100: #d9e2ec;
+  --ocean-200: #bcccdc;
+  --ocean-300: #9fb3c8;
+  --ocean-400: #829ab1;
+  --ocean-500: #627d98;
   --ocean-600: #486581;
-  --ocean-700: #334E68;
-  --ocean-800: #243B53;
-  --ocean-900: #141D2B;
-  --ocean-950: #0F1419;
+  --ocean-700: #334e68;
+  --ocean-800: #243b53;
+  --ocean-900: #141d2b;
+  --ocean-950: #0f1419;
 
   /* === GRADIENTS === */
-  --gradient-aurora: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
-  --gradient-sunset: linear-gradient(135deg, #F59E0B 0%, #EC4899 50%, #8B5CF6 100%);
-  --gradient-ocean: linear-gradient(180deg, #243B53 0%, #141D2B 100%);
-  --gradient-mesh: radial-gradient(at 40% 20%, #6366F1 0px, transparent 50%),
-                   radial-gradient(at 80% 0%, #8B5CF6 0px, transparent 50%),
-                   radial-gradient(at 0% 50%, #06B6D4 0px, transparent 50%);
+  --gradient-aurora: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+  --gradient-sunset: linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #8b5cf6 100%);
+  --gradient-ocean: linear-gradient(180deg, #243b53 0%, #141d2b 100%);
+  --gradient-mesh:
+    radial-gradient(at 40% 20%, #6366f1 0px, transparent 50%),
+    radial-gradient(at 80% 0%, #8b5cf6 0px, transparent 50%),
+    radial-gradient(at 0% 50%, #06b6d4 0px, transparent 50%);
 
   /* === TYPOGRAPHY === */
   --font-satoshi: 'Satoshi', 'Inter', system-ui, -apple-system, sans-serif;
   --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
 
   /* Font Sizes */
-  --text-xs: 0.75rem;    /* 12px */
-  --text-sm: 0.875rem;   /* 14px */
-  --text-base: 1rem;     /* 16px */
-  --text-lg: 1.125rem;   /* 18px */
-  --text-xl: 1.25rem;    /* 20px */
-  --text-2xl: 1.5rem;    /* 24px */
-  --text-3xl: 1.875rem;  /* 30px */
-  --text-4xl: 2.25rem;   /* 36px */
-  --text-5xl: 3rem;      /* 48px */
-  --text-6xl: 3.75rem;   /* 60px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 3rem; /* 48px */
+  --text-6xl: 3.75rem; /* 60px */
 
   /* Font Weights */
   --font-normal: 400;
@@ -83,31 +84,31 @@
   --leading-relaxed: 1.75;
 
   /* === SPACING: 8px Grid === */
-  --spacing-2xs: 0.25rem;  /* 4px */
-  --spacing-xs: 0.5rem;    /* 8px */
-  --spacing-sm: 0.75rem;   /* 12px */
-  --spacing-md: 1rem;      /* 16px */
-  --spacing-lg: 1.5rem;    /* 24px */
-  --spacing-xl: 2rem;      /* 32px */
-  --spacing-2xl: 3rem;     /* 48px */
-  --spacing-3xl: 4rem;     /* 64px */
-  --spacing-4xl: 6rem;     /* 96px */
+  --spacing-2xs: 0.25rem; /* 4px */
+  --spacing-xs: 0.5rem; /* 8px */
+  --spacing-sm: 0.75rem; /* 12px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+  --spacing-3xl: 4rem; /* 64px */
+  --spacing-4xl: 6rem; /* 96px */
 
   /* === BORDER RADIUS === */
-  --radius-xs: 0.25rem;   /* 4px */
-  --radius-sm: 0.5rem;    /* 8px */
-  --radius-md: 0.75rem;   /* 12px */
-  --radius-lg: 1rem;      /* 16px */
-  --radius-xl: 1.25rem;   /* 20px */
-  --radius-2xl: 1.5rem;   /* 24px */
-  --radius-3xl: 2rem;     /* 32px */
+  --radius-xs: 0.25rem; /* 4px */
+  --radius-sm: 0.5rem; /* 8px */
+  --radius-md: 0.75rem; /* 12px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-xl: 1.25rem; /* 20px */
+  --radius-2xl: 1.5rem; /* 24px */
+  --radius-3xl: 2rem; /* 32px */
   --radius-full: 9999px;
 
   /* === SHADOWS: Soft Elevation System === */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12);
   --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.15);
 
@@ -147,7 +148,7 @@
   --card: var(--neutral-50);
   --card-foreground: var(--ocean-900);
   --primary: var(--primary-indigo);
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #ffffff;
   --secondary: var(--ocean-100);
   --secondary-foreground: var(--ocean-900);
   --muted: var(--ocean-100);
@@ -166,7 +167,7 @@
   --card: var(--ocean-800);
   --card-foreground: var(--ocean-50);
   --primary: var(--primary-indigo);
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #ffffff;
   --secondary: var(--ocean-700);
   --secondary-foreground: var(--ocean-50);
   --muted: var(--ocean-700);

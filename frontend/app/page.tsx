@@ -3,12 +3,14 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
+import { useT } from '@/hooks/use-t';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function Home() {
   const router = useRouter();
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const t = useT();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -29,26 +31,27 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Headline */}
         <h1 className="text-foreground mb-3 text-3xl font-bold tracking-tight">
-          Personal finance,
-          <br />
-          simplified.
+          {t('landing_headline')
+            .split('\n')
+            .map((line, i) => (
+              <span key={i}>
+                {line}
+                {i === 0 ? <br /> : ''}
+              </span>
+            ))}
         </h1>
-        <p className="text-muted-foreground mb-10 text-sm leading-relaxed">
-          Track expenses, monitor income, and get clear insights into your money.
-        </p>
+        <p className="text-muted-foreground mb-10 text-sm leading-relaxed">{t('landing_sub')}</p>
 
-        {/* Actions */}
         <div className="flex flex-col gap-3">
           <Link href="/register" className="block">
             <Button size="lg" className="w-full">
-              Get started — it&apos;s free
+              {t('landing_cta')}
             </Button>
           </Link>
           <Link href="/login" className="block">
             <Button size="lg" variant="outline" className="w-full">
-              Sign in
+              {t('landing_signin')}
             </Button>
           </Link>
         </div>

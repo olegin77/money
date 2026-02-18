@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useT } from '@/hooks/use-t';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -14,6 +15,7 @@ import { Plus } from 'lucide-react';
 
 export default function ExpensesPage() {
   const { isLoading: authLoading } = useAuth(true);
+  const t = useT();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -77,11 +79,11 @@ export default function ExpensesPage() {
           {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
             <div>
-              <h1 className="text-foreground text-2xl font-bold">Expenses</h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">Track your spending</p>
+              <h1 className="text-foreground text-2xl font-bold">{t('exp_title')}</h1>
+              <p className="text-muted-foreground mt-0.5 text-sm">{t('exp_empty_sub')}</p>
             </div>
             <Button onClick={() => setShowForm(true)}>
-              <Plus size={15} /> New expense
+              <Plus size={15} /> {t('exp_new')}
             </Button>
           </div>
 
@@ -107,10 +109,10 @@ export default function ExpensesPage() {
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
                   >
-                    Previous
+                    {t('exp_prev')}
                   </Button>
                   <span className="text-muted-foreground text-sm tabular-nums">
-                    {page} / {totalPages}
+                    {t('exp_page')} {page} {t('exp_of')} {totalPages}
                   </span>
                   <Button
                     variant="outline"
@@ -118,7 +120,7 @@ export default function ExpensesPage() {
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
                   >
-                    Next
+                    {t('exp_next')}
                   </Button>
                 </div>
               )}
@@ -132,7 +134,7 @@ export default function ExpensesPage() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New expense</DialogTitle>
+            <DialogTitle>{t('exp_new')}</DialogTitle>
           </DialogHeader>
           <ExpenseForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
         </DialogContent>
@@ -141,7 +143,7 @@ export default function ExpensesPage() {
       <Dialog open={!!editingExpense} onOpenChange={open => !open && setEditingExpense(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit expense</DialogTitle>
+            <DialogTitle>{t('exp_title')}</DialogTitle>
           </DialogHeader>
           {editingExpense && (
             <ExpenseForm

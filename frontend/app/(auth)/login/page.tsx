@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
+import { useT } from '@/hooks/use-t';
 
 export default function LoginPage() {
   const router = useRouter();
   const setUser = useAuthStore(state => state.setUser);
+  const t = useT();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,21 +63,21 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-foreground mb-1 text-2xl font-bold tracking-tight">
-          {requires2FA ? 'Two-factor auth' : 'Welcome back'}
+          {requires2FA ? t('auth_2fa_title') : t('auth_login_title')}
         </h1>
         <p className="text-muted-foreground mb-8 text-sm">
-          {requires2FA ? 'Enter the code from your authenticator app' : 'Sign in to your account'}
+          {requires2FA ? t('auth_2fa_sub') : t('auth_login_sub')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!requires2FA ? (
             <>
               <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth_field_email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth_field_email_ph')}
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
@@ -86,12 +88,12 @@ export default function LoginPage() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t('auth_field_password')}</Label>
                   <Link
                     href="/forgot-password"
                     className="text-xs text-indigo-600 hover:underline dark:text-indigo-400"
                   >
-                    Forgot password?
+                    {t('auth_forgot_link')}
                   </Link>
                 </div>
                 <Input
@@ -107,7 +109,7 @@ export default function LoginPage() {
             </>
           ) : (
             <div className="space-y-1.5">
-              <Label htmlFor="2fa">Authentication code</Label>
+              <Label htmlFor="2fa">{t('auth_field_2fa')}</Label>
               <Input
                 id="2fa"
                 type="text"
@@ -130,7 +132,11 @@ export default function LoginPage() {
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in…' : requires2FA ? 'Verify & sign in' : 'Sign in'}
+            {loading
+              ? t('auth_btn_login_loading')
+              : requires2FA
+                ? t('auth_btn_2fa')
+                : t('auth_btn_login')}
           </Button>
 
           {requires2FA && (
@@ -144,18 +150,18 @@ export default function LoginPage() {
                 setError('');
               }}
             >
-              Back to login
+              {t('auth_back_to_login')}
             </Button>
           )}
         </form>
 
         <p className="text-muted-foreground mt-8 text-center text-sm">
-          No account?{' '}
+          {t('auth_no_account')}{' '}
           <Link
             href="/register"
             className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
           >
-            Sign up
+            {t('auth_signup_link')}
           </Link>
         </p>
       </div>

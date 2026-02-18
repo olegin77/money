@@ -3,20 +3,30 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, TrendingDown, TrendingUp, FolderOpen, BarChart2 } from 'lucide-react';
-
-const navItems = [
-  { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Expenses', href: '/expenses', icon: TrendingDown },
-  { label: 'Income', href: '/income', icon: TrendingUp },
-  { label: 'Categories', href: '/categories', icon: FolderOpen },
-  { label: 'Analytics', href: '/analytics', icon: BarChart2 },
-];
+import {
+  BarChart2,
+  FolderOpen,
+  LayoutDashboard,
+  Settings,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react';
+import { useT } from '@/hooks/use-t';
 
 const authPaths = ['/', '/login', '/register', '/forgot-password'];
 
 export function MobileNav() {
   const pathname = usePathname();
+  const t = useT();
+
+  const navItems = [
+    { label: t('nav_dashboard'), href: '/dashboard', icon: LayoutDashboard },
+    { label: t('nav_expenses'), href: '/expenses', icon: TrendingDown },
+    { label: t('nav_income'), href: '/income', icon: TrendingUp },
+    { label: t('nav_categories'), href: '/categories', icon: FolderOpen },
+    { label: t('nav_analytics'), href: '/analytics', icon: BarChart2 },
+    { label: t('nav_settings'), href: '/settings', icon: Settings },
+  ];
 
   if (authPaths.includes(pathname)) return null;
 

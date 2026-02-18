@@ -11,24 +11,28 @@ import {
   BarChart2,
   Users,
   LogOut,
+  Settings,
   Shield,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { authApi } from '@/lib/api/auth';
-
-const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Expenses', href: '/expenses', icon: TrendingDown },
-  { label: 'Income', href: '/income', icon: TrendingUp },
-  { label: 'Categories', href: '/categories', icon: FolderOpen },
-  { label: 'Analytics', href: '/analytics', icon: BarChart2 },
-  { label: 'Friends', href: '/friends', icon: Users },
-];
+import { useT } from '@/hooks/use-t';
 
 export function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const t = useT();
+
+  const navItems = [
+    { label: t('nav_dashboard'), href: '/dashboard', icon: LayoutDashboard },
+    { label: t('nav_expenses'), href: '/expenses', icon: TrendingDown },
+    { label: t('nav_income'), href: '/income', icon: TrendingUp },
+    { label: t('nav_categories'), href: '/categories', icon: FolderOpen },
+    { label: t('nav_analytics'), href: '/analytics', icon: BarChart2 },
+    { label: t('nav_friends'), href: '/friends', icon: Users },
+    { label: t('nav_settings'), href: '/settings', icon: Settings },
+  ];
 
   const handleLogout = async () => {
     try {
@@ -70,7 +74,7 @@ export function SidebarNav() {
             className={cn('nav-item mt-1 w-full', pathname === '/admin' && 'active')}
           >
             <Shield size={16} strokeWidth={1.8} />
-            <span>Admin</span>
+            <span>{t('nav_admin')}</span>
           </Link>
         )}
       </nav>
@@ -95,7 +99,7 @@ export function SidebarNav() {
           className="nav-item text-muted-foreground w-full hover:text-red-500"
         >
           <LogOut size={16} strokeWidth={1.8} />
-          <span>Sign out</span>
+          <span>{t('nav_signout')}</span>
         </button>
       </div>
     </aside>

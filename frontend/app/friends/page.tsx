@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useT } from '@/hooks/use-t';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -16,6 +17,7 @@ import { UserPlus, Users } from 'lucide-react';
 
 export default function FriendsPage() {
   const { isLoading: authLoading } = useAuth(true);
+  const t = useT();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,11 +88,11 @@ export default function FriendsPage() {
           {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
             <div>
-              <h1 className="text-foreground text-2xl font-bold">Friends</h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">Connect and share expenses</p>
+              <h1 className="text-foreground text-2xl font-bold">{t('fri_title')}</h1>
+              <p className="text-muted-foreground mt-0.5 text-sm">{t('fri_no_friends_sub')}</p>
             </div>
             <Button onClick={() => setShowSearch(true)}>
-              <UserPlus size={15} /> Add friend
+              <UserPlus size={15} /> {t('fri_add')}
             </Button>
           </div>
 
@@ -100,7 +102,7 @@ export default function FriendsPage() {
               <CardContent className="pt-5">
                 <div className="mb-4 flex items-center gap-2">
                   <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                    Friend requests
+                    {t('fri_pending')}
                   </p>
                   <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400">
                     {pendingRequests.length}
@@ -124,7 +126,7 @@ export default function FriendsPage() {
           {friends.length > 0 ? (
             <>
               <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
-                Friends · {friends.length}
+                {t('fri_your')} · {friends.length}
               </p>
               <div className="space-y-2">
                 {friends.map(friend => (
@@ -137,12 +139,12 @@ export default function FriendsPage() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
                 <Users size={22} className="text-muted-foreground" />
               </div>
-              <p className="text-foreground mb-1 text-base font-semibold">No friends yet</p>
+              <p className="text-foreground mb-1 text-base font-semibold">{t('fri_no_friends')}</p>
               <p className="text-muted-foreground mb-6 max-w-xs text-sm">
-                Add friends to share expenses and budgets
+                {t('fri_no_friends_sub')}
               </p>
               <Button onClick={() => setShowSearch(true)}>
-                <UserPlus size={15} /> Add friend
+                <UserPlus size={15} /> {t('fri_add')}
               </Button>
             </div>
           )}
@@ -154,7 +156,7 @@ export default function FriendsPage() {
       <Dialog open={showSearch} onOpenChange={setShowSearch}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add friend</DialogTitle>
+            <DialogTitle>{t('fri_add')}</DialogTitle>
           </DialogHeader>
           <UserSearch onSendRequest={handleSendRequest} />
         </DialogContent>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useT } from '@/hooks/use-t';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PerimeterForm } from '@/components/perimeters/perimeter-form';
@@ -11,10 +12,11 @@ import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { perimetersApi, Perimeter, CreatePerimeterData } from '@/lib/api/perimeters';
-import { Plus, FolderOpen } from 'lucide-react';
+import { FolderOpen, Plus } from 'lucide-react';
 
 export default function CategoriesPage() {
   const { isLoading: authLoading } = useAuth(true);
+  const t = useT();
   const [perimeters, setPerimeters] = useState<Perimeter[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -81,11 +83,11 @@ export default function CategoriesPage() {
           {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
             <div>
-              <h1 className="text-foreground text-2xl font-bold">Categories</h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">Organize expenses with budgets</p>
+              <h1 className="text-foreground text-2xl font-bold">{t('cat_title')}</h1>
+              <p className="text-muted-foreground mt-0.5 text-sm">{t('cat_add_first')}</p>
             </div>
             <Button onClick={() => setShowForm(true)}>
-              <Plus size={15} /> New category
+              <Plus size={15} /> {t('cat_new')}
             </Button>
           </div>
 
@@ -95,12 +97,10 @@ export default function CategoriesPage() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
                 <FolderOpen size={22} className="text-muted-foreground" />
               </div>
-              <p className="text-foreground mb-1 text-base font-semibold">No categories yet</p>
-              <p className="text-muted-foreground mb-6 max-w-xs text-sm">
-                Create categories to organize your expenses and set budgets
-              </p>
+              <p className="text-foreground mb-1 text-base font-semibold">{t('cat_no_expenses')}</p>
+              <p className="text-muted-foreground mb-6 max-w-xs text-sm">{t('cat_add_first')}</p>
               <Button onClick={() => setShowForm(true)}>
-                <Plus size={15} /> Create category
+                <Plus size={15} /> {t('cat_new')}
               </Button>
             </div>
           )}
@@ -109,7 +109,7 @@ export default function CategoriesPage() {
           {ownedPerimeters.length > 0 && (
             <div className="mb-8">
               <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
-                My categories
+                {t('cat_expenses')}
               </p>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {ownedPerimeters.map(perimeter => (
@@ -152,7 +152,7 @@ export default function CategoriesPage() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New category</DialogTitle>
+            <DialogTitle>{t('cat_new')}</DialogTitle>
           </DialogHeader>
           <PerimeterForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
         </DialogContent>
@@ -161,7 +161,7 @@ export default function CategoriesPage() {
       <Dialog open={!!editingPerimeter} onOpenChange={open => !open && setEditingPerimeter(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit category</DialogTitle>
+            <DialogTitle>{t('cat_title')}</DialogTitle>
           </DialogHeader>
           {editingPerimeter && (
             <PerimeterForm

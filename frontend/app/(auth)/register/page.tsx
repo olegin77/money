@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
+import { useT } from '@/hooks/use-t';
 
 export default function RegisterPage() {
   const router = useRouter();
   const setUser = useAuthStore(state => state.setUser);
+  const t = useT();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -32,12 +34,12 @@ export default function RegisterPage() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth_passwords_no_match'));
       return;
     }
 
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError(t('auth_password_too_short'));
       return;
     }
 
@@ -76,18 +78,18 @@ export default function RegisterPage() {
         </div>
 
         <h1 className="text-foreground mb-1 text-2xl font-bold tracking-tight">
-          Create an account
+          {t('auth_register_title')}
         </h1>
-        <p className="text-muted-foreground mb-8 text-sm">Start tracking your finances today</p>
+        <p className="text-muted-foreground mb-8 text-sm">{t('auth_register_sub')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('auth_field_email')}</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('auth_field_email_ph')}
               value={formData.email}
               onChange={handleChange}
               required
@@ -97,7 +99,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">{t('auth_field_username')}</Label>
             <Input
               id="username"
               name="username"
@@ -111,14 +113,15 @@ export default function RegisterPage() {
               maxLength={20}
               pattern="[a-zA-Z0-9_]+"
             />
-            <p className="text-muted-foreground text-xs">
-              3–20 characters, letters, numbers, underscores
-            </p>
+            <p className="text-muted-foreground text-xs">{t('auth_field_username_hint')}</p>
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="fullName">
-              Full name <span className="text-muted-foreground font-normal">(optional)</span>
+              {t('auth_field_fullname')}{' '}
+              <span className="text-muted-foreground font-normal">
+                {t('auth_field_fullname_opt')}
+              </span>
             </Label>
             <Input
               id="fullName"
@@ -132,7 +135,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('auth_field_password')}</Label>
             <Input
               id="password"
               name="password"
@@ -144,13 +147,11 @@ export default function RegisterPage() {
               disabled={loading}
               minLength={8}
             />
-            <p className="text-muted-foreground text-xs">
-              At least 8 characters with uppercase, lowercase, number & special character
-            </p>
+            <p className="text-muted-foreground text-xs">{t('auth_field_password_hint')}</p>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Label htmlFor="confirmPassword">{t('auth_field_confirm')}</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -170,17 +171,17 @@ export default function RegisterPage() {
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Creating account…' : 'Create account'}
+            {loading ? t('auth_btn_register_loading') : t('auth_btn_register')}
           </Button>
         </form>
 
         <p className="text-muted-foreground mt-8 text-center text-sm">
-          Already have an account?{' '}
+          {t('auth_have_account')}{' '}
           <Link
             href="/login"
             className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
           >
-            Sign in
+            {t('auth_signin_link')}
           </Link>
         </p>
       </div>

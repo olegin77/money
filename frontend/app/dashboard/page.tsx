@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useT } from '@/hooks/use-t';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
@@ -20,6 +21,7 @@ import {
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth(true);
+  const t = useT();
   const [expenseStats, setExpenseStats] = useState<ExpenseStats | null>(null);
   const [incomeStats, setIncomeStats] = useState<IncomeStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -60,20 +62,56 @@ export default function DashboardPage() {
   const balance = (incomeStats?.total || 0) - (expenseStats?.total || 0);
   const balancePositive = balance >= 0;
 
+  const quickLinks = [
+    {
+      href: '/expenses',
+      labelKey: 'nav_expenses' as const,
+      sub: t('exp_empty_sub'),
+      icon: TrendingDown,
+      color: 'text-red-500',
+    },
+    {
+      href: '/income',
+      labelKey: 'nav_income' as const,
+      sub: t('inc_empty_sub'),
+      icon: TrendingUp,
+      color: 'text-emerald-500',
+    },
+    {
+      href: '/categories',
+      labelKey: 'nav_categories' as const,
+      sub: t('cat_add_first'),
+      icon: FolderOpen,
+      color: 'text-amber-500',
+    },
+    {
+      href: '/analytics',
+      labelKey: 'nav_analytics' as const,
+      sub: t('ana_title'),
+      icon: BarChart2,
+      color: 'text-indigo-500',
+    },
+    {
+      href: '/friends',
+      labelKey: 'nav_friends' as const,
+      sub: t('fri_no_friends_sub'),
+      icon: Users,
+      color: 'text-violet-500',
+    },
+  ];
+
   return (
     <ResponsiveContainer>
       <div className="p-4 md:p-8">
         <div className="mx-auto max-w-4xl">
           {/* Desktop heading */}
           <div className="mb-8 hidden md:block">
-            <h1 className="text-foreground text-2xl font-bold">Good day, {user?.username}</h1>
-            <p className="text-muted-foreground mt-0.5 text-sm">
-              Here&apos;s your financial snapshot
-            </p>
+            <h1 className="text-foreground text-2xl font-bold">{user?.username}</h1>
+            <p className="text-muted-foreground mt-0.5 text-sm">{t('dash_quick')}</p>
           </div>
 
           {/* Mobile heading */}
-          <p className="text-muted-foreground mb-5 text-sm md:hidden">Financial snapshot</p>
+          <p className="text-muted-foreground mb-5 text-sm md:hidden">{t('dash_quick')}</p>
 
           {/* Summary cards */}
           {statsLoading ? (
@@ -95,7 +133,9 @@ export default function DashboardPage() {
                 <CardContent className="pt-5">
                   <div className="mb-3 flex items-center gap-2 opacity-80">
                     <Wallet size={14} />
-                    <span className="text-xs font-medium uppercase tracking-wide">Balance</span>
+                    <span className="text-xs font-medium uppercase tracking-wide">
+                      {t('dash_balance')}
+                    </span>
                   </div>
                   <p className="text-3xl font-bold tabular-nums">
                     {balancePositive ? '' : '-'}${Math.abs(balance).toFixed(2)}
@@ -108,13 +148,15 @@ export default function DashboardPage() {
                 <CardContent className="pt-5">
                   <div className="text-muted-foreground mb-3 flex items-center gap-2">
                     <TrendingDown size={14} />
-                    <span className="text-xs font-medium uppercase tracking-wide">Expenses</span>
+                    <span className="text-xs font-medium uppercase tracking-wide">
+                      {t('dash_expenses')}
+                    </span>
                   </div>
                   <p className="text-3xl font-bold tabular-nums text-red-500">
                     ${(expenseStats?.total || 0).toFixed(2)}
                   </p>
                   <p className="text-muted-foreground mt-1.5 text-xs">
-                    {expenseStats?.count || 0} transactions
+                    {expenseStats?.count || 0} txn
                   </p>
                 </CardContent>
               </Card>
@@ -124,13 +166,15 @@ export default function DashboardPage() {
                 <CardContent className="pt-5">
                   <div className="text-muted-foreground mb-3 flex items-center gap-2">
                     <TrendingUp size={14} />
-                    <span className="text-xs font-medium uppercase tracking-wide">Income</span>
+                    <span className="text-xs font-medium uppercase tracking-wide">
+                      {t('dash_income')}
+                    </span>
                   </div>
                   <p className="text-3xl font-bold tabular-nums text-emerald-500">
                     ${(incomeStats?.total || 0).toFixed(2)}
                   </p>
                   <p className="text-muted-foreground mt-1.5 text-xs">
-                    {incomeStats?.count || 0} transactions
+                    {incomeStats?.count || 0} txn
                   </p>
                 </CardContent>
               </Card>
@@ -141,46 +185,10 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="pb-2 pt-5">
               <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
-                Quick access
+                {t('dash_quick')}
               </p>
               <div className="divide-border divide-y">
-                {[
-                  {
-                    href: '/expenses',
-                    label: 'Expenses',
-                    sub: 'Track spending',
-                    icon: TrendingDown,
-                    color: 'text-red-500',
-                  },
-                  {
-                    href: '/income',
-                    label: 'Income',
-                    sub: 'Track earnings',
-                    icon: TrendingUp,
-                    color: 'text-emerald-500',
-                  },
-                  {
-                    href: '/categories',
-                    label: 'Categories',
-                    sub: 'Organize transactions',
-                    icon: FolderOpen,
-                    color: 'text-amber-500',
-                  },
-                  {
-                    href: '/analytics',
-                    label: 'Analytics',
-                    sub: 'View insights',
-                    icon: BarChart2,
-                    color: 'text-indigo-500',
-                  },
-                  {
-                    href: '/friends',
-                    label: 'Friends',
-                    sub: 'Shared finances',
-                    icon: Users,
-                    color: 'text-violet-500',
-                  },
-                ].map(({ href, label, sub, icon: Icon, color }) => (
+                {quickLinks.map(({ href, labelKey, sub, icon: Icon, color }) => (
                   <Link
                     key={href}
                     href={href}
@@ -192,7 +200,7 @@ export default function DashboardPage() {
                       <Icon size={15} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-foreground text-sm font-medium">{label}</p>
+                      <p className="text-foreground text-sm font-medium">{t(labelKey)}</p>
                       <p className="text-muted-foreground text-xs">{sub}</p>
                     </div>
                     <ArrowRight

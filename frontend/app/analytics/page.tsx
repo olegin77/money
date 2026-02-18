@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useT } from '@/hooks/use-t';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatCard } from '@/components/analytics/stat-card';
@@ -19,8 +20,16 @@ import {
 type Period = 'week' | 'month' | 'year' | 'all';
 const PERIODS: Period[] = ['week', 'month', 'year', 'all'];
 
+const PERIOD_KEYS = {
+  week: 'ana_week',
+  month: 'ana_month',
+  year: 'ana_year',
+  all: 'ana_all',
+} as const;
+
 export default function AnalyticsPage() {
   const { isLoading: authLoading } = useAuth(true);
+  const t = useT();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [cashFlow, setCashFlow] = useState<CashFlowData[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyComparisonData[]>([]);
@@ -83,8 +92,8 @@ export default function AnalyticsPage() {
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <div className="hidden md:block">
-              <h1 className="text-foreground text-2xl font-bold">Analytics</h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">Insights into your finances</p>
+              <h1 className="text-foreground text-2xl font-bold">{t('ana_title')}</h1>
+              <p className="text-muted-foreground mt-0.5 text-sm">{t('ana_no_data')}</p>
             </div>
             {/* Period selector */}
             <div className="flex gap-1.5 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
@@ -99,7 +108,7 @@ export default function AnalyticsPage() {
                       : 'text-muted-foreground hover:text-foreground',
                   ].join(' ')}
                 >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                  {t(PERIOD_KEYS[p])}
                 </button>
               ))}
             </div>
@@ -108,7 +117,7 @@ export default function AnalyticsPage() {
           {/* Summary Stats */}
           <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
             <StatCard
-              title="Balance"
+              title={t('ana_balance')}
               value={`$${summary.balance.toFixed(2)}`}
               className={[
                 'col-span-2 md:col-span-1',
@@ -119,19 +128,19 @@ export default function AnalyticsPage() {
               icon="💰"
             />
             <StatCard
-              title="Expenses"
+              title={t('ana_expenses')}
               value={`$${summary.totalExpenses.toFixed(2)}`}
               subtitle={`${summary.expenseCount} tx`}
               icon="📊"
             />
             <StatCard
-              title="Income"
+              title={t('ana_income')}
               value={`$${summary.totalIncome.toFixed(2)}`}
               subtitle={`${summary.incomeCount} tx`}
               icon="💵"
             />
             <StatCard
-              title="Savings"
+              title="Savings %"
               value={`${Number(summary.savingsRate).toFixed(1)}%`}
               subtitle={`Avg: $${summary.avgIncome.toFixed(2)}`}
               icon="📈"
@@ -154,7 +163,7 @@ export default function AnalyticsPage() {
             <Card>
               <CardContent className="pt-5">
                 <p className="text-muted-foreground mb-4 text-xs font-medium uppercase tracking-wide">
-                  Top expenses
+                  {t('ana_by_category')}
                 </p>
                 <div className="space-y-2">
                   {topExpenses.map((expense, idx) => (
