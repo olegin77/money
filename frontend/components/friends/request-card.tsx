@@ -1,9 +1,9 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FriendRequest } from '@/lib/api/friends';
 import { format } from 'date-fns';
+import { Check, X } from 'lucide-react';
 
 interface RequestCardProps {
   request: FriendRequest;
@@ -12,34 +12,39 @@ interface RequestCardProps {
 }
 
 export function RequestCard({ request, onAccept, onReject }: RequestCardProps) {
+  const initial = request.requester.username.charAt(0).toUpperCase();
+
   return (
-    <Card className="flex items-center justify-between p-4">
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-lg font-bold text-white">
-          {request.requester.username.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <p className="font-semibold">{request.requester.username}</p>
-          {request.requester.fullName && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">{request.requester.fullName}</p>
-          )}
-          <p className="text-xs text-gray-500 dark:text-gray-500">
-            {format(new Date(request.createdAt), 'MMM dd, yyyy')}
-          </p>
-        </div>
+    <div className="flex items-center gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40">
+        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+          {initial}
+        </span>
       </div>
-      <div className="flex gap-2">
+      <div className="min-w-0 flex-1">
+        <p className="text-foreground text-sm font-medium">{request.requester.username}</p>
+        <p className="text-muted-foreground text-xs">
+          {format(new Date(request.createdAt), 'MMM d, yyyy')}
+        </p>
+      </div>
+      <div className="flex shrink-0 gap-1.5">
         <Button
           size="sm"
+          variant="success"
           onClick={() => onAccept(request.id)}
-          className="bg-green-500 hover:bg-green-600"
+          className="h-8 w-8 p-0"
         >
-          Accept
+          <Check size={14} />
         </Button>
-        <Button size="sm" variant="outline" onClick={() => onReject(request.id)}>
-          Decline
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onReject(request.id)}
+          className="h-8 w-8 p-0"
+        >
+          <X size={14} />
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

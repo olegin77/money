@@ -12,16 +12,23 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     const percentage = Math.min((value / max) * 100, 100);
 
     const variantClasses = {
-      success: 'bg-gradient-to-r from-green-400 to-green-500',
-      warning: 'bg-gradient-to-r from-orange-400 to-orange-500',
-      danger: 'bg-gradient-to-r from-red-400 to-red-500',
-      default: 'aurora-gradient',
+      success: 'bg-emerald-500',
+      warning: 'bg-amber-500',
+      danger: 'bg-red-500',
+      default: 'bg-indigo-600',
     };
 
     return (
-      <div ref={ref} className={cn('progress-bar', className)} {...props}>
+      <div
+        ref={ref}
+        className={cn(
+          'h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800',
+          className
+        )}
+        {...props}
+      >
         <div
-          className={cn('progress-fill', variantClasses[variant])}
+          className={cn('h-full rounded-full transition-all', variantClasses[variant])}
           style={{ width: `${percentage}%` }}
         />
       </div>

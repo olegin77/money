@@ -11,21 +11,21 @@ interface FloatingActionButtonProps {
 
 export function FloatingActionButton({
   onClick,
-  icon = <Plus size={24} />,
+  icon = <Plus size={22} />,
   className,
 }: FloatingActionButtonProps) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'fixed bottom-24 right-4 z-40 md:hidden',
-        'h-14 w-14 rounded-full',
-        'aurora-gradient text-white shadow-lg',
+        'fixed bottom-20 right-4 z-40 md:hidden',
+        'h-13 w-13 rounded-full',
+        'bg-indigo-600 text-white shadow-md',
         'flex items-center justify-center',
-        'transition-transform active:scale-95',
-        'hover:shadow-xl',
+        'transition-transform hover:bg-indigo-700 active:scale-95',
         className
       )}
+      style={{ width: '52px', height: '52px' }}
     >
       {icon}
     </button>

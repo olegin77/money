@@ -25,33 +25,44 @@ export function CashFlowChart({ data }: CashFlowChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cash Flow</CardTitle>
+        <CardTitle>Cash flow</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={data} barGap={2}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" vertical={false} />
             <XAxis
               dataKey="date"
-              stroke="#9CA3AF"
-              fontSize={12}
+              tick={{ fontSize: 11, fill: 'hsl(220 9% 46%)' }}
+              axisLine={false}
+              tickLine={false}
               tickFormatter={value => {
-                const date = new Date(value);
-                return `${date.getMonth() + 1}/${date.getDate()}`;
+                const d = new Date(value);
+                return `${d.getMonth() + 1}/${d.getDate()}`;
               }}
             />
-            <YAxis stroke="#9CA3AF" fontSize={12} />
+            <YAxis
+              tick={{ fontSize: 11, fill: 'hsl(220 9% 46%)' }}
+              axisLine={false}
+              tickLine={false}
+              width={50}
+            />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                border: '1px solid #374151',
+                backgroundColor: '#fff',
+                border: '1px solid hsl(220 13% 91%)',
                 borderRadius: '8px',
+                fontSize: '12px',
               }}
-              formatter={(value: number) => `$${value.toFixed(2)}`}
+              formatter={(value: number) => [`$${value.toFixed(2)}`, '']}
             />
-            <Legend />
-            <Bar dataKey="income" fill="#10B981" name="Income" />
-            <Bar dataKey="expenses" fill="#EF4444" name="Expenses" />
+            <Legend
+              iconType="circle"
+              iconSize={8}
+              wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
+            />
+            <Bar dataKey="income" fill="#10b981" name="Income" radius={[3, 3, 0, 0]} />
+            <Bar dataKey="expenses" fill="#ef4444" name="Expenses" radius={[3, 3, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

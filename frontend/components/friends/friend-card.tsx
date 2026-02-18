@@ -11,27 +11,27 @@ interface FriendCardProps {
 }
 
 export function FriendCard({ friend, onRemove }: FriendCardProps) {
+  const initial = friend.friend.username.charAt(0).toUpperCase();
+
   return (
-    <Card className="flex items-center justify-between p-4">
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-lg font-bold text-white">
-          {friend.friend.username.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <p className="font-semibold">{friend.friend.username}</p>
-          {friend.friend.fullName && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">{friend.friend.fullName}</p>
-          )}
-          <p className="text-xs text-gray-500 dark:text-gray-500">
-            Friends since {format(new Date(friend.since), 'MMM yyyy')}
-          </p>
-        </div>
+    <Card className="flex items-center gap-3 px-4 py-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40">
+        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+          {initial}
+        </span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-foreground text-sm font-medium">{friend.friend.username}</p>
+        <p className="text-muted-foreground text-xs">
+          {friend.friend.fullName ? `${friend.friend.fullName} · ` : ''}
+          Since {format(new Date(friend.since), 'MMM yyyy')}
+        </p>
       </div>
       <Button
         size="sm"
         variant="ghost"
         onClick={() => onRemove(friend.friendshipId)}
-        className="text-red-500 hover:text-red-600"
+        className="h-8 shrink-0 px-2.5 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
       >
         Remove
       </Button>

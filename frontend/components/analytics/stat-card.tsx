@@ -17,25 +17,29 @@ interface StatCardProps {
 
 export function StatCard({ title, value, subtitle, trend, icon, className }: StatCardProps) {
   return (
-    <Card className={cn('', className)}>
-      <CardContent className="pt-6">
+    <Card className={cn(className)}>
+      <CardContent className="pt-5">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">{title}</p>
-            <p className="mb-1 text-3xl font-bold">{value}</p>
-            {subtitle && <p className="text-xs text-gray-500 dark:text-gray-500">{subtitle}</p>}
+          <div className="min-w-0 flex-1">
+            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide opacity-80">
+              {title}
+            </p>
+            <p className="truncate text-2xl font-bold tabular-nums">{value}</p>
+            {subtitle && (
+              <p className="text-muted-foreground mt-1 text-xs opacity-70">{subtitle}</p>
+            )}
             {trend && (
               <div
                 className={cn(
-                  'mt-2 text-xs font-medium',
-                  trend.isPositive ? 'text-green-500' : 'text-red-500'
+                  'mt-1.5 text-xs font-medium',
+                  trend.isPositive ? 'text-emerald-500' : 'text-red-500'
                 )}
               >
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value).toFixed(1)}%
               </div>
             )}
           </div>
-          {icon && <div className="text-2xl opacity-50">{icon}</div>}
+          {icon && <span className="ml-2 shrink-0 text-xl opacity-40">{icon}</span>}
         </div>
       </CardContent>
     </Card>

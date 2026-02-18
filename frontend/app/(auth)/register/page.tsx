@@ -24,10 +24,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +37,7 @@ export default function RegisterPage() {
     }
 
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError('Password must be at least 8 characters');
       return;
     }
 
@@ -65,17 +62,23 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="glass w-full max-w-md rounded-3xl p-8">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-3xl font-bold text-transparent">
-            Create Account
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">Start tracking your finances today</p>
+    <div className="bg-page flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="mb-8 flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
+            <span className="text-xs font-bold text-white">F</span>
+          </div>
+          <span className="text-foreground font-semibold">FinTrack</span>
         </div>
 
+        <h1 className="text-foreground mb-1 text-2xl font-bold tracking-tight">
+          Create an account
+        </h1>
+        <p className="text-muted-foreground mb-8 text-sm">Start tracking your finances today</p>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -86,10 +89,11 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               disabled={loading}
+              autoFocus
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="username">Username</Label>
             <Input
               id="username"
@@ -104,13 +108,15 @@ export default function RegisterPage() {
               maxLength={20}
               pattern="[a-zA-Z0-9_]+"
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              3-20 characters, letters, numbers and underscores only
+            <p className="text-muted-foreground text-xs">
+              3–20 characters, letters, numbers, underscores
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name (optional)</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="fullName">
+              Full name <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
             <Input
               id="fullName"
               name="fullName"
@@ -122,31 +128,28 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               name="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Min. 8 characters"
               value={formData.password}
               onChange={handleChange}
               required
               disabled={loading}
               minLength={8}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              At least 8 characters with uppercase, lowercase, number and special character
-            </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword">Confirm password</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
-              placeholder="••••••••"
+              placeholder="Repeat your password"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -155,22 +158,25 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
               {error}
-            </div>
+            </p>
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? 'Creating account…' : 'Create account'}
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Already have an account? </span>
-          <Link href="/login" className="font-semibold text-indigo-500 hover:underline">
+        <p className="text-muted-foreground mt-8 text-center text-sm">
+          Already have an account?{' '}
+          <Link
+            href="/login"
+            className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          >
             Sign in
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );

@@ -49,19 +49,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="glass w-full max-w-md rounded-3xl p-8">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-3xl font-bold text-transparent">
-            Welcome Back
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">Sign in to your account</p>
+    <div className="bg-page flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="mb-8 flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
+            <span className="text-xs font-bold text-white">F</span>
+          </div>
+          <span className="text-foreground font-semibold">FinTrack</span>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <h1 className="text-foreground mb-1 text-2xl font-bold tracking-tight">
+          {requires2FA ? 'Two-factor auth' : 'Welcome back'}
+        </h1>
+        <p className="text-muted-foreground mb-8 text-sm">
+          {requires2FA ? 'Enter the code from your authenticator app' : 'Sign in to your account'}
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           {!requires2FA ? (
             <>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -71,13 +79,17 @@ export default function LoginPage() {
                   onChange={e => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  autoFocus
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link href="/forgot-password" className="text-sm text-indigo-500 hover:underline">
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-indigo-600 hover:underline dark:text-indigo-400"
+                  >
                     Forgot password?
                   </Link>
                 </div>
@@ -93,33 +105,31 @@ export default function LoginPage() {
               </div>
             </>
           ) : (
-            <div className="space-y-2">
-              <Label htmlFor="2fa">Two-Factor Authentication Code</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="2fa">Authentication code</Label>
               <Input
                 id="2fa"
                 type="text"
-                placeholder="000000"
+                placeholder="000 000"
                 maxLength={6}
                 value={twoFaCode}
                 onChange={e => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
                 required
                 disabled={loading}
                 autoFocus
+                className="text-center font-mono text-xl tracking-widest"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Enter the 6-digit code from your authenticator app
-              </p>
             </div>
           )}
 
           {error && (
-            <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
               {error}
-            </div>
+            </p>
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : requires2FA ? 'Verify & Sign In' : 'Sign In'}
+            {loading ? 'Signing in…' : requires2FA ? 'Verify & sign in' : 'Sign in'}
           </Button>
 
           {requires2FA && (
@@ -138,12 +148,15 @@ export default function LoginPage() {
           )}
         </form>
 
-        <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Don't have an account? </span>
-          <Link href="/register" className="font-semibold text-indigo-500 hover:underline">
+        <p className="text-muted-foreground mt-8 text-center text-sm">
+          No account?{' '}
+          <Link
+            href="/register"
+            className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          >
             Sign up
           </Link>
-        </div>
+        </p>
       </div>
     </div>
   );

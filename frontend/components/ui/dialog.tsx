@@ -11,11 +11,8 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={() => onOpenChange(false)}
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
       <div className="relative z-50 max-h-[90vh] w-full max-w-lg overflow-y-auto">{children}</div>
     </div>
   );
@@ -27,7 +24,11 @@ interface DialogContentProps {
 }
 
 export function DialogContent({ children, className }: DialogContentProps) {
-  return <div className={cn('glass m-4 rounded-3xl p-8', className)}>{children}</div>;
+  return (
+    <div className={cn('bg-card border-border rounded-xl border p-6 shadow-md', className)}>
+      {children}
+    </div>
+  );
 }
 
 interface DialogHeaderProps {
@@ -35,7 +36,7 @@ interface DialogHeaderProps {
 }
 
 export function DialogHeader({ children }: DialogHeaderProps) {
-  return <div className="mb-6">{children}</div>;
+  return <div className="mb-5">{children}</div>;
 }
 
 interface DialogTitleProps {
@@ -43,7 +44,7 @@ interface DialogTitleProps {
 }
 
 export function DialogTitle({ children }: DialogTitleProps) {
-  return <h2 className="text-2xl font-bold">{children}</h2>;
+  return <h2 className="text-foreground text-lg font-semibold">{children}</h2>;
 }
 
 interface DialogDescriptionProps {
@@ -51,5 +52,5 @@ interface DialogDescriptionProps {
 }
 
 export function DialogDescription({ children }: DialogDescriptionProps) {
-  return <p className="mt-2 text-gray-600 dark:text-gray-400">{children}</p>;
+  return <p className="text-muted-foreground mt-1 text-sm">{children}</p>;
 }

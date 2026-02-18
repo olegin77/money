@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { friendsApi, UserSearchResult } from '@/lib/api/friends';
+import { UserPlus } from 'lucide-react';
 
 interface UserSearchProps {
   onSendRequest: (userId: string) => void;
@@ -33,8 +33,8 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
     try {
       const data = await friendsApi.searchUsers(query);
       setResults(data);
-    } catch (error) {
-      console.error('Search failed:', error);
+    } catch {
+      /* silent */
     } finally {
       setLoading(false);
     }
@@ -54,42 +54,46 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
     <div className="space-y-3">
       <Input
         type="text"
-        placeholder="Search by username or email..."
+        placeholder="Search by username or email…"
         value={query}
         onChange={e => setQuery(e.target.value)}
+        autoFocus
       />
 
-      {loading && (
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400">Searching...</p>
-      )}
+      {loading && <p className="text-muted-foreground text-center text-sm">Searching…</p>}
 
       {results.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {results.map(user => (
-            <Card key={user.id} className="flex items-center justify-between p-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 font-bold text-white">
+            <div
+              key={user.id}
+              className="border-border flex items-center gap-3 rounded-lg border px-3 py-2.5"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40">
+                <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
                   {user.username.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-medium">{user.username}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                </div>
+                </span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-foreground text-sm font-medium">{user.username}</p>
+                <p className="text-muted-foreground truncate text-xs">{user.email}</p>
               </div>
               <Button
                 size="sm"
                 onClick={() => handleSendRequest(user.id)}
                 disabled={sendingTo === user.id}
+                className="h-8 shrink-0 px-2.5 text-xs"
               >
-                {sendingTo === user.id ? 'Sending...' : 'Add Friend'}
+                <UserPlus size={13} />
+                {sendingTo === user.id ? 'Sending…' : 'Add'}
               </Button>
-            </Card>
+            </div>
           ))}
         </div>
       )}
 
       {query.length >= 2 && !loading && results.length === 0 && (
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400">No users found</p>
+        <p className="text-muted-foreground text-center text-sm">No users found</p>
       )}
     </div>
   );

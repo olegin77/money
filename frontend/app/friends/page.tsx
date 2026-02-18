@@ -3,26 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FriendCard } from '@/components/friends/friend-card';
 import { RequestCard } from '@/components/friends/request-card';
 import { UserSearch } from '@/components/friends/user-search';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { friendsApi, Friend, FriendRequest } from '@/lib/api/friends';
+import { UserPlus, Users } from 'lucide-react';
 
 export default function FriendsPage() {
   const { isLoading: authLoading } = useAuth(true);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
-    if (!authLoading) {
-      loadData();
-    }
+    if (!authLoading) loadData();
   }, [authLoading]);
 
   const loadData = async () => {
@@ -34,8 +34,8 @@ export default function FriendsPage() {
       ]);
       setFriends(friendsData);
       setPendingRequests(requestsData);
-    } catch (error) {
-      console.error('Failed to load friends data:', error);
+    } catch {
+      /* silent */
     } finally {
       setLoading(false);
     }
@@ -46,44 +46,34 @@ export default function FriendsPage() {
       await friendsApi.sendRequest(userId);
       setShowSearch(false);
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to send friend request');
+      alert(error.response?.data?.error || 'Failed to send request');
     }
   };
 
   const handleAccept = async (requestId: string) => {
-    try {
-      await friendsApi.acceptRequest(requestId);
-      loadData();
-    } catch (error) {
-      console.error('Failed to accept request:', error);
-    }
+    await friendsApi.acceptRequest(requestId);
+    loadData();
   };
 
   const handleReject = async (requestId: string) => {
-    try {
-      await friendsApi.rejectRequest(requestId);
-      loadData();
-    } catch (error) {
-      console.error('Failed to reject request:', error);
-    }
+    await friendsApi.rejectRequest(requestId);
+    loadData();
   };
 
   const handleRemove = async (friendshipId: string) => {
     if (!confirm('Remove this friend?')) return;
-
-    try {
-      await friendsApi.removeFriend(friendshipId);
-      loadData();
-    } catch (error) {
-      console.error('Failed to remove friend:', error);
-    }
+    await friendsApi.removeFriend(friendshipId);
+    loadData();
   };
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <ResponsiveContainer>
-        <div className="flex min-h-screen items-center justify-center">
-          <p className="text-gray-400">Loading...</p>
+        <div className="mx-auto max-w-2xl space-y-3 p-4 md:p-8">
+          <Skeleton className="h-8 w-28" />
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
+          ))}
         </div>
       </ResponsiveContainer>
     );
@@ -91,73 +81,84 @@ export default function FriendsPage() {
 
   return (
     <ResponsiveContainer>
-      <div className="min-h-screen p-4 md:p-8">
-        <div className="mx-auto max-w-4xl">
+      <div className="p-4 md:p-8">
+        <div className="mx-auto max-w-2xl">
+          {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
             <div>
-              <h1 className="font-satoshi mb-2 text-4xl font-bold">Friends</h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Connect and share expenses with friends
-              </p>
+              <h1 className="text-foreground text-2xl font-bold">Friends</h1>
+              <p className="text-muted-foreground mt-0.5 text-sm">Connect and share expenses</p>
             </div>
-            <Button onClick={() => setShowSearch(true)}>+ Add Friend</Button>
+            <Button onClick={() => setShowSearch(true)}>
+              <UserPlus size={15} /> Add friend
+            </Button>
           </div>
 
-          {/* Pending Requests */}
+          {/* Pending requests */}
           {pendingRequests.length > 0 && (
             <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  Friend Requests
-                  <span className="bg-primary/20 text-primary rounded-full px-2 py-1 text-sm">
+              <CardContent className="pt-5">
+                <div className="mb-4 flex items-center gap-2">
+                  <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+                    Friend requests
+                  </p>
+                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400">
                     {pendingRequests.length}
                   </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {pendingRequests.map(request => (
-                  <RequestCard
-                    key={request.id}
-                    request={request}
-                    onAccept={handleAccept}
-                    onReject={handleReject}
-                  />
-                ))}
+                </div>
+                <div className="space-y-2">
+                  {pendingRequests.map(request => (
+                    <RequestCard
+                      key={request.id}
+                      request={request}
+                      onAccept={handleAccept}
+                      onReject={handleReject}
+                    />
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Friends List */}
+          {/* Friends list */}
           {friends.length > 0 ? (
-            <div className="space-y-3">
-              <h2 className="mb-4 text-xl font-bold">My Friends ({friends.length})</h2>
-              {friends.map(friend => (
-                <FriendCard key={friend.friendshipId} friend={friend} onRemove={handleRemove} />
-              ))}
-            </div>
-          ) : (
-            <Card className="py-12 text-center">
-              <div className="mb-4 text-5xl">👥</div>
-              <p className="mb-2 text-xl font-semibold">No friends yet</p>
-              <p className="mb-6 text-gray-600 dark:text-gray-400">
-                Add friends to share expenses and categories
+            <>
+              <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
+                Friends · {friends.length}
               </p>
-              <Button onClick={() => setShowSearch(true)}>Add Your First Friend</Button>
-            </Card>
+              <div className="space-y-2">
+                {friends.map(friend => (
+                  <FriendCard key={friend.friendshipId} friend={friend} onRemove={handleRemove} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                <Users size={22} className="text-muted-foreground" />
+              </div>
+              <p className="text-foreground mb-1 text-base font-semibold">No friends yet</p>
+              <p className="text-muted-foreground mb-6 max-w-xs text-sm">
+                Add friends to share expenses and budgets
+              </p>
+              <Button onClick={() => setShowSearch(true)}>
+                <UserPlus size={15} /> Add friend
+              </Button>
+            </div>
           )}
-
-          {/* Search Dialog */}
-          <Dialog open={showSearch} onOpenChange={setShowSearch}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Friend</DialogTitle>
-              </DialogHeader>
-              <UserSearch onSendRequest={handleSendRequest} />
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
+
       <FloatingActionButton onClick={() => setShowSearch(true)} />
+
+      <Dialog open={showSearch} onOpenChange={setShowSearch}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add friend</DialogTitle>
+          </DialogHeader>
+          <UserSearch onSendRequest={handleSendRequest} />
+        </DialogContent>
+      </Dialog>
     </ResponsiveContainer>
   );
 }

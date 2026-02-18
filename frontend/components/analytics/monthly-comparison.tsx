@@ -32,32 +32,68 @@ export function MonthlyComparison({ data }: MonthlyComparisonProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Monthly Comparison</CardTitle>
+        <CardTitle>Monthly comparison</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <ComposedChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
-            <YAxis yAxisId="left" stroke="#9CA3AF" fontSize={12} />
-            <YAxis yAxisId="right" orientation="right" stroke="#A78BFA" fontSize={12} />
+        <ResponsiveContainer width="100%" height={260}>
+          <ComposedChart data={chartData} barGap={2}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" vertical={false} />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 11, fill: 'hsl(220 9% 46%)' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              yAxisId="left"
+              tick={{ fontSize: 11, fill: 'hsl(220 9% 46%)' }}
+              axisLine={false}
+              tickLine={false}
+              width={50}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 11, fill: 'hsl(220 9% 46%)' }}
+              axisLine={false}
+              tickLine={false}
+              width={40}
+            />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                border: '1px solid #374151',
+                backgroundColor: '#fff',
+                border: '1px solid hsl(220 13% 91%)',
                 borderRadius: '8px',
+                fontSize: '12px',
               }}
             />
-            <Legend />
-            <Bar yAxisId="left" dataKey="income" fill="#10B981" name="Income" />
-            <Bar yAxisId="left" dataKey="expenses" fill="#EF4444" name="Expenses" />
+            <Legend
+              iconType="circle"
+              iconSize={8}
+              wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
+            />
+            <Bar
+              yAxisId="left"
+              dataKey="income"
+              fill="#10b981"
+              name="Income"
+              radius={[3, 3, 0, 0]}
+            />
+            <Bar
+              yAxisId="left"
+              dataKey="expenses"
+              fill="#ef4444"
+              name="Expenses"
+              radius={[3, 3, 0, 0]}
+            />
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="savingsRate"
-              stroke="#A78BFA"
+              stroke="#4f46e5"
               strokeWidth={2}
-              name="Savings Rate %"
+              dot={false}
+              name="Savings %"
             />
           </ComposedChart>
         </ResponsiveContainer>

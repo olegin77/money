@@ -11,7 +11,7 @@ interface CategoryBreakdownProps {
   }>;
 }
 
-const COLORS = ['#6366F1', '#8B5CF6', '#A78BFA', '#EC4899', '#F472B6', '#FB923C', '#FBBF24'];
+const COLORS = ['#4f46e5', '#7c3aed', '#0891b2', '#059669', '#d97706', '#dc2626', '#9333ea'];
 
 export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
   const chartData = data.map(item => ({
@@ -23,16 +23,16 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Expenses by Category</CardTitle>
+        <CardTitle>Expenses by category</CardTitle>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+          <div className="text-muted-foreground py-12 text-center text-sm">
             No expense data available
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
                   data={chartData}
@@ -40,42 +40,38 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                   cy="50%"
                   labelLine={false}
                   label={({ percentage }) => `${percentage}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
+                  outerRadius={90}
                   dataKey="value"
                 >
-                  {chartData.map((entry, index) => (
+                  {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                    border: '1px solid #374151',
+                    backgroundColor: 'var(--color-card, #fff)',
+                    border: '1px solid var(--color-border, #e5e7eb)',
                     borderRadius: '8px',
+                    fontSize: '12px',
                   }}
-                  formatter={(value: number) => `$${value.toFixed(2)}`}
+                  formatter={(value: number) => [`$${value.toFixed(2)}`, '']}
                 />
               </PieChart>
             </ResponsiveContainer>
 
-            <div className="mt-4 space-y-2">
+            <div className="mt-3 space-y-1.5">
               {chartData.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between text-sm">
+                <div key={item.name} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div
-                      className="h-3 w-3 rounded-full"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span className="text-gray-700 dark:text-gray-300">{item.name}</span>
+                    <span className="text-foreground max-w-[120px] truncate">{item.name}</span>
                   </div>
-                  <div className="flex gap-3">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      ${item.value.toFixed(2)}
-                    </span>
-                    <span className="w-12 text-right text-gray-500 dark:text-gray-500">
-                      {item.percentage}%
-                    </span>
+                  <div className="text-muted-foreground flex shrink-0 gap-3">
+                    <span className="tabular-nums">${item.value.toFixed(2)}</span>
+                    <span className="w-10 text-right tabular-nums">{item.percentage}%</span>
                   </div>
                 </div>
               ))}

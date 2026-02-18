@@ -80,7 +80,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
 
         <div className="space-y-6">
           {/* Add User Form */}
-          <div className="glass space-y-4 rounded-xl p-4">
+          <div className="border-border space-y-4 rounded-lg border p-4">
             <div className="space-y-2">
               <Label htmlFor="email">User Email</Label>
               <Input
@@ -99,7 +99,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
                 id="role"
                 value={role}
                 onChange={e => setRole(e.target.value as any)}
-                className="bg-background flex h-12 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm dark:border-gray-700"
+                className="border-border bg-card text-foreground focus-visible:ring-ring flex h-10 w-full rounded-lg border px-3 text-sm focus-visible:outline-none focus-visible:ring-2"
                 disabled={loading}
               >
                 <option value="viewer">Viewer (View only)</option>
@@ -116,22 +116,20 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
           {/* Current Shares */}
           {shares.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+              <h3 className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                 Shared with ({shares.length})
               </h3>
               {shares.map(share => (
                 <div
                   key={share.id}
-                  className="glass flex items-center justify-between rounded-xl p-3"
+                  className="border-border flex items-center justify-between rounded-lg border px-3 py-2.5"
                 >
                   <div>
                     <p className="font-medium">{share.sharedWith.username}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {share.sharedWith.email}
-                    </p>
+                    <p className="text-muted-foreground text-xs">{share.sharedWith.email}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="bg-primary/20 text-primary rounded-full px-2 py-1 text-xs">
+                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                       {share.role}
                     </span>
                     <Button
@@ -149,7 +147,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
           )}
 
           {shares.length === 0 && (
-            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-muted-foreground py-8 text-center text-sm">
               Not shared with anyone yet
             </div>
           )}

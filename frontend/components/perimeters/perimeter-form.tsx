@@ -91,8 +91,8 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
                 onClick={() => handleChange('icon', icon)}
                 className={`rounded-lg p-2 text-2xl transition-all ${
                   formData.icon === icon
-                    ? 'ring-primary bg-primary/10 ring-2'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-indigo-50 ring-2 ring-indigo-500 dark:bg-indigo-900/30'
+                    : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
                 }`}
                 disabled={loading}
               >
@@ -111,7 +111,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
                 type="button"
                 onClick={() => handleChange('color', color)}
                 className={`h-10 rounded-lg transition-all ${
-                  formData.color === color ? 'ring-2 ring-gray-400 ring-offset-2' : ''
+                  formData.color === color ? 'ring-2 ring-indigo-500 ring-offset-2' : ''
                 }`}
                 style={{ backgroundColor: color }}
                 disabled={loading}
@@ -121,7 +121,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
         </div>
       </div>
 
-      <div className="glass space-y-4 rounded-xl p-4">
+      <div className="border-border space-y-4 rounded-lg border p-4">
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -157,7 +157,7 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
                 id="budgetPeriod"
                 value={formData.budgetPeriod}
                 onChange={e => handleChange('budgetPeriod', e.target.value)}
-                className="bg-background flex h-12 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm dark:border-gray-700"
+                className="border-border bg-card text-foreground focus-visible:ring-ring flex h-10 w-full rounded-lg border px-3 text-sm focus-visible:outline-none focus-visible:ring-2"
                 disabled={loading}
               >
                 <option value="daily">Daily</option>

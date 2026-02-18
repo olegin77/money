@@ -17,21 +17,38 @@ export default function Home() {
   }, [isAuthenticated, router]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="text-center">
-        <h1 className="mb-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-purple-400 bg-clip-text text-6xl font-bold text-transparent">
-          FinTrack Pro
+    <main className="bg-page flex min-h-screen flex-col items-center justify-center p-6">
+      <div className="w-full max-w-sm text-center">
+        {/* Logo */}
+        <div className="mb-8 flex justify-center">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 shadow-sm">
+              <span className="text-base font-bold text-white">F</span>
+            </div>
+            <span className="text-foreground text-xl font-semibold">FinTrack</span>
+          </div>
+        </div>
+
+        {/* Headline */}
+        <h1 className="text-foreground mb-3 text-3xl font-bold tracking-tight">
+          Personal finance,
+          <br />
+          simplified.
         </h1>
-        <p className="mb-8 text-xl text-gray-600 dark:text-gray-400">
-          Data Serenity • Modern Finance Management
+        <p className="text-muted-foreground mb-10 text-sm leading-relaxed">
+          Track expenses, monitor income, and get clear insights into your money.
         </p>
-        <div className="flex justify-center gap-4">
-          <Link href="/register">
-            <Button size="lg">Get Started</Button>
+
+        {/* Actions */}
+        <div className="flex flex-col gap-3">
+          <Link href="/register" className="block">
+            <Button size="lg" className="w-full">
+              Get started — it&apos;s free
+            </Button>
           </Link>
-          <Link href="/login">
-            <Button size="lg" variant="outline">
-              Sign In
+          <Link href="/login" className="block">
+            <Button size="lg" variant="outline" className="w-full">
+              Sign in
             </Button>
           </Link>
         </div>

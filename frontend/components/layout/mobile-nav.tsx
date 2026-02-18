@@ -3,49 +3,50 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, TrendingDown, TrendingUp, BarChart3, FolderOpen, Users } from 'lucide-react';
+import { LayoutDashboard, TrendingDown, TrendingUp, FolderOpen, BarChart2 } from 'lucide-react';
 
-const navigation = [
-  { name: 'Home', href: '/dashboard', icon: Home },
-  { name: 'Expenses', href: '/expenses', icon: TrendingDown },
-  { name: 'Income', href: '/income', icon: TrendingUp },
-  { name: 'Categories', href: '/categories', icon: FolderOpen },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Friends', href: '/friends', icon: Users },
+const navItems = [
+  { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Expenses', href: '/expenses', icon: TrendingDown },
+  { label: 'Income', href: '/income', icon: TrendingUp },
+  { label: 'Categories', href: '/categories', icon: FolderOpen },
+  { label: 'Analytics', href: '/analytics', icon: BarChart2 },
 ];
+
+const authPaths = ['/', '/login', '/register', '/forgot-password'];
 
 export function MobileNav() {
   const pathname = usePathname();
 
-  if (
-    pathname === '/' ||
-    pathname === '/login' ||
-    pathname === '/register' ||
-    pathname === '/forgot-password'
-  ) {
-    return null;
-  }
+  if (authPaths.includes(pathname)) return null;
 
   return (
-    <nav className="glass fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 md:hidden">
-      <div className="flex items-center justify-around px-2 py-3">
-        {navigation.map(item => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-
+    <nav className="bg-card border-border fixed bottom-0 left-0 right-0 z-50 h-16 border-t md:hidden">
+      <div className="flex h-full items-stretch">
+        {navItems.map(({ label, href, icon: Icon }) => {
+          const active = pathname === href;
           return (
             <Link
-              key={item.name}
-              href={item.href}
+              key={href}
+              href={href}
               className={cn(
-                'flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all',
-                isActive
-                  ? 'text-primary bg-primary/10'
-                  : 'hover:text-primary hover:bg-primary/5 text-gray-600 dark:text-gray-400'
+                'text-muted-foreground flex flex-1 flex-col items-center justify-center gap-1 transition-colors',
+                active ? 'text-indigo-600 dark:text-indigo-400' : 'hover:text-foreground'
               )}
             >
-              <Icon size={20} strokeWidth={2} />
-              <span className="text-xs font-medium">{item.name}</span>
+              <Icon
+                size={20}
+                strokeWidth={active ? 2.5 : 1.8}
+                className={active ? 'text-indigo-600 dark:text-indigo-400' : ''}
+              />
+              <span
+                className={cn(
+                  'text-2xs font-medium',
+                  active ? 'text-indigo-600 dark:text-indigo-400' : ''
+                )}
+              >
+                {label}
+              </span>
             </Link>
           );
         })}
