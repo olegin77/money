@@ -1,0 +1,2 @@
+# FinTrack backup - every 6 hours
+0 */6 * * * /app/scripts/backup.sh >> /var/log/fintrack-backup.log 2>&1

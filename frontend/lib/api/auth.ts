@@ -41,6 +41,10 @@ export interface User {
   twoFaEnabled: boolean;
   isActive: boolean;
   isAdmin: boolean;
+  notifyEmail: boolean;
+  notifyPush: boolean;
+  notifyBudgetAlerts: boolean;
+  consentGivenAt?: string;
   createdAt: string;
   updatedAt: string;
 }

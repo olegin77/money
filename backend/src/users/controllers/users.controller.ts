@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, UseGuards, Delete, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { UsersService } from '../services/users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -45,6 +45,21 @@ export class UsersController {
     return {
       success: true,
       message: 'Account deleted successfully',
+    };
+  }
+
+  // GDPR: Data processing consent
+  @Post('me/consent')
+  @HttpCode(HttpStatus.OK)
+  async giveConsent(@CurrentUser() currentUser: CurrentUserData) {
+    await this.usersService.update(currentUser.id, {
+      consentGivenAt: new Date(),
+    });
+
+    return {
+      success: true,
+      message: 'Data processing consent recorded',
+      data: { consentGivenAt: new Date() },
     };
   }
 

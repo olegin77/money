@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
-import { Download, Globe, Shield, User } from 'lucide-react';
+import { Bell, Download, Globe, Shield, User } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
 
 export default function SettingsPage() {
@@ -109,6 +109,15 @@ export default function SettingsPage() {
       toast.error('Invalid code.');
     } finally {
       setTwoFaLoading(false);
+    }
+  };
+
+  const handleNotifyToggle = async (key: 'notifyEmail' | 'notifyPush' | 'notifyBudgetAlerts') => {
+    try {
+      const updated = await usersApi.updateProfile({ [key]: !user?.[key] });
+      updateUser(updated);
+    } catch {
+      toast.error(t('toast_error'));
     }
   };
 
@@ -309,6 +318,41 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Notification Preferences */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell size={14} />
+              {t('set_notifications')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {(
+              [
+                { key: 'notifyEmail', label: t('set_notify_email') },
+                { key: 'notifyPush', label: t('set_notify_push') },
+                { key: 'notifyBudgetAlerts', label: t('set_notify_budget') },
+              ] as const
+            ).map(item => (
+              <div key={item.key} className="flex items-center justify-between">
+                <span className="text-foreground text-sm">{item.label}</span>
+                <button
+                  onClick={() => handleNotifyToggle(item.key)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    user?.[item.key] ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-700'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                      user?.[item.key] ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
           </CardContent>
         </Card>
 

@@ -30,6 +30,8 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 # Copy built files
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/package.json ./

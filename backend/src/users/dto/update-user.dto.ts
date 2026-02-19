@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, MaxLength, IsIn } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
@@ -24,4 +24,16 @@ export class UpdateUserDto {
   @IsOptional()
   @IsIn(['light', 'dark'])
   themeMode?: 'light' | 'dark';
+
+  @IsBoolean()
+  @IsOptional()
+  notifyEmail?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  notifyPush?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  notifyBudgetAlerts?: boolean;
 }

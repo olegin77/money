@@ -70,7 +70,8 @@ const config: Config = {
         full: '9999px',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-dm-sans)', 'DM Sans', 'system-ui', 'sans-serif'],
+        heading: ['Satoshi', 'var(--font-dm-sans)', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', 'monospace'],
       },
       fontSize: {

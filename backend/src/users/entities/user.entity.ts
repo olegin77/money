@@ -56,6 +56,18 @@ export class User {
   @Column({ name: 'last_login_at', nullable: true })
   lastLoginAt: Date;
 
+  @Column({ name: 'consent_given_at', nullable: true })
+  consentGivenAt: Date;
+
+  @Column({ name: 'notify_email', default: true })
+  notifyEmail: boolean;
+
+  @Column({ name: 'notify_push', default: true })
+  notifyPush: boolean;
+
+  @Column({ name: 'notify_budget_alerts', default: true })
+  notifyBudgetAlerts: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
