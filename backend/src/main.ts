@@ -1,23 +1,61 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import compression from 'compression';
+import * as path from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
   const configService = app.get(ConfigService);
+  const corsOrigin =
+    configService.get('CORS_ORIGIN')?.split(',') || 'http://localhost:3000';
 
-  // Security
-  app.use(helmet());
+  // Security headers
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'blob:'],
+          connectSrc: ["'self'", ...(Array.isArray(corsOrigin) ? corsOrigin : [corsOrigin])],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
+      crossOriginEmbedderPolicy: false, // Needed for static file serving
+      hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    }),
+  );
+
+  // Compression
+  app.use(compression());
+
+  // Serve uploaded files
+  const uploadDir =
+    configService.get('UPLOAD_DIR') || path.join(process.cwd(), 'uploads');
+  app.useStaticAssets(uploadDir, { prefix: '/uploads/' });
+
+  // Disable powered-by header
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   // CORS
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN')?.split(',') || 'http://localhost:3000',
+    origin: corsOrigin,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    maxAge: 86400,
   });
 
   // Global prefix

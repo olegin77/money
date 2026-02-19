@@ -7,12 +7,14 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Perimeter } from './perimeter.entity';
 
 @Entity('perimeter_shares')
 @Unique(['perimeterId', 'sharedWithId'])
+@Index(['sharedWithId'])
 export class PerimeterShare {
   @PrimaryGeneratedColumn('uuid')
   id: string;

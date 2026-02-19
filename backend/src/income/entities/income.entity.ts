@@ -6,10 +6,13 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('income_records')
+@Index(['userId', 'date'])
+@Index(['userId', 'createdAt'])
 export class Income {
   @PrimaryGeneratedColumn('uuid')
   id: string;

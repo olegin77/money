@@ -10,6 +10,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 
 @Entity('refresh_tokens')
+@Index(['userId', 'isRevoked'])
 export class RefreshToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;

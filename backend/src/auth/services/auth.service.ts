@@ -15,6 +15,7 @@ import * as qrcode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 
 import { UsersService } from '../../users/services/users.service';
+import { MailService } from '../../mail/mail.service';
 import { User } from '../../users/entities/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { RegisterDto } from '../dto/register.dto';
@@ -28,6 +29,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mailService: MailService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>
   ) {}
@@ -65,6 +67,9 @@ export class AuthService {
 
     // Remove sensitive data
     const { password: _, twoFaSecret: __, ...userWithoutSensitive } = user;
+
+    // Send welcome email (non-blocking)
+    this.mailService.sendWelcome(user.email, user.username).catch(() => {});
 
     return {
       user: userWithoutSensitive,
@@ -295,12 +300,8 @@ export class AuthService {
       },
     );
 
-    const appUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
-    const resetLink = `${appUrl}/reset-password?token=${resetToken}`;
-
-    // Log the reset link (in production, integrate nodemailer/SES)
-    console.log(`[PASSWORD RESET] User: ${email}`);
-    console.log(`[PASSWORD RESET] Link: ${resetLink}`);
+    // Send password reset email (non-blocking)
+    this.mailService.sendPasswordReset(user.email, resetToken).catch(() => {});
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {

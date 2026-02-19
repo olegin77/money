@@ -6,10 +6,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('perimeters')
+@Index(['ownerId'])
 export class Perimeter {
   @PrimaryGeneratedColumn('uuid')
   id: string;

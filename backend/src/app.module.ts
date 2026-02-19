@@ -18,6 +18,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { CommonModule } from './common/common.module';
+import { MailModule } from './mail/mail.module';
 
 // Controllers
 import { AppController } from './app.controller';
@@ -97,6 +98,7 @@ import { AppService } from './app.service';
 
     // Feature modules
     CommonModule,
+    MailModule,
     AuthModule,
     UsersModule,
     ExpensesModule,

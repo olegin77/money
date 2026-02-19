@@ -10,6 +10,8 @@ import { AuditLogInterceptor } from './interceptors/audit-log.interceptor';
 import { AuditLog } from './entities/audit-log.entity';
 import { GlobalExceptionFilter } from './filters/http-exception.filter';
 import { AdminAuditLogsController } from './controllers/admin-audit-logs.controller';
+import { UploadController } from './controllers/upload.controller';
+import { UploadService } from './services/upload.service';
 
 @Global()
 @Module({
@@ -22,15 +24,16 @@ import { AdminAuditLogsController } from './controllers/admin-audit-logs.control
       }),
     }),
   ],
-  controllers: [AdminAuditLogsController],
+  controllers: [AdminAuditLogsController, UploadController],
   providers: [
     EventsGateway,
     NotificationService,
     CacheService,
+    UploadService,
     AuditLogInterceptor,
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
   ],
-  exports: [EventsGateway, NotificationService, CacheService],
+  exports: [EventsGateway, NotificationService, CacheService, UploadService],
 })
 export class CommonModule {}
