@@ -44,7 +44,18 @@ export class UsersController {
 
     return {
       success: true,
-      message: 'Account deleted successfully',
+      message: 'Account scheduled for deletion in 30 days. Log in again to cancel.',
+    };
+  }
+
+  @Post('me/cancel-deletion')
+  @HttpCode(HttpStatus.OK)
+  async cancelDeletion(@CurrentUser() currentUser: CurrentUserData) {
+    await this.usersService.cancelDeletion(currentUser.id);
+
+    return {
+      success: true,
+      message: 'Account deletion cancelled',
     };
   }
 

@@ -6,8 +6,8 @@ import { useT } from '@/hooks/use-t';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { expensesApi, ExpenseStats } from '@/lib/api/expenses';
-import { incomeApi, IncomeStats } from '@/lib/api/income';
+import { analyticsApi, DashboardData } from '@/lib/api/analytics';
+import { formatCurrency } from '@/lib/api/currency';
 import Link from 'next/link';
 import {
   TrendingDown,
@@ -24,8 +24,7 @@ import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard';
 export default function DashboardPage() {
   const { user, isLoading } = useAuth(true);
   const t = useT();
-  const [expenseStats, setExpenseStats] = useState<ExpenseStats | null>(null);
-  const [incomeStats, setIncomeStats] = useState<IncomeStats | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,9 +34,8 @@ export default function DashboardPage() {
   const loadStats = async () => {
     try {
       setStatsLoading(true);
-      const [expenses, income] = await Promise.all([expensesApi.getStats(), incomeApi.getStats()]);
-      setExpenseStats(expenses);
-      setIncomeStats(income);
+      const data = await analyticsApi.getDashboard({ period: 'month' });
+      setDashboard(data);
     } catch {
       /* silent */
     } finally {
@@ -61,8 +59,11 @@ export default function DashboardPage() {
     );
   }
 
-  const balance = Number(incomeStats?.total || 0) - Number(expenseStats?.total || 0);
+  const summary = dashboard?.summary;
+  const balance = summary?.balance || 0;
   const balancePositive = balance >= 0;
+  const cur = user?.currency || 'USD';
+  const fmt = (amount: number) => formatCurrency(amount, cur);
 
   const quickLinks = [
     {
@@ -130,9 +131,7 @@ export default function DashboardPage() {
                 <HoverCard>
                   <Card
                     className={
-                      balancePositive
-                        ? 'border-indigo-600 bg-indigo-600 text-white'
-                        : 'border-red-600 bg-red-600 text-white'
+                      balancePositive ? 'gradient-hero' : 'border-red-600 bg-red-600 text-white'
                     }
                   >
                     <CardContent className="pt-5">
@@ -142,9 +141,16 @@ export default function DashboardPage() {
                           {t('dash_balance')}
                         </span>
                       </div>
-                      <p className="text-3xl font-bold tabular-nums">
-                        {balancePositive ? '' : '-'}${Math.abs(balance).toFixed(2)}
+                      <p className="font-heading text-3xl font-bold tabular-nums">
+                        {balancePositive ? '' : '-'}
+                        {fmt(Math.abs(balance))}
                       </p>
+                      {summary?.savingsRate !== undefined && (
+                        <p className="mt-1 text-xs opacity-70">
+                          {Number(summary.savingsRate) >= 0 ? '+' : ''}
+                          {Number(summary.savingsRate).toFixed(1)}% savings rate
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
                 </HoverCard>
@@ -162,10 +168,10 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="text-3xl font-bold tabular-nums text-red-500">
-                        ${Number(expenseStats?.total || 0).toFixed(2)}
+                        {fmt(Number(summary?.totalExpenses || 0))}
                       </p>
                       <p className="text-muted-foreground mt-1.5 text-xs">
-                        {expenseStats?.count || 0} txn
+                        {summary?.expenseCount || 0} txn
                       </p>
                     </CardContent>
                   </Card>
@@ -184,16 +190,48 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="text-3xl font-bold tabular-nums text-emerald-500">
-                        ${Number(incomeStats?.total || 0).toFixed(2)}
+                        {fmt(Number(summary?.totalIncome || 0))}
                       </p>
                       <p className="text-muted-foreground mt-1.5 text-xs">
-                        {incomeStats?.count || 0} txn
+                        {summary?.incomeCount || 0} txn
                       </p>
                     </CardContent>
                   </Card>
                 </HoverCard>
               </StaggerItem>
             </StaggerContainer>
+          )}
+
+          {/* Recent transactions */}
+          {dashboard?.recentTransactions && dashboard.recentTransactions.length > 0 && (
+            <Card className="mb-6">
+              <CardContent className="pb-2 pt-5">
+                <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
+                  {t('dash_recent')}
+                </p>
+                <div className="divide-border divide-y">
+                  {dashboard.recentTransactions.slice(0, 8).map(txn => (
+                    <div key={txn.id} className="flex items-center justify-between py-2.5">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-foreground truncate text-sm">
+                          {txn.description ||
+                            (txn.type === 'expense' ? t('nav_expenses') : t('nav_income'))}
+                        </p>
+                        <p className="text-muted-foreground text-xs">{txn.date}</p>
+                      </div>
+                      <span
+                        className={`shrink-0 text-sm font-medium tabular-nums ${
+                          txn.type === 'income' ? 'text-emerald-500' : 'text-red-500'
+                        }`}
+                      >
+                        {txn.type === 'income' ? '+' : '-'}
+                        {fmt(Number(txn.amount))}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {/* Quick links */}

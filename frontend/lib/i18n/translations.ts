@@ -81,6 +81,11 @@ const en = {
   exp_page: 'Page',
   exp_of: 'of',
 
+  // Filters
+  filter_search: 'Search by description...',
+  filter_to: 'to',
+  filter_clear: 'Clear',
+
   // Income
   inc_title: 'Income',
   inc_new: '+ New income',
@@ -338,6 +343,11 @@ const ru: typeof en = {
   exp_next: 'Далее',
   exp_page: 'Стр.',
   exp_of: 'из',
+
+  // Filters
+  filter_search: 'Поиск по описанию...',
+  filter_to: 'до',
+  filter_clear: 'Сбросить',
 
   // Income
   inc_title: 'Доходы',

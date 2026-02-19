@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { toast } from '@/hooks/use-toast';
@@ -12,7 +12,7 @@ import { IncomeList } from '@/components/income/income-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { incomeApi, Income, CreateIncomeData } from '@/lib/api/income';
-import { Plus } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
 
 export default function IncomePage() {
@@ -24,12 +24,30 @@ export default function IncomePage() {
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const openForm = useCallback(() => setShowForm(true), []);
 
   useEffect(() => {
     if (!authLoading) loadIncomes();
-  }, [authLoading, page]);
+  }, [authLoading, page, startDate, endDate]);
+
+  // Debounced search
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      if (!authLoading) {
+        setPage(1);
+        loadIncomes();
+      }
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [search]);
 
   // Open form via keyboard shortcut event or URL param
   useEffect(() => {
@@ -47,7 +65,13 @@ export default function IncomePage() {
   const loadIncomes = async () => {
     try {
       setLoading(true);
-      const result = await incomeApi.findAll({ page, limit: 20 });
+      const result = await incomeApi.findAll({
+        page,
+        limit: 20,
+        search: search || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
       setIncomes(result.items);
       setTotalPages(result.pagination.totalPages);
     } catch {
@@ -56,6 +80,15 @@ export default function IncomePage() {
       setLoading(false);
     }
   };
+
+  const clearFilters = () => {
+    setSearch('');
+    setStartDate('');
+    setEndDate('');
+    setPage(1);
+  };
+
+  const hasFilters = search || startDate || endDate;
 
   const handleCreate = async (data: CreateIncomeData) => {
     try {
@@ -109,7 +142,7 @@ export default function IncomePage() {
       <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-2xl">
           {/* Desktop header */}
-          <div className="mb-8 hidden items-center justify-between md:flex">
+          <div className="mb-6 hidden items-center justify-between md:flex">
             <div>
               <h1 className="text-foreground text-2xl font-bold">{t('inc_title')}</h1>
               <p className="text-muted-foreground mt-0.5 text-sm">{t('inc_empty_sub')}</p>
@@ -117,6 +150,53 @@ export default function IncomePage() {
             <Button onClick={() => setShowForm(true)}>
               <Plus size={15} /> {t('inc_new')}
             </Button>
+          </div>
+
+          {/* Search & filters */}
+          <div className="mb-4 space-y-2">
+            <div className="relative">
+              <Search
+                size={16}
+                className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
+              />
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={t('filter_search')}
+                className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => {
+                  setStartDate(e.target.value);
+                  setPage(1);
+                }}
+                className="border-border bg-card text-foreground flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
+              />
+              <span className="text-muted-foreground text-xs">{t('filter_to')}</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => {
+                  setEndDate(e.target.value);
+                  setPage(1);
+                }}
+                className="border-border bg-card text-foreground flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
+              />
+              {hasFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition-colors"
+                >
+                  <X size={14} />
+                  {t('filter_clear')}
+                </button>
+              )}
+            </div>
           </div>
 
           {loading ? (

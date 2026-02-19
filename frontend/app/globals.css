@@ -94,11 +94,25 @@
     color: hsl(var(--danger));
   }
 
-  /* Surface card */
+  /* Surface card with glassmorphism */
   .card {
-    background-color: hsl(var(--bg-card));
-    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--bg-card) / 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--border) / 0.5);
     border-radius: var(--radius);
+  }
+
+  .dark .card {
+    background-color: hsl(var(--bg-card) / 0.7);
+    border-color: hsl(var(--border) / 0.3);
+  }
+
+  /* Gradient hero */
+  .gradient-hero {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+    color: white;
+    border: none;
   }
 
   /* Divider */

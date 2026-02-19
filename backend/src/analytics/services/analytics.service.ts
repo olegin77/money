@@ -72,13 +72,20 @@ export class AnalyticsService {
   async getExpensesByCategory(userId: string, startDate: string, endDate: string) {
     const expenses = await this.expenseRepository
       .createQueryBuilder('expense')
+      .leftJoin('perimeters', 'p', 'p.id = expense.category_id')
       .select('expense.categoryId', 'categoryId')
+      .addSelect('COALESCE(p.name, \'Uncategorized\')', 'categoryName')
+      .addSelect('p.icon', 'categoryIcon')
+      .addSelect('p.color', 'categoryColor')
       .addSelect('SUM(expense.amount)', 'total')
       .addSelect('COUNT(expense.id)', 'count')
       .addSelect('AVG(expense.amount)', 'average')
       .where('expense.userId = :userId', { userId })
       .andWhere('expense.date BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('expense.categoryId')
+      .addGroupBy('p.name')
+      .addGroupBy('p.icon')
+      .addGroupBy('p.color')
       .orderBy('total', 'DESC')
       .getRawMany();
 
@@ -86,6 +93,9 @@ export class AnalyticsService {
 
     return expenses.map((cat) => ({
       categoryId: cat.categoryId || 'uncategorized',
+      categoryName: cat.categoryName || 'Uncategorized',
+      categoryIcon: cat.categoryIcon || null,
+      categoryColor: cat.categoryColor || null,
       total: Number(cat.total),
       count: Number(cat.count),
       average: Number(cat.average),

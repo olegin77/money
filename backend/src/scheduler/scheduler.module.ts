@@ -3,14 +3,29 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Expense } from '../expenses/entities/expense.entity';
 import { Income } from '../income/entities/income.entity';
 import { CurrencyRate } from '../common/entities/currency-rate.entity';
+import { Perimeter } from '../perimeters/entities/perimeter.entity';
+import { User } from '../users/entities/user.entity';
 import { RecurringTransactionsService } from './recurring-transactions.service';
 import { CurrencyRatesService } from './currency-rates.service';
 import { CurrencyRatesController } from './currency-rates.controller';
+import { AccountCleanupService } from './account-cleanup.service';
+import { BudgetAlertService } from './budget-alert.service';
+import { UsersModule } from '../users/users.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Expense, Income, CurrencyRate])],
+  imports: [
+    TypeOrmModule.forFeature([Expense, Income, CurrencyRate, Perimeter, User]),
+    UsersModule,
+    NotificationsModule,
+  ],
   controllers: [CurrencyRatesController],
-  providers: [RecurringTransactionsService, CurrencyRatesService],
+  providers: [
+    RecurringTransactionsService,
+    CurrencyRatesService,
+    AccountCleanupService,
+    BudgetAlertService,
+  ],
   exports: [CurrencyRatesService],
 })
 export class SchedulerModule {}

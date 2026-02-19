@@ -7,9 +7,9 @@ import {
   BarChart2,
   FolderOpen,
   LayoutDashboard,
-  Settings,
   TrendingDown,
   TrendingUp,
+  Users,
 } from 'lucide-react';
 import { useT } from '@/hooks/use-t';
 
@@ -25,7 +25,7 @@ export function MobileNav() {
     { label: t('nav_income'), href: '/income', icon: TrendingUp },
     { label: t('nav_categories'), href: '/categories', icon: FolderOpen },
     { label: t('nav_analytics'), href: '/analytics', icon: BarChart2 },
-    { label: t('nav_settings'), href: '/settings', icon: Settings },
+    { label: t('nav_friends'), href: '/friends', icon: Users },
   ];
 
   if (authPaths.includes(pathname)) return null;

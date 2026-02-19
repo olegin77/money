@@ -6,6 +6,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 interface CategoryBreakdownProps {
   data: Array<{
     categoryId: string;
+    categoryName?: string;
+    categoryColor?: string;
     total: number;
     percentage: string;
   }>;
@@ -14,10 +16,13 @@ interface CategoryBreakdownProps {
 const COLORS = ['#4f46e5', '#7c3aed', '#0891b2', '#059669', '#d97706', '#dc2626', '#9333ea'];
 
 export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
-  const chartData = data.map(item => ({
-    name: item.categoryId === 'uncategorized' ? 'Uncategorized' : item.categoryId,
+  const chartData = data.map((item, i) => ({
+    name:
+      item.categoryName ||
+      (item.categoryId === 'uncategorized' ? 'Uncategorized' : item.categoryId.slice(0, 8)),
     value: item.total,
     percentage: item.percentage,
+    color: item.categoryColor || COLORS[i % COLORS.length],
   }));
 
   return (
@@ -43,8 +48,8 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                   outerRadius={90}
                   dataKey="value"
                 >
-                  {chartData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -60,12 +65,12 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
             </ResponsiveContainer>
 
             <div className="mt-3 space-y-1.5">
-              {chartData.map((item, index) => (
+              {chartData.map(item => (
                 <div key={item.name} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      style={{ backgroundColor: item.color }}
                     />
                     <span className="text-foreground max-w-[120px] truncate">{item.name}</span>
                   </div>

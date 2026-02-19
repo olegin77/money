@@ -9,19 +9,24 @@ import { StatCard } from '@/components/analytics/stat-card';
 import { CategoryBreakdown } from '@/components/analytics/category-breakdown';
 import { CashFlowChart } from '@/components/analytics/cash-flow-chart';
 import { MonthlyComparison } from '@/components/analytics/monthly-comparison';
+import { IncomeTrendChart } from '@/components/analytics/income-trend-chart';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import {
   analyticsApi,
   DashboardData,
+  TrendData,
   CashFlowData,
   MonthlyComparisonData,
 } from '@/lib/api/analytics';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
-import { expensesApi } from '@/lib/api/expenses';
-import { incomeApi } from '@/lib/api/income';
+import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { expensesApi, Expense } from '@/lib/api/expenses';
+import { incomeApi, Income } from '@/lib/api/income';
 import { toast } from '@/hooks/use-toast';
 import { PageFadeIn } from '@/components/ui/motion';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 type Period = 'week' | 'month' | 'year' | 'all';
 const PERIODS: Period[] = ['week', 'month', 'year', 'all'];
@@ -38,6 +43,7 @@ export default function AnalyticsPage() {
   const t = useT();
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [cashFlow, setCashFlow] = useState<CashFlowData[]>([]);
+  const [incomeTrend, setIncomeTrend] = useState<TrendData[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyComparisonData[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>('month');
@@ -50,16 +56,18 @@ export default function AnalyticsPage() {
   const loadAll = async () => {
     try {
       setLoading(true);
-      const [data, flow, monthly] = await Promise.all([
+      const [data, flow, incTrend, monthly] = await Promise.all([
         analyticsApi.getDashboard({ period }),
         analyticsApi.getCashFlow({
           startDate: period !== 'all' ? undefined : '2020-01-01',
           endDate: undefined,
         }),
+        analyticsApi.getIncomeTrend({ groupBy: period === 'week' ? 'day' : 'week' }),
         analyticsApi.getMonthlyComparison(period === 'year' ? 12 : period === 'all' ? 24 : 6),
       ]);
       setDashboard(data);
       setCashFlow(flow);
+      setIncomeTrend(incTrend);
       setMonthlyData(monthly);
     } catch {
       /* silent */
@@ -115,6 +123,92 @@ export default function AnalyticsPage() {
     }
   };
 
+  const handleExportPDF = async () => {
+    setExporting(true);
+    try {
+      const [expData, incData] = await Promise.all([
+        expensesApi.findAll({ page: 1, limit: 10000 }),
+        incomeApi.findAll({ page: 1, limit: 10000 }),
+      ]);
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text('FinTrack Financial Report', 14, 20);
+      doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+      const rows = [
+        ...expData.items.map((e: Expense) => [
+          'Expense',
+          e.date,
+          `$${Number(e.amount).toFixed(2)}`,
+          e.currency,
+          e.description || '',
+        ]),
+        ...incData.items.map((i: Income) => [
+          'Income',
+          i.date,
+          `$${Number(i.amount).toFixed(2)}`,
+          i.currency,
+          i.description || '',
+        ]),
+      ];
+
+      autoTable(doc, {
+        head: [['Type', 'Date', 'Amount', 'Currency', 'Description']],
+        body: rows,
+        startY: 34,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [99, 102, 241] },
+      });
+
+      doc.save(`fintrack-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch {
+      toast.error(t('toast_error'));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      const [expData, incData] = await Promise.all([
+        expensesApi.findAll({ page: 1, limit: 10000 }),
+        incomeApi.findAll({ page: 1, limit: 10000 }),
+      ]);
+
+      const expRows = expData.items.map((e: Expense) => ({
+        Type: 'Expense',
+        Date: e.date,
+        Amount: Number(e.amount),
+        Currency: e.currency,
+        Description: e.description || '',
+        Category: e.categoryId || '',
+        'Payment Method': e.paymentMethod || '',
+      }));
+
+      const incRows = incData.items.map((i: Income) => ({
+        Type: 'Income',
+        Date: i.date,
+        Amount: Number(i.amount),
+        Currency: i.currency,
+        Description: i.description || '',
+        Source: i.source || '',
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const wsExpenses = XLSX.utils.json_to_sheet(expRows);
+      const wsIncome = XLSX.utils.json_to_sheet(incRows);
+      XLSX.utils.book_append_sheet(wb, wsExpenses, 'Expenses');
+      XLSX.utils.book_append_sheet(wb, wsIncome, 'Income');
+      XLSX.writeFile(wb, `fintrack-export-${new Date().toISOString().split('T')[0]}.xlsx`);
+    } catch {
+      toast.error(t('toast_error'));
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <ResponsiveContainer>
@@ -160,6 +254,26 @@ export default function AnalyticsPage() {
               >
                 <Download size={13} />
                 CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                disabled={exporting}
+                className="h-8 gap-1 text-xs"
+              >
+                <FileText size={13} />
+                PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportExcel}
+                disabled={exporting}
+                className="h-8 gap-1 text-xs"
+              >
+                <FileSpreadsheet size={13} />
+                Excel
               </Button>
               <div className="flex gap-1.5 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
                 {PERIODS.map(p => (
@@ -217,6 +331,11 @@ export default function AnalyticsPage() {
           <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <CategoryBreakdown data={expensesByCategory} />
             <CashFlowChart data={cashFlow} />
+          </div>
+
+          {/* Income trend */}
+          <div className="mb-4">
+            <IncomeTrendChart data={incomeTrend} />
           </div>
 
           {/* Monthly comparison */}

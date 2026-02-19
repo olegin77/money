@@ -68,6 +68,9 @@ export class User {
   @Column({ name: 'notify_budget_alerts', default: true })
   notifyBudgetAlerts: boolean;
 
+  @Column({ name: 'scheduled_for_deletion_at', nullable: true })
+  scheduledForDeletionAt: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

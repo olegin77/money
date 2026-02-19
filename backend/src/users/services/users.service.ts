@@ -35,7 +35,28 @@ export class UsersService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.userRepository.delete(id);
+    const deletionDate = new Date();
+    deletionDate.setDate(deletionDate.getDate() + 30);
+    await this.userRepository.update(id, {
+      isActive: false,
+      scheduledForDeletionAt: deletionDate,
+    });
+  }
+
+  async cancelDeletion(id: string): Promise<void> {
+    await this.userRepository.update(id, {
+      isActive: true,
+      scheduledForDeletionAt: null,
+    });
+  }
+
+  async purgeScheduledDeletions(): Promise<number> {
+    const result = await this.userRepository
+      .createQueryBuilder()
+      .delete()
+      .where('scheduled_for_deletion_at <= :now', { now: new Date() })
+      .execute();
+    return result.affected || 0;
   }
 
   async findAllAdmin(params: { page: number; limit: number; search?: string }) {
