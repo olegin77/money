@@ -16,6 +16,11 @@ import {
   CashFlowData,
   MonthlyComparisonData,
 } from '@/lib/api/analytics';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { expensesApi } from '@/lib/api/expenses';
+import { incomeApi } from '@/lib/api/income';
+import { toast } from '@/hooks/use-toast';
 import { PageFadeIn } from '@/components/ui/motion';
 
 type Period = 'week' | 'month' | 'year' | 'all';
@@ -36,6 +41,7 @@ export default function AnalyticsPage() {
   const [monthlyData, setMonthlyData] = useState<MonthlyComparisonData[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>('month');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!authLoading) loadAll();
@@ -59,6 +65,53 @@ export default function AnalyticsPage() {
       /* silent */
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    setExporting(true);
+    try {
+      const [expData, incData] = await Promise.all([
+        expensesApi.findAll({ page: 1, limit: 10000 }),
+        incomeApi.findAll({ page: 1, limit: 10000 }),
+      ]);
+      const rows = [
+        ['Type', 'Date', 'Amount', 'Currency', 'Description', 'Category ID', 'Payment Method'],
+      ];
+      for (const e of expData.items) {
+        rows.push([
+          'expense',
+          e.date,
+          String(e.amount),
+          e.currency,
+          (e.description || '').replace(/"/g, '""'),
+          e.categoryId || '',
+          e.paymentMethod || '',
+        ]);
+      }
+      for (const i of incData.items) {
+        rows.push([
+          'income',
+          i.date,
+          String(i.amount),
+          i.currency,
+          (i.description || '').replace(/"/g, '""'),
+          '',
+          i.source || '',
+        ]);
+      }
+      const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fintrack-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t('toast_error'));
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -96,22 +149,34 @@ export default function AnalyticsPage() {
               <h1 className="text-foreground text-2xl font-bold">{t('ana_title')}</h1>
               <p className="text-muted-foreground mt-0.5 text-sm">{t('ana_no_data')}</p>
             </div>
-            {/* Period selector */}
-            <div className="flex gap-1.5 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
-              {PERIODS.map(p => (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p)}
-                  className={[
-                    'rounded-md px-3 py-1 text-xs font-medium transition-all',
-                    period === p
-                      ? 'text-foreground shadow-xs bg-white dark:bg-zinc-700'
-                      : 'text-muted-foreground hover:text-foreground',
-                  ].join(' ')}
-                >
-                  {t(PERIOD_KEYS[p])}
-                </button>
-              ))}
+            {/* Period selector + export */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                disabled={exporting}
+                className="h-8 gap-1 text-xs"
+              >
+                <Download size={13} />
+                CSV
+              </Button>
+              <div className="flex gap-1.5 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
+                {PERIODS.map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={[
+                      'rounded-md px-3 py-1 text-xs font-medium transition-all',
+                      period === p
+                        ? 'text-foreground shadow-xs bg-white dark:bg-zinc-700'
+                        : 'text-muted-foreground hover:text-foreground',
+                    ].join(' ')}
+                  >
+                    {t(PERIOD_KEYS[p])}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

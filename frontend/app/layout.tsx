@@ -4,6 +4,7 @@ import './globals.css';
 import { OfflineIndicator } from '@/components/layout/offline-indicator';
 import { Toaster } from '@/components/ui/toaster';
 import { WebSocketProvider } from '@/components/providers/websocket-provider';
+import { KeyboardShortcutsProvider } from '@/components/providers/keyboard-shortcuts-provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} bg-page text-primary font-sans antialiased`}>
         {children}
         <WebSocketProvider />
+        <KeyboardShortcutsProvider />
         <OfflineIndicator />
         <Toaster />
       </body>

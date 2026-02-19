@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
-import { Globe, Shield, User } from 'lucide-react';
+import { Download, Globe, Shield, User } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
 
 export default function SettingsPage() {
@@ -24,6 +24,8 @@ export default function SettingsPage() {
   const [fullName, setFullName] = useState(user?.fullName ?? '');
   const [currency, setCurrency] = useState(user?.currency ?? 'USD');
   const [saving, setSaving] = useState(false);
+
+  const [exporting, setExporting] = useState(false);
 
   // 2FA
   const [show2faSetup, setShow2faSetup] = useState(false);
@@ -107,6 +109,17 @@ export default function SettingsPage() {
       toast.error('Invalid code.');
     } finally {
       setTwoFaLoading(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await usersApi.exportData();
+    } catch {
+      toast.error(t('toast_error'));
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -296,6 +309,23 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Data Export */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download size={14} />
+              {t('set_data')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-3 text-sm">{t('set_export_sub')}</p>
+            <Button variant="outline" onClick={handleExport} disabled={exporting}>
+              <Download size={14} />
+              {exporting ? t('set_exporting') : t('set_export')}
+            </Button>
           </CardContent>
         </Card>
 

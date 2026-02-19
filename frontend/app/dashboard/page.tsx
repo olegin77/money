@@ -19,6 +19,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { PageFadeIn, StaggerContainer, StaggerItem, HoverCard } from '@/components/ui/motion';
+import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard';
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth(true);
@@ -103,6 +104,7 @@ export default function DashboardPage() {
 
   return (
     <ResponsiveContainer>
+      <OnboardingWizard />
       <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-4xl">
           {/* Desktop heading */}

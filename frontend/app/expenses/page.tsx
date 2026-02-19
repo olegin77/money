@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { toast } from '@/hooks/use-toast';
@@ -25,9 +25,24 @@ export default function ExpensesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const openForm = useCallback(() => setShowForm(true), []);
+
   useEffect(() => {
     if (!authLoading) loadExpenses();
   }, [authLoading, page]);
+
+  // Open form via keyboard shortcut event or URL param
+  useEffect(() => {
+    window.addEventListener('shortcut:open-form', openForm);
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'new') {
+      setShowForm(true);
+      window.history.replaceState({}, '', '/expenses');
+    }
+
+    return () => window.removeEventListener('shortcut:open-form', openForm);
+  }, [openForm]);
 
   const loadExpenses = async () => {
     try {

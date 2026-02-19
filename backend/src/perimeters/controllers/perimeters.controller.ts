@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -54,6 +55,26 @@ export class PerimetersController {
     return {
       success: true,
       data: perimeter,
+    };
+  }
+
+  @Get(':id/feed')
+  async getPerimeterFeed(
+    @CurrentUser() user: CurrentUserData,
+    @Param('id') id: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const result = await this.perimetersService.getPerimeterFeed(
+      id,
+      user.id,
+      page ? parseInt(page, 10) : 1,
+      limit ? Math.min(parseInt(limit, 10), 100) : 20,
+    );
+
+    return {
+      success: true,
+      data: result,
     };
   }
 

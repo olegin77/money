@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -64,13 +65,14 @@ import { AppService } from './app.service';
       }),
     }),
 
-    // Rate limiting
+    // Rate limiting — default 300 req/min for API
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => [
         {
-          ttl: configService.get('THROTTLE_TTL') || 60,
+          name: 'default',
+          ttl: (configService.get('THROTTLE_TTL') || 60) * 1000,
           limit: configService.get('THROTTLE_LIMIT_API') || 300,
         },
       ],
@@ -106,6 +108,9 @@ import { AppService } from './app.service';
     SchedulerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

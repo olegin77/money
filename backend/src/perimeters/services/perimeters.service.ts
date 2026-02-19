@@ -212,6 +212,30 @@ export class PerimetersService {
     };
   }
 
+  async getPerimeterFeed(
+    id: string,
+    userId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<{ items: Expense[]; total: number; page: number; limit: number; totalPages: number }> {
+    await this.checkAccess(id, userId, 'viewer');
+
+    const [items, total] = await this.expenseRepository.findAndCount({
+      where: { categoryId: id },
+      order: { date: 'DESC', createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   private async checkAccess(
     perimeterId: string,
     userId: string,

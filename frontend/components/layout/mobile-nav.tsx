@@ -31,7 +31,10 @@ export function MobileNav() {
   if (authPaths.includes(pathname)) return null;
 
   return (
-    <nav className="bg-card border-border fixed bottom-0 left-0 right-0 z-50 h-16 border-t md:hidden">
+    <nav
+      aria-label="Mobile navigation"
+      className="bg-card border-border fixed bottom-0 left-0 right-0 z-50 h-16 border-t md:hidden"
+    >
       <div className="flex h-full items-stretch">
         {navItems.map(({ label, href, icon: Icon }) => {
           const active = pathname === href;
@@ -39,6 +42,7 @@ export function MobileNav() {
             <Link
               key={href}
               href={href}
+              aria-current={active ? 'page' : undefined}
               className={cn(
                 'text-muted-foreground flex flex-1 flex-col items-center justify-center gap-1 transition-colors',
                 active ? 'text-indigo-600 dark:text-indigo-400' : 'hover:text-foreground'

@@ -49,4 +49,15 @@ export const adminApi = {
   deleteUser: async (id: string): Promise<void> => {
     await api.delete(`/admin/users/${id}`);
   },
+
+  getAuditLogs: async (params?: {
+    page?: number;
+    limit?: number;
+    userId?: string;
+    method?: string;
+    entity?: string;
+  }) => {
+    const response = await api.get('/admin/audit-logs', { params });
+    return response.data.data;
+  },
 };

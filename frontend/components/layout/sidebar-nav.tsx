@@ -46,7 +46,11 @@ export function SidebarNav() {
   };
 
   return (
-    <aside className="border-border bg-card fixed left-0 top-0 z-30 hidden h-full w-56 flex-col border-r md:flex">
+    <aside
+      role="navigation"
+      aria-label="Main navigation"
+      className="border-border bg-card fixed left-0 top-0 z-30 hidden h-full w-56 flex-col border-r md:flex"
+    >
       {/* Logo */}
       <div className="border-border flex h-14 shrink-0 items-center border-b px-4">
         <div className="flex items-center gap-2.5">
@@ -62,7 +66,12 @@ export function SidebarNav() {
         {navItems.map(({ label, href, icon: Icon }) => {
           const active = pathname === href;
           return (
-            <Link key={href} href={href} className={cn('nav-item w-full', active && 'active')}>
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? 'page' : undefined}
+              className={cn('nav-item w-full', active && 'active')}
+            >
               <Icon size={16} strokeWidth={active ? 2.5 : 1.8} />
               <span>{label}</span>
             </Link>
@@ -100,6 +109,7 @@ export function SidebarNav() {
         )}
         <button
           onClick={handleLogout}
+          aria-label={t('nav_signout')}
           className="nav-item text-muted-foreground w-full hover:text-red-500"
         >
           <LogOut size={16} strokeWidth={1.8} />

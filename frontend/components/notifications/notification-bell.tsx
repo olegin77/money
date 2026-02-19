@@ -141,6 +141,8 @@ export function NotificationBell() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={handleToggle}
+        aria-label={`${t('nav_notifications')}${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
+        aria-expanded={open}
         className="relative rounded-lg p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
       >
         <Bell size={18} className="text-muted-foreground" />
