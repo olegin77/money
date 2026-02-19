@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { StatCard } from '@/components/analytics/stat-card';
 import { Button } from '@/components/ui/button';
@@ -41,27 +42,42 @@ export default function AdminPage() {
       setUsers(usersData.items);
       setTotalPages(usersData.pagination.totalPages);
     } catch {
-      /* silent */
+      toast.error('Failed to load admin data');
     } finally {
       setLoading(false);
     }
   };
 
   const handleToggleActive = async (userId: string, isActive: boolean) => {
-    await adminApi.updateUser(userId, { isActive: !isActive });
-    loadData();
+    try {
+      await adminApi.updateUser(userId, { isActive: !isActive });
+      toast.success('User updated');
+      loadData();
+    } catch {
+      toast.error('Failed to update user');
+    }
   };
 
   const handleToggleAdmin = async (userId: string, isAdmin: boolean) => {
     if (!confirm(`${isAdmin ? 'Remove' : 'Grant'} admin access?`)) return;
-    await adminApi.updateUser(userId, { isAdmin: !isAdmin });
-    loadData();
+    try {
+      await adminApi.updateUser(userId, { isAdmin: !isAdmin });
+      toast.success('User updated');
+      loadData();
+    } catch {
+      toast.error('Failed to update user');
+    }
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('Permanently delete this user? This cannot be undone.')) return;
-    await adminApi.deleteUser(userId);
-    loadData();
+    try {
+      await adminApi.deleteUser(userId);
+      toast.success('User deleted');
+      loadData();
+    } catch {
+      toast.error('Failed to delete user');
+    }
   };
 
   if (authLoading || !user?.isAdmin) {

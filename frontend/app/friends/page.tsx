@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -14,6 +15,7 @@ import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { friendsApi, Friend, FriendRequest } from '@/lib/api/friends';
 import { UserPlus, Users } from 'lucide-react';
+import { PageFadeIn } from '@/components/ui/motion';
 
 export default function FriendsPage() {
   const { isLoading: authLoading } = useAuth(true);
@@ -37,7 +39,7 @@ export default function FriendsPage() {
       setFriends(friendsData);
       setPendingRequests(requestsData);
     } catch {
-      /* silent */
+      toast.error(t('toast_error_load'));
     } finally {
       setLoading(false);
     }
@@ -47,25 +49,41 @@ export default function FriendsPage() {
     try {
       await friendsApi.sendRequest(userId);
       setShowSearch(false);
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to send request');
+      toast.success(t('toast_friend_request_sent'));
+    } catch {
+      toast.error(t('toast_error'));
     }
   };
 
   const handleAccept = async (requestId: string) => {
-    await friendsApi.acceptRequest(requestId);
-    loadData();
+    try {
+      await friendsApi.acceptRequest(requestId);
+      toast.success(t('toast_friend_accepted'));
+      loadData();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   const handleReject = async (requestId: string) => {
-    await friendsApi.rejectRequest(requestId);
-    loadData();
+    try {
+      await friendsApi.rejectRequest(requestId);
+      toast.success(t('toast_friend_rejected'));
+      loadData();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   const handleRemove = async (friendshipId: string) => {
-    if (!confirm('Remove this friend?')) return;
-    await friendsApi.removeFriend(friendshipId);
-    loadData();
+    if (!confirm(t('toast_confirm_delete'))) return;
+    try {
+      await friendsApi.removeFriend(friendshipId);
+      toast.success(t('toast_friend_removed'));
+      loadData();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   if (authLoading || loading) {
@@ -83,7 +101,7 @@ export default function FriendsPage() {
 
   return (
     <ResponsiveContainer>
-      <div className="p-4 md:p-8">
+      <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-2xl">
           {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
@@ -149,7 +167,7 @@ export default function FriendsPage() {
             </div>
           )}
         </div>
-      </div>
+      </PageFadeIn>
 
       <FloatingActionButton onClick={() => setShowSearch(true)} />
 

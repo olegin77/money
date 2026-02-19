@@ -16,6 +16,7 @@ import {
   CashFlowData,
   MonthlyComparisonData,
 } from '@/lib/api/analytics';
+import { PageFadeIn } from '@/components/ui/motion';
 
 type Period = 'week' | 'month' | 'year' | 'all';
 const PERIODS: Period[] = ['week', 'month', 'year', 'all'];
@@ -87,7 +88,7 @@ export default function AnalyticsPage() {
 
   return (
     <ResponsiveContainer>
-      <div className="p-4 md:p-8">
+      <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-5xl">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
@@ -193,7 +194,7 @@ export default function AnalyticsPage() {
             </Card>
           )}
         </div>
-      </div>
+      </PageFadeIn>
     </ResponsiveContainer>
   );
 }

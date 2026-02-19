@@ -15,6 +15,7 @@ import { PerimetersModule } from './perimeters/perimeters.module';
 import { FriendsModule } from './friends/friends.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 import { CommonModule } from './common/common.module';
 
 // Controllers
@@ -102,6 +103,7 @@ import { AppService } from './app.service';
     FriendsModule,
     AnalyticsModule,
     NotificationsModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

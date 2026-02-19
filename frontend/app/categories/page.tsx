@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PerimeterForm } from '@/components/perimeters/perimeter-form';
@@ -13,6 +14,7 @@ import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { perimetersApi, Perimeter, CreatePerimeterData } from '@/lib/api/perimeters';
 import { FolderOpen, Plus } from 'lucide-react';
+import { PageFadeIn } from '@/components/ui/motion';
 
 export default function CategoriesPage() {
   const { isLoading: authLoading } = useAuth(true);
@@ -33,29 +35,44 @@ export default function CategoriesPage() {
       const data = await perimetersApi.findAll();
       setPerimeters(data);
     } catch {
-      /* silent */
+      toast.error(t('toast_error_load'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = async (data: CreatePerimeterData) => {
-    await perimetersApi.create(data);
-    setShowForm(false);
-    loadPerimeters();
+    try {
+      await perimetersApi.create(data);
+      setShowForm(false);
+      toast.success(t('toast_category_created'));
+      loadPerimeters();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   const handleUpdate = async (data: CreatePerimeterData) => {
     if (!editingPerimeter) return;
-    await perimetersApi.update(editingPerimeter.id, data);
-    setEditingPerimeter(null);
-    loadPerimeters();
+    try {
+      await perimetersApi.update(editingPerimeter.id, data);
+      setEditingPerimeter(null);
+      toast.success(t('toast_category_updated'));
+      loadPerimeters();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this category?')) return;
-    await perimetersApi.delete(id);
-    loadPerimeters();
+    if (!confirm(t('toast_confirm_delete'))) return;
+    try {
+      await perimetersApi.delete(id);
+      toast.success(t('toast_category_deleted'));
+      loadPerimeters();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   if (authLoading || loading) {
@@ -78,7 +95,7 @@ export default function CategoriesPage() {
 
   return (
     <ResponsiveContainer>
-      <div className="p-4 md:p-8">
+      <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-5xl">
           {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
@@ -145,7 +162,7 @@ export default function CategoriesPage() {
             </div>
           )}
         </div>
-      </div>
+      </PageFadeIn>
 
       <FloatingActionButton onClick={() => setShowForm(true)} />
 

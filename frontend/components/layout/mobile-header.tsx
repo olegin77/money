@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -46,6 +47,7 @@ export function MobileHeader() {
         )}
         <h1 className="text-base font-semibold">{title}</h1>
       </div>
+      <NotificationBell />
     </header>
   );
 }

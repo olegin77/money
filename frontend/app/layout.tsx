@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { OfflineIndicator } from '@/components/layout/offline-indicator';
+import { Toaster } from '@/components/ui/toaster';
+import { WebSocketProvider } from '@/components/providers/websocket-provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -39,7 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} bg-page text-primary font-sans antialiased`}>
         {children}
+        <WebSocketProvider />
         <OfflineIndicator />
+        <Toaster />
       </body>
     </html>
   );

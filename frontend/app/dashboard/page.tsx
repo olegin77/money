@@ -18,6 +18,7 @@ import {
   Users,
   ArrowRight,
 } from 'lucide-react';
+import { PageFadeIn, StaggerContainer, StaggerItem, HoverCard } from '@/components/ui/motion';
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth(true);
@@ -102,7 +103,7 @@ export default function DashboardPage() {
 
   return (
     <ResponsiveContainer>
-      <div className="p-4 md:p-8">
+      <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-4xl">
           {/* Desktop heading */}
           <div className="mb-8 hidden md:block">
@@ -121,99 +122,115 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <StaggerContainer className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {/* Balance */}
-              <Card
-                className={
-                  balancePositive
-                    ? 'border-indigo-600 bg-indigo-600 text-white'
-                    : 'border-red-600 bg-red-600 text-white'
-                }
-              >
-                <CardContent className="pt-5">
-                  <div className="mb-3 flex items-center gap-2 opacity-80">
-                    <Wallet size={14} />
-                    <span className="text-xs font-medium uppercase tracking-wide">
-                      {t('dash_balance')}
-                    </span>
-                  </div>
-                  <p className="text-3xl font-bold tabular-nums">
-                    {balancePositive ? '' : '-'}${Math.abs(balance).toFixed(2)}
-                  </p>
-                </CardContent>
-              </Card>
+              <StaggerItem>
+                <HoverCard>
+                  <Card
+                    className={
+                      balancePositive
+                        ? 'border-indigo-600 bg-indigo-600 text-white'
+                        : 'border-red-600 bg-red-600 text-white'
+                    }
+                  >
+                    <CardContent className="pt-5">
+                      <div className="mb-3 flex items-center gap-2 opacity-80">
+                        <Wallet size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wide">
+                          {t('dash_balance')}
+                        </span>
+                      </div>
+                      <p className="text-3xl font-bold tabular-nums">
+                        {balancePositive ? '' : '-'}${Math.abs(balance).toFixed(2)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </HoverCard>
+              </StaggerItem>
 
               {/* Expenses */}
-              <Card>
-                <CardContent className="pt-5">
-                  <div className="text-muted-foreground mb-3 flex items-center gap-2">
-                    <TrendingDown size={14} />
-                    <span className="text-xs font-medium uppercase tracking-wide">
-                      {t('dash_expenses')}
-                    </span>
-                  </div>
-                  <p className="text-3xl font-bold tabular-nums text-red-500">
-                    ${Number(expenseStats?.total || 0).toFixed(2)}
-                  </p>
-                  <p className="text-muted-foreground mt-1.5 text-xs">
-                    {expenseStats?.count || 0} txn
-                  </p>
-                </CardContent>
-              </Card>
+              <StaggerItem>
+                <HoverCard>
+                  <Card>
+                    <CardContent className="pt-5">
+                      <div className="text-muted-foreground mb-3 flex items-center gap-2">
+                        <TrendingDown size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wide">
+                          {t('dash_expenses')}
+                        </span>
+                      </div>
+                      <p className="text-3xl font-bold tabular-nums text-red-500">
+                        ${Number(expenseStats?.total || 0).toFixed(2)}
+                      </p>
+                      <p className="text-muted-foreground mt-1.5 text-xs">
+                        {expenseStats?.count || 0} txn
+                      </p>
+                    </CardContent>
+                  </Card>
+                </HoverCard>
+              </StaggerItem>
 
               {/* Income */}
-              <Card>
-                <CardContent className="pt-5">
-                  <div className="text-muted-foreground mb-3 flex items-center gap-2">
-                    <TrendingUp size={14} />
-                    <span className="text-xs font-medium uppercase tracking-wide">
-                      {t('dash_income')}
-                    </span>
-                  </div>
-                  <p className="text-3xl font-bold tabular-nums text-emerald-500">
-                    ${Number(incomeStats?.total || 0).toFixed(2)}
-                  </p>
-                  <p className="text-muted-foreground mt-1.5 text-xs">
-                    {incomeStats?.count || 0} txn
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+              <StaggerItem>
+                <HoverCard>
+                  <Card>
+                    <CardContent className="pt-5">
+                      <div className="text-muted-foreground mb-3 flex items-center gap-2">
+                        <TrendingUp size={14} />
+                        <span className="text-xs font-medium uppercase tracking-wide">
+                          {t('dash_income')}
+                        </span>
+                      </div>
+                      <p className="text-3xl font-bold tabular-nums text-emerald-500">
+                        ${Number(incomeStats?.total || 0).toFixed(2)}
+                      </p>
+                      <p className="text-muted-foreground mt-1.5 text-xs">
+                        {incomeStats?.count || 0} txn
+                      </p>
+                    </CardContent>
+                  </Card>
+                </HoverCard>
+              </StaggerItem>
+            </StaggerContainer>
           )}
 
           {/* Quick links */}
-          <Card>
-            <CardContent className="pb-2 pt-5">
-              <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
-                {t('dash_quick')}
-              </p>
-              <div className="divide-border divide-y">
-                {quickLinks.map(({ href, labelKey, sub, icon: Icon, color }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="group flex items-center gap-3 py-3 transition-opacity hover:opacity-80"
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 ${color}`}
-                    >
-                      <Icon size={15} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-foreground text-sm font-medium">{t(labelKey)}</p>
-                      <p className="text-muted-foreground text-xs">{sub}</p>
-                    </div>
-                    <ArrowRight
-                      size={14}
-                      className="text-muted-foreground shrink-0 transition-transform group-hover:translate-x-0.5"
-                    />
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <StaggerContainer staggerDelay={0.04}>
+            <StaggerItem>
+              <Card>
+                <CardContent className="pb-2 pt-5">
+                  <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
+                    {t('dash_quick')}
+                  </p>
+                  <div className="divide-border divide-y">
+                    {quickLinks.map(({ href, labelKey, sub, icon: Icon, color }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className="group flex items-center gap-3 py-3 transition-opacity hover:opacity-80"
+                      >
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 ${color}`}
+                        >
+                          <Icon size={15} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-foreground text-sm font-medium">{t(labelKey)}</p>
+                          <p className="text-muted-foreground text-xs">{sub}</p>
+                        </div>
+                        <ArrowRight
+                          size={14}
+                          className="text-muted-foreground shrink-0 transition-transform group-hover:translate-x-0.5"
+                        />
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
-      </div>
+      </PageFadeIn>
     </ResponsiveContainer>
   );
 }

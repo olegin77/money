@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,6 +13,7 @@ import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { incomeApi, Income, CreateIncomeData } from '@/lib/api/income';
 import { Plus } from 'lucide-react';
+import { PageFadeIn } from '@/components/ui/motion';
 
 export default function IncomePage() {
   const { isLoading: authLoading } = useAuth(true);
@@ -34,29 +36,44 @@ export default function IncomePage() {
       setIncomes(result.items);
       setTotalPages(result.pagination.totalPages);
     } catch {
-      /* silent */
+      toast.error(t('toast_error_load'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = async (data: CreateIncomeData) => {
-    await incomeApi.create(data);
-    setShowForm(false);
-    loadIncomes();
+    try {
+      await incomeApi.create(data);
+      setShowForm(false);
+      toast.success(t('toast_income_created'));
+      loadIncomes();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   const handleUpdate = async (data: CreateIncomeData) => {
     if (!editingIncome) return;
-    await incomeApi.update(editingIncome.id, data);
-    setEditingIncome(null);
-    loadIncomes();
+    try {
+      await incomeApi.update(editingIncome.id, data);
+      setEditingIncome(null);
+      toast.success(t('toast_income_updated'));
+      loadIncomes();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this income entry?')) return;
-    await incomeApi.delete(id);
-    loadIncomes();
+    if (!confirm(t('toast_confirm_delete'))) return;
+    try {
+      await incomeApi.delete(id);
+      toast.success(t('toast_income_deleted'));
+      loadIncomes();
+    } catch {
+      toast.error(t('toast_error'));
+    }
   };
 
   if (authLoading) {
@@ -74,7 +91,7 @@ export default function IncomePage() {
 
   return (
     <ResponsiveContainer>
-      <div className="p-4 md:p-8">
+      <PageFadeIn className="p-4 md:p-8">
         <div className="mx-auto max-w-2xl">
           {/* Desktop header */}
           <div className="mb-8 hidden items-center justify-between md:flex">
@@ -127,7 +144,7 @@ export default function IncomePage() {
             </>
           )}
         </div>
-      </div>
+      </PageFadeIn>
 
       <FloatingActionButton onClick={() => setShowForm(true)} />
 

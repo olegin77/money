@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useAuthStore } from '@/stores/auth.store';
 import { useT } from '@/hooks/use-t';
+import { toast } from '@/hooks/use-toast';
 import { usersApi } from '@/lib/api/users';
 import { authApi } from '@/lib/api/auth';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
@@ -12,7 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
-import { Check, Globe, Shield, User } from 'lucide-react';
+import { Globe, Shield, User } from 'lucide-react';
+import { PageFadeIn } from '@/components/ui/motion';
 
 export default function SettingsPage() {
   useAuth();
@@ -22,28 +24,22 @@ export default function SettingsPage() {
   const [fullName, setFullName] = useState(user?.fullName ?? '');
   const [currency, setCurrency] = useState(user?.currency ?? 'USD');
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState('');
 
   // 2FA
   const [show2faSetup, setShow2faSetup] = useState(false);
   const [qrCode, setQrCode] = useState('');
   const [twoFaCode, setTwoFaCode] = useState('');
   const [twoFaLoading, setTwoFaLoading] = useState(false);
-  const [twoFaError, setTwoFaError] = useState('');
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    setSaved(false);
     try {
       const updated = await usersApi.updateProfile({ fullName: fullName || undefined, currency });
       updateUser(updated);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      toast.success(t('toast_profile_saved'));
     } catch {
-      setError('Failed to save');
+      toast.error(t('toast_error'));
     } finally {
       setSaving(false);
     }
@@ -53,8 +49,9 @@ export default function SettingsPage() {
     try {
       const updated = await usersApi.updateProfile({ language: lang });
       updateUser(updated);
+      toast.success(t('toast_language_changed'));
     } catch {
-      /* ignore */
+      toast.error(t('toast_error'));
     }
   };
 
@@ -62,20 +59,20 @@ export default function SettingsPage() {
     try {
       const updated = await usersApi.updateProfile({ themeMode: theme });
       updateUser(updated);
+      toast.success(t('toast_theme_changed'));
     } catch {
-      /* ignore */
+      toast.error(t('toast_error'));
     }
   };
 
   const handle2faEnable = async () => {
     setTwoFaLoading(true);
-    setTwoFaError('');
     try {
       const data = await authApi.generate2FA();
       setQrCode(data.qrCode);
       setShow2faSetup(true);
     } catch {
-      setTwoFaError('Failed to generate 2FA');
+      toast.error(t('toast_error'));
     } finally {
       setTwoFaLoading(false);
     }
@@ -84,15 +81,15 @@ export default function SettingsPage() {
   const handle2faConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     setTwoFaLoading(true);
-    setTwoFaError('');
     try {
       await authApi.enable2FA(twoFaCode);
       updateUser({ twoFaEnabled: true });
       setShow2faSetup(false);
       setQrCode('');
       setTwoFaCode('');
+      toast.success(t('toast_2fa_enabled'));
     } catch {
-      setTwoFaError('Invalid code. Try again.');
+      toast.error('Invalid code. Try again.');
     } finally {
       setTwoFaLoading(false);
     }
@@ -101,13 +98,13 @@ export default function SettingsPage() {
   const handle2faDisable = async () => {
     if (!twoFaCode) return;
     setTwoFaLoading(true);
-    setTwoFaError('');
     try {
       await authApi.disable2FA(twoFaCode);
       updateUser({ twoFaEnabled: false });
       setTwoFaCode('');
+      toast.success(t('toast_2fa_disabled'));
     } catch {
-      setTwoFaError('Invalid code.');
+      toast.error('Invalid code.');
     } finally {
       setTwoFaLoading(false);
     }
@@ -118,7 +115,7 @@ export default function SettingsPage() {
 
   return (
     <ResponsiveContainer>
-      <div className="mx-auto max-w-lg space-y-5 px-4 py-6 md:px-6 md:py-8">
+      <PageFadeIn className="mx-auto max-w-lg space-y-5 px-4 py-6 md:px-6 md:py-8">
         <h1 className="text-foreground text-xl font-bold tracking-tight">{t('set_title')}</h1>
 
         {/* Profile */}
@@ -155,21 +152,8 @@ export default function SettingsPage() {
                   <option value="JPY">JPY — Japanese Yen</option>
                 </select>
               </div>
-              {error && (
-                <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
-                  {error}
-                </p>
-              )}
               <Button type="submit" disabled={saving} className="w-full">
-                {saved ? (
-                  <span className="flex items-center gap-2">
-                    <Check size={14} /> {t('set_saved')}
-                  </span>
-                ) : saving ? (
-                  t('set_saving')
-                ) : (
-                  t('set_save')
-                )}
+                {saving ? t('set_saving') : t('set_save')}
               </Button>
             </form>
           </CardContent>
@@ -252,12 +236,6 @@ export default function SettingsPage() {
                 {user?.twoFaEnabled ? t('set_2fa_enabled') : t('set_2fa_disabled')}
               </span>
             </div>
-
-            {twoFaError && (
-              <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
-                {twoFaError}
-              </p>
-            )}
 
             {!user?.twoFaEnabled && !show2faSetup && (
               <Button variant="outline" onClick={handle2faEnable} disabled={twoFaLoading}>
@@ -342,7 +320,7 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </PageFadeIn>
     </ResponsiveContainer>
   );
 }

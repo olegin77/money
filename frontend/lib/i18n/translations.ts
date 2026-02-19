@@ -11,6 +11,7 @@ const en = {
   nav_settings: 'Settings',
   nav_admin: 'Admin',
   nav_signout: 'Sign out',
+  nav_notifications: 'Notifications',
 
   // Landing
   landing_headline: 'Personal finance,\nsimplified.',
@@ -205,6 +206,31 @@ const en = {
   recurring_monthly_day: 'Monthly, {day}th',
   recurring_monthly: 'Monthly',
   recurring_yearly: 'Yearly',
+
+  // Toast messages
+  toast_expense_created: 'Expense added',
+  toast_expense_updated: 'Expense updated',
+  toast_expense_deleted: 'Expense deleted',
+  toast_income_created: 'Income added',
+  toast_income_updated: 'Income updated',
+  toast_income_deleted: 'Income deleted',
+  toast_category_created: 'Category created',
+  toast_category_updated: 'Category updated',
+  toast_category_deleted: 'Category deleted',
+  toast_friend_request_sent: 'Friend request sent',
+  toast_friend_accepted: 'Friend request accepted',
+  toast_friend_rejected: 'Friend request declined',
+  toast_friend_removed: 'Friend removed',
+  toast_profile_saved: 'Profile saved',
+  toast_language_changed: 'Language changed',
+  toast_theme_changed: 'Theme changed',
+  toast_2fa_enabled: '2FA enabled',
+  toast_2fa_disabled: '2FA disabled',
+  toast_error: 'Something went wrong',
+  toast_error_load: 'Failed to load data',
+  toast_user_updated: 'User updated',
+  toast_user_deleted: 'User deleted',
+  toast_confirm_delete: 'Are you sure?',
 };
 
 const ru: typeof en = {
@@ -218,6 +244,7 @@ const ru: typeof en = {
   nav_settings: 'Настройки',
   nav_admin: 'Админ',
   nav_signout: 'Выйти',
+  nav_notifications: 'Уведомления',
 
   // Landing
   landing_headline: 'Финансы под\nконтролем.',
@@ -411,6 +438,31 @@ const ru: typeof en = {
   recurring_monthly_day: 'Ежемесячно, {day}',
   recurring_monthly: 'Ежемесячно',
   recurring_yearly: 'Ежегодно',
+
+  // Toast messages
+  toast_expense_created: 'Расход добавлен',
+  toast_expense_updated: 'Расход обновлён',
+  toast_expense_deleted: 'Расход удалён',
+  toast_income_created: 'Доход добавлен',
+  toast_income_updated: 'Доход обновлён',
+  toast_income_deleted: 'Доход удалён',
+  toast_category_created: 'Категория создана',
+  toast_category_updated: 'Категория обновлена',
+  toast_category_deleted: 'Категория удалена',
+  toast_friend_request_sent: 'Запрос дружбы отправлен',
+  toast_friend_accepted: 'Запрос дружбы принят',
+  toast_friend_rejected: 'Запрос дружбы отклонён',
+  toast_friend_removed: 'Друг удалён',
+  toast_profile_saved: 'Профиль сохранён',
+  toast_language_changed: 'Язык изменён',
+  toast_theme_changed: 'Тема изменена',
+  toast_2fa_enabled: '2FA включена',
+  toast_2fa_disabled: '2FA отключена',
+  toast_error: 'Что-то пошло не так',
+  toast_error_load: 'Не удалось загрузить данные',
+  toast_user_updated: 'Пользователь обновлён',
+  toast_user_deleted: 'Пользователь удалён',
+  toast_confirm_delete: 'Вы уверены?',
 };
 
 export const translations: Record<Lang, typeof en> = { en, ru };

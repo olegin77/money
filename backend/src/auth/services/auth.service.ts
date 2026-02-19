@@ -282,33 +282,54 @@ export class AuthService {
   async forgotPassword(email: string): Promise<void> {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      // Don't reveal if user exists
+      // Don't reveal if user exists — always return success
       return;
     }
 
-    // TODO: Generate reset token and send email
-    // For now, just log it
-    const resetToken = uuidv4();
-    console.log(`Password reset token for ${email}: ${resetToken}`);
-    console.log(`Reset link: ${this.configService.get('APP_URL')}/reset-password?token=${resetToken}`);
+    // Generate a signed JWT reset token (15 min expiry)
+    const resetToken = this.jwtService.sign(
+      { sub: user.id, email: user.email, type: 'password-reset' },
+      {
+        secret: this.configService.get('JWT_ACCESS_SECRET') + '-reset',
+        expiresIn: '15m',
+      },
+    );
 
-    // In production, you would:
-    // 1. Store reset token in database with expiry
-    // 2. Send email with reset link
+    const appUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
+    const resetLink = `${appUrl}/reset-password?token=${resetToken}`;
+
+    // Log the reset link (in production, integrate nodemailer/SES)
+    console.log(`[PASSWORD RESET] User: ${email}`);
+    console.log(`[PASSWORD RESET] Link: ${resetLink}`);
   }
 
-  async resetPassword(_token: string, _newPassword: string): Promise<void> {
-    // TODO: Implement password reset logic
-    // For now, throw not implemented
-    throw new BadRequestException('Password reset not yet implemented');
-
-    // In production:
+  async resetPassword(token: string, newPassword: string): Promise<void> {
     // 1. Validate reset token
-    // 2. Check if token expired
-    // 3. Hash new password
-    // 4. Update user password
-    // 5. Invalidate reset token
-    // 6. Revoke all refresh tokens
+    let payload: { sub: string; email: string; type: string };
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_ACCESS_SECRET') + '-reset',
+      });
+    } catch {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (payload.type !== 'password-reset') {
+      throw new BadRequestException('Invalid token type');
+    }
+
+    // 2. Find user
+    const user = await this.usersService.findById(payload.sub);
+    if (!user || !user.isActive) {
+      throw new BadRequestException('User not found or inactive');
+    }
+
+    // 3. Hash new password and update
+    const hashedPassword = await this.hashPassword(newPassword);
+    await this.usersService.update(user.id, { password: hashedPassword });
+
+    // 4. Revoke all refresh tokens (force re-login on all devices)
+    await this.logoutAll(user.id);
   }
 
   private async hashPassword(password: string): Promise<string> {

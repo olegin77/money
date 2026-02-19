@@ -17,6 +17,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import { authApi } from '@/lib/api/auth';
 import { useT } from '@/hooks/use-t';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -82,16 +83,19 @@ export function SidebarNav() {
       {/* User + Logout */}
       <div className="border-border shrink-0 space-y-1 border-t px-3 py-4">
         {user && (
-          <div className="flex items-center gap-2.5 px-3 py-2">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
-              <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                {user.username?.[0]?.toUpperCase() ?? 'U'}
-              </span>
+          <div className="flex items-center justify-between px-3 py-2">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
+                <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                  {user.username?.[0]?.toUpperCase() ?? 'U'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-foreground truncate text-xs font-medium">{user.username}</p>
+                <p className="text-2xs text-muted-foreground truncate">{user.email}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-foreground truncate text-xs font-medium">{user.username}</p>
-              <p className="text-2xs text-muted-foreground truncate">{user.email}</p>
-            </div>
+            <NotificationBell />
           </div>
         )}
         <button
