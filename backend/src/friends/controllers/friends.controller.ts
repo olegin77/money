@@ -10,11 +10,14 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { FriendsService } from '../services/friends.service';
 import { SendFriendRequestDto } from '../dto/send-request.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
+@ApiTags('Friends')
 @Controller('friends')
 @UseGuards(JwtAuthGuard)
 export class FriendsController {
@@ -61,11 +64,9 @@ export class FriendsController {
   }
 
   @Post('request')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
-  async sendRequest(
-    @CurrentUser() user: CurrentUserData,
-    @Body() dto: SendFriendRequestDto
-  ) {
+  async sendRequest(@CurrentUser() user: CurrentUserData, @Body() dto: SendFriendRequestDto) {
     const friendship = await this.friendsService.sendRequest(user.id, dto);
 
     return {

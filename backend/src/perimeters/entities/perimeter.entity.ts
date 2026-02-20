@@ -12,6 +12,7 @@ import { User } from '../../users/entities/user.entity';
 
 @Entity('perimeters')
 @Index(['ownerId'])
+@Index(['ownerId', 'isDeleted'])
 export class Perimeter {
   @PrimaryGeneratedColumn('uuid')
   id: string;

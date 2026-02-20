@@ -1,4 +1,4 @@
-import { IsOptional, IsDateString, IsUUID, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsDateString, IsUUID, IsInt, IsString, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class QueryExpenseDto {
@@ -29,4 +29,8 @@ export class QueryExpenseDto {
 
   @IsOptional()
   search?: string;
+
+  @IsOptional()
+  @IsString()
+  cursor?: string;
 }

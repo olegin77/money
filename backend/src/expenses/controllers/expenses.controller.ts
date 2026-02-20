@@ -11,6 +11,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ExpensesService } from '../services/expenses.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
@@ -19,12 +21,14 @@ import { BatchCreateExpenseDto } from '../dto/batch-create-expense.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
+@ApiTags('Expenses')
 @Controller('expenses')
 @UseGuards(JwtAuthGuard)
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
   @Post()
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   async create(@CurrentUser() user: CurrentUserData, @Body() createExpenseDto: CreateExpenseDto) {
     const expense = await this.expensesService.create(user.id, createExpenseDto);
@@ -37,6 +41,7 @@ export class ExpensesController {
   }
 
   @Post('batch')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   async createBatch(
     @CurrentUser() user: CurrentUserData,
@@ -99,6 +104,7 @@ export class ExpensesController {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   async update(
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
@@ -114,6 +120,7 @@ export class ExpensesController {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   async remove(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
     await this.expensesService.remove(id, user.id);

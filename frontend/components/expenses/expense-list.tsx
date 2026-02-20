@@ -3,6 +3,7 @@
 import { format } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AnimatedList, AnimatedListItem } from '@/components/ui/motion';
 import { Expense } from '@/lib/api/expenses';
 import { useT } from '@/hooks/use-t';
 import { RefreshCw, TrendingDown } from 'lucide-react';
@@ -44,9 +45,13 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
 
   return (
     <Card>
-      <div className="divide-border divide-y">
+      <AnimatedList className="divide-border divide-y">
         {expenses.map(expense => (
-          <div key={expense.id} className="flex items-center gap-3 px-5 py-3.5">
+          <AnimatedListItem
+            key={expense.id}
+            layoutId={expense.id}
+            className="flex items-center gap-3 px-5 py-3.5"
+          >
             <div className="min-w-0 flex-1">
               <div className="mb-0.5 flex items-baseline gap-2">
                 <span className="text-sm font-semibold tabular-nums text-red-500">
@@ -89,9 +94,9 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
                 Delete
               </Button>
             </div>
-          </div>
+          </AnimatedListItem>
         ))}
-      </div>
+      </AnimatedList>
     </Card>
   );
 }

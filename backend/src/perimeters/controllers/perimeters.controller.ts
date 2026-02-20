@@ -11,6 +11,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { PerimetersService } from '../services/perimeters.service';
 import { CreatePerimeterDto } from '../dto/create-perimeter.dto';
 import { UpdatePerimeterDto } from '../dto/update-perimeter.dto';
@@ -18,12 +20,14 @@ import { SharePerimeterDto } from '../dto/share-perimeter.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
+@ApiTags('Perimeters')
 @Controller('perimeters')
 @UseGuards(JwtAuthGuard)
 export class PerimetersController {
   constructor(private readonly perimetersService: PerimetersService) {}
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   async create(
     @CurrentUser() user: CurrentUserData,
@@ -63,13 +67,13 @@ export class PerimetersController {
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
     @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query('limit') limit?: string
   ) {
     const result = await this.perimetersService.getPerimeterFeed(
       id,
       user.id,
       page ? parseInt(page, 10) : 1,
-      limit ? Math.min(parseInt(limit, 10), 100) : 20,
+      limit ? Math.min(parseInt(limit, 10), 100) : 20
     );
 
     return {

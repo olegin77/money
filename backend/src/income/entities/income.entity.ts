@@ -11,6 +11,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 
 @Entity('income_records')
+@Index(['userId'])
 @Index(['userId', 'date'])
 @Index(['userId', 'createdAt'])
 export class Income {

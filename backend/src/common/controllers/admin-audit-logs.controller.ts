@@ -1,16 +1,18 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../../auth/guards/admin.guard';
 
+@ApiTags('Admin')
 @Controller('admin/audit-logs')
 @UseGuards(JwtAuthGuard, AdminGuard)
 export class AdminAuditLogsController {
   constructor(
     @InjectRepository(AuditLog)
-    private readonly auditLogRepository: Repository<AuditLog>,
+    private readonly auditLogRepository: Repository<AuditLog>
   ) {}
 
   @Get()
@@ -19,7 +21,7 @@ export class AdminAuditLogsController {
     @Query('limit') limit = '50',
     @Query('userId') userId?: string,
     @Query('method') method?: string,
-    @Query('entity') entity?: string,
+    @Query('entity') entity?: string
   ) {
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = Math.min(parseInt(limit, 10) || 50, 100);

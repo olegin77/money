@@ -4,10 +4,12 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 
 @Entity('users')
+@Index(['isActive'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;

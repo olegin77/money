@@ -140,10 +140,7 @@ export class AuthService {
   }
 
   async logoutAll(userId: string): Promise<void> {
-    await this.refreshTokenRepository.update(
-      { userId, isRevoked: false },
-      { isRevoked: true }
-    );
+    await this.refreshTokenRepository.update({ userId, isRevoked: false }, { isRevoked: true });
   }
 
   async refreshTokens(
@@ -284,6 +281,28 @@ export class AuthService {
     });
   }
 
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isCurrentValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedPassword = await this.hashPassword(newPassword);
+    await this.usersService.update(userId, { password: hashedPassword });
+
+    // Revoke all refresh tokens (force re-login on all devices)
+    await this.logoutAll(userId);
+  }
+
   async forgotPassword(email: string): Promise<void> {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
@@ -297,7 +316,7 @@ export class AuthService {
       {
         secret: this.configService.get('JWT_ACCESS_SECRET') + '-reset',
         expiresIn: '15m',
-      },
+      }
     );
 
     // Send password reset email (non-blocking)

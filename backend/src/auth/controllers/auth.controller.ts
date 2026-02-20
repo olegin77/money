@@ -1,19 +1,12 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Get,
-  Req,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { AuthService } from '../services/auth.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
 import { Enable2FADto } from '../dto/enable-2fa.dto';
 import { Verify2FADto } from '../dto/verify-2fa.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
@@ -23,6 +16,7 @@ import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { Public } from '../decorators/public.decorator';
 import { CurrentUser, CurrentUserData } from '../decorators/current-user.decorator';
 
+@ApiTags('Auth')
 @Controller('auth')
 @Throttle({ default: { ttl: 60000, limit: 100 } })
 export class AuthController {
@@ -122,6 +116,19 @@ export class AuthController {
     return {
       success: true,
       data: user,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(@CurrentUser() user: CurrentUserData, @Body() dto: ChangePasswordDto) {
+    await this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
+
+    return {
+      success: true,
+      message: 'Password changed successfully. Please log in again.',
     };
   }
 

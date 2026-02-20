@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventsGateway } from './gateways/events.gateway';
 import { NotificationService } from './services/notification.service';
 import { CacheService } from './services/cache.service';
+import { EncryptionService } from './services/encryption.service';
 import { AuditLogInterceptor } from './interceptors/audit-log.interceptor';
 import { AuditLog } from './entities/audit-log.entity';
 import { GlobalExceptionFilter } from './filters/http-exception.filter';
@@ -29,11 +30,12 @@ import { UploadService } from './services/upload.service';
     EventsGateway,
     NotificationService,
     CacheService,
+    EncryptionService,
     UploadService,
     AuditLogInterceptor,
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
   ],
-  exports: [EventsGateway, NotificationService, CacheService, UploadService],
+  exports: [EventsGateway, NotificationService, CacheService, EncryptionService, UploadService],
 })
 export class CommonModule {}

@@ -1,10 +1,24 @@
-import { Controller, Get, Post, Patch, Body, UseGuards, Delete, Res, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  UseGuards,
+  Delete,
+  Res,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { UsersService } from '../services/users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 import { UpdateUserDto } from '../dto/update-user.dto';
 
+@ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
@@ -23,6 +37,7 @@ export class UsersController {
   }
 
   @Patch('me')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async updateProfile(
     @CurrentUser() currentUser: CurrentUserData,
     @Body() updateUserDto: UpdateUserDto
@@ -39,6 +54,7 @@ export class UsersController {
   }
 
   @Delete('me')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async deleteAccount(@CurrentUser() currentUser: CurrentUserData) {
     await this.usersService.delete(currentUser.id);
 

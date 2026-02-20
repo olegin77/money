@@ -11,6 +11,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 
 @Entity('expenses')
+@Index(['userId'])
 @Index(['userId', 'date'])
 @Index(['userId', 'categoryId'])
 export class Expense {

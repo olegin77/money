@@ -6,6 +6,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // Modules
 import { AuthModule } from './auth/auth.module';
@@ -93,6 +94,9 @@ import { AppService } from './app.service';
       }),
     }),
 
+    // Event Emitter
+    EventEmitterModule.forRoot(),
+
     // Schedule (CRON)
     ScheduleModule.forRoot(),
 
@@ -110,9 +114,6 @@ import { AppService } from './app.service';
     SchedulerModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

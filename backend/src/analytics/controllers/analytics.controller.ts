@@ -1,10 +1,12 @@
 import { Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AnalyticsService } from '../services/analytics.service';
 import { DashboardQueryDto } from '../dto/dashboard-query.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 import { CacheInterceptor } from '../../common/interceptors/cache.interceptor';
 
+@ApiTags('Analytics')
 @Controller('analytics')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(CacheInterceptor)
@@ -12,10 +14,7 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('dashboard')
-  async getDashboard(
-    @CurrentUser() user: CurrentUserData,
-    @Query() query: DashboardQueryDto
-  ) {
+  async getDashboard(@CurrentUser() user: CurrentUserData, @Query() query: DashboardQueryDto) {
     const dashboard = await this.analyticsService.getDashboard(
       user.id,
       query.startDate,
@@ -58,12 +57,7 @@ export class AnalyticsController {
     @Query('endDate') endDate?: string,
     @Query('groupBy') groupBy?: string
   ) {
-    const data = await this.analyticsService.getExpensesTrend(
-      user.id,
-      startDate,
-      endDate,
-      groupBy
-    );
+    const data = await this.analyticsService.getExpensesTrend(user.id, startDate, endDate, groupBy);
 
     return {
       success: true,

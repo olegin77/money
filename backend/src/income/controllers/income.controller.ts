@@ -11,6 +11,8 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { IncomeService } from '../services/income.service';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
@@ -18,12 +20,14 @@ import { QueryIncomeDto } from '../dto/query-income.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
+@ApiTags('Income')
 @Controller('income')
 @UseGuards(JwtAuthGuard)
 export class IncomeController {
   constructor(private readonly incomeService: IncomeService) {}
 
   @Post()
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
   async create(@CurrentUser() user: CurrentUserData, @Body() createIncomeDto: CreateIncomeDto) {
     const income = await this.incomeService.create(user.id, createIncomeDto);
@@ -80,6 +84,7 @@ export class IncomeController {
   }
 
   @Patch(':id')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   async update(
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
@@ -95,6 +100,7 @@ export class IncomeController {
   }
 
   @Delete(':id')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   async remove(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
     await this.incomeService.remove(id, user.id);

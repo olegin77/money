@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import compression from 'compression';
 import * as path from 'path';
@@ -13,8 +14,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const corsOrigin =
-    configService.get('CORS_ORIGIN')?.split(',') || 'http://localhost:3000';
+  const corsOrigin = configService.get('CORS_ORIGIN')?.split(',') || 'http://localhost:3000';
 
   // Security headers
   app.use(
@@ -35,15 +35,14 @@ async function bootstrap() {
       },
       crossOriginEmbedderPolicy: false, // Needed for static file serving
       hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
-    }),
+    })
   );
 
   // Compression
   app.use(compression());
 
   // Serve uploaded files
-  const uploadDir =
-    configService.get('UPLOAD_DIR') || path.join(process.cwd(), 'uploads');
+  const uploadDir = configService.get('UPLOAD_DIR') || path.join(process.cwd(), 'uploads');
   app.useStaticAssets(uploadDir, { prefix: '/uploads/' });
 
   // Disable powered-by header
@@ -73,6 +72,16 @@ async function bootstrap() {
     })
   );
 
+  // Swagger/OpenAPI setup
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('FinTrack Pro API')
+    .setDescription('Personal finance management API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
+
   const port = configService.get('BACKEND_PORT') || 3001;
   const host = configService.get('BACKEND_HOST') || '0.0.0.0';
 
@@ -83,6 +92,7 @@ async function bootstrap() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`📍 Server: http://${host}:${port}`);
   console.log(`📍 API: http://${host}:${port}/api/v1`);
+  console.log(`📍 Swagger: http://${host}:${port}/api/docs`);
   console.log(`🌍 Environment: ${configService.get('NODE_ENV')}`);
   console.log(`💾 Database: ${configService.get('DB_DATABASE')}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

@@ -1,16 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Income } from '../entities/income.entity';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
 import { QueryIncomeDto } from '../dto/query-income.dto';
+import {
+  IncomeCreatedEvent,
+  IncomeUpdatedEvent,
+  IncomeDeletedEvent,
+} from '../../common/events/income.events';
 
 @Injectable()
 export class IncomeService {
   constructor(
     @InjectRepository(Income)
-    private readonly incomeRepository: Repository<Income>
+    private readonly incomeRepository: Repository<Income>,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async create(userId: string, createIncomeDto: CreateIncomeDto): Promise<Income> {
@@ -20,11 +27,26 @@ export class IncomeService {
       currency: createIncomeDto.currency || 'USD',
     });
 
-    return this.incomeRepository.save(income);
+    const saved = await this.incomeRepository.save(income);
+
+    this.eventEmitter.emit(
+      'income.created',
+      new IncomeCreatedEvent(
+        userId,
+        saved.id,
+        Number(saved.amount),
+        saved.currency,
+        saved.source || null,
+        saved.description || null,
+        saved.date
+      )
+    );
+
+    return saved;
   }
 
   async findAll(userId: string, query: QueryIncomeDto) {
-    const { page = 1, limit = 20, startDate, endDate, search } = query;
+    const { page = 1, limit = 20, startDate, endDate, search, cursor } = query;
 
     const queryBuilder = this.incomeRepository
       .createQueryBuilder('income')
@@ -45,29 +67,83 @@ export class IncomeService {
     }
 
     if (search) {
-      queryBuilder.andWhere(
-        '(income.description ILIKE :search OR income.source ILIKE :search)',
-        {
-          search: `%${search}%`,
-        }
-      );
+      queryBuilder.andWhere('(income.description ILIKE :search OR income.source ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
-    // Pagination
-    const skip = (page - 1) * limit;
-    queryBuilder.skip(skip).take(limit);
+    // Cursor-based pagination (takes priority over offset when provided)
+    if (cursor) {
+      const decoded = this.decodeCursor(cursor);
+      if (decoded) {
+        queryBuilder.andWhere(
+          '(income.date < :cursorDate OR (income.date = :cursorDate AND income.createdAt < :cursorCreatedAt))',
+          { cursorDate: decoded.date, cursorCreatedAt: decoded.createdAt }
+        );
+      }
+    }
 
-    const [items, total] = await queryBuilder.getManyAndCount();
+    queryBuilder.take(limit + 1);
+
+    if (!cursor) {
+      const skip = (page - 1) * limit;
+      queryBuilder.skip(skip);
+    }
+
+    const items = await queryBuilder.getMany();
+    const hasMore = items.length > limit;
+    if (hasMore) items.pop();
+
+    const nextCursor =
+      hasMore && items.length > 0
+        ? this.encodeCursor(items[items.length - 1].date, items[items.length - 1].createdAt)
+        : null;
+
+    if (!cursor) {
+      const countBuilder = this.incomeRepository
+        .createQueryBuilder('income')
+        .where('income.userId = :userId', { userId });
+      if (startDate) countBuilder.andWhere('income.date >= :startDate', { startDate });
+      if (endDate) countBuilder.andWhere('income.date <= :endDate', { endDate });
+      if (search)
+        countBuilder.andWhere('(income.description ILIKE :search OR income.source ILIKE :search)', {
+          search: `%${search}%`,
+        });
+      const total = await countBuilder.getCount();
+
+      return {
+        items,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+        cursor: nextCursor,
+      };
+    }
 
     return {
       items,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      cursor: nextCursor,
+      hasMore,
     };
+  }
+
+  private encodeCursor(date: string | Date, createdAt: Date): string {
+    return Buffer.from(
+      JSON.stringify({ date: String(date), createdAt: createdAt.toISOString() })
+    ).toString('base64');
+  }
+
+  private decodeCursor(cursor: string): { date: string; createdAt: string } | null {
+    try {
+      const decoded = JSON.parse(Buffer.from(cursor, 'base64').toString('utf-8'));
+      if (decoded.date && decoded.createdAt) return decoded;
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   async findOne(id: string, userId: string): Promise<Income> {
@@ -87,12 +163,36 @@ export class IncomeService {
 
     Object.assign(income, updateIncomeDto);
 
-    return this.incomeRepository.save(income);
+    const saved = await this.incomeRepository.save(income);
+
+    this.eventEmitter.emit(
+      'income.updated',
+      new IncomeUpdatedEvent(
+        userId,
+        saved.id,
+        Number(saved.amount),
+        saved.currency,
+        saved.source || null,
+        saved.description || null,
+        saved.date
+      )
+    );
+
+    return saved;
   }
 
   async remove(id: string, userId: string): Promise<void> {
     const income = await this.findOne(id, userId);
+    const incomeId = income.id;
+    const amount = Number(income.amount);
+    const currency = income.currency;
+
     await this.incomeRepository.remove(income);
+
+    this.eventEmitter.emit(
+      'income.deleted',
+      new IncomeDeletedEvent(userId, incomeId, amount, currency)
+    );
   }
 
   async getStats(userId: string, startDate?: string, endDate?: string) {
@@ -114,15 +214,18 @@ export class IncomeService {
     const average = count > 0 ? total / count : 0;
 
     // Group by source
-    const bySource = incomes.reduce((acc, inc) => {
-      const source = inc.source || 'Other';
-      if (!acc[source]) {
-        acc[source] = { total: 0, count: 0 };
-      }
-      acc[source].total += Number(inc.amount);
-      acc[source].count += 1;
-      return acc;
-    }, {} as Record<string, { total: number; count: number }>);
+    const bySource = incomes.reduce(
+      (acc, inc) => {
+        const source = inc.source || 'Other';
+        if (!acc[source]) {
+          acc[source] = { total: 0, count: 0 };
+        }
+        acc[source].total += Number(inc.amount);
+        acc[source].count += 1;
+        return acc;
+      },
+      {} as Record<string, { total: number; count: number }>
+    );
 
     return {
       total,
@@ -148,14 +251,17 @@ export class IncomeService {
       .getMany();
 
     // Group by date
-    const dailyTotals = incomes.reduce((acc, inc) => {
-      const date = inc.date.toString();
-      if (!acc[date]) {
-        acc[date] = 0;
-      }
-      acc[date] += Number(inc.amount);
-      return acc;
-    }, {} as Record<string, number>);
+    const dailyTotals = incomes.reduce(
+      (acc, inc) => {
+        const date = inc.date.toString();
+        if (!acc[date]) {
+          acc[date] = 0;
+        }
+        acc[date] += Number(inc.amount);
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return Object.entries(dailyTotals).map(([date, total]) => ({
       date,
