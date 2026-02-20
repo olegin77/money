@@ -11,8 +11,17 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialog-title"
+    >
+      <div
+        className="fixed inset-0 bg-black/40"
+        onClick={() => onOpenChange(false)}
+        aria-hidden="true"
+      />
       <div className="relative z-50 max-h-[90vh] w-full max-w-lg overflow-y-auto">{children}</div>
     </div>
   );
@@ -44,7 +53,11 @@ interface DialogTitleProps {
 }
 
 export function DialogTitle({ children }: DialogTitleProps) {
-  return <h2 className="text-foreground text-lg font-semibold">{children}</h2>;
+  return (
+    <h2 id="dialog-title" className="text-foreground text-lg font-semibold">
+      {children}
+    </h2>
+  );
 }
 
 interface DialogDescriptionProps {

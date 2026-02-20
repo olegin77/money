@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NumPad } from '@/components/ui/num-pad';
 import { useT } from '@/hooks/use-t';
 import { CreateExpenseData } from '@/lib/api/expenses';
 import { RefreshCw } from 'lucide-react';
@@ -139,8 +140,11 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
         </div>
       </div>
 
-      {/* Amount + Currency */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Amount — NumPad on mobile, Input on desktop */}
+      <div className="md:hidden">
+        <NumPad value={amount} onChange={setAmount} />
+      </div>
+      <div className="hidden md:grid md:grid-cols-2 md:gap-3">
         <div className="space-y-1.5">
           <Label>{t('form_amount')} *</Label>
           <Input
@@ -169,6 +173,22 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
             <option>JPY</option>
           </select>
         </div>
+      </div>
+      {/* Currency selector on mobile (below numpad) */}
+      <div className="md:hidden">
+        <Label>{t('form_currency')}</Label>
+        <select
+          value={currency}
+          onChange={e => setCurrency(e.target.value)}
+          disabled={loading}
+          className="border-border bg-card text-foreground mt-1.5 h-10 w-full rounded-lg border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option>USD</option>
+          <option>EUR</option>
+          <option>RUB</option>
+          <option>GBP</option>
+          <option>JPY</option>
+        </select>
       </div>
 
       {/* Description */}

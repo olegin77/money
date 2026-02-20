@@ -17,6 +17,7 @@ export function FloatingActionButton({
   return (
     <button
       onClick={onClick}
+      aria-label="Add new"
       className={cn(
         'fixed bottom-20 right-4 z-40 md:hidden',
         'h-13 w-13 rounded-full',

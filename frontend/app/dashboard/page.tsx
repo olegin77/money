@@ -19,6 +19,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { PageFadeIn, StaggerContainer, StaggerItem, HoverCard } from '@/components/ui/motion';
+import { CountUp } from '@/components/ui/count-up';
 import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard';
 
 export default function DashboardPage() {
@@ -142,8 +143,19 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="font-heading text-3xl font-bold tabular-nums">
-                        {balancePositive ? '' : '-'}
-                        {fmt(Math.abs(balance))}
+                        <CountUp
+                          end={balance}
+                          prefix={
+                            cur === 'USD'
+                              ? '$'
+                              : cur === 'EUR'
+                                ? '\u20AC'
+                                : cur === 'RUB'
+                                  ? '\u20BD'
+                                  : ''
+                          }
+                          duration={1000}
+                        />
                       </p>
                       {summary?.savingsRate !== undefined && (
                         <p className="mt-1 text-xs opacity-70">
@@ -168,7 +180,19 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="text-3xl font-bold tabular-nums text-red-500">
-                        {fmt(Number(summary?.totalExpenses || 0))}
+                        <CountUp
+                          end={Number(summary?.totalExpenses || 0)}
+                          prefix={
+                            cur === 'USD'
+                              ? '$'
+                              : cur === 'EUR'
+                                ? '\u20AC'
+                                : cur === 'RUB'
+                                  ? '\u20BD'
+                                  : ''
+                          }
+                          duration={1000}
+                        />
                       </p>
                       <p className="text-muted-foreground mt-1.5 text-xs">
                         {summary?.expenseCount || 0} txn
@@ -190,7 +214,19 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="text-3xl font-bold tabular-nums text-emerald-500">
-                        {fmt(Number(summary?.totalIncome || 0))}
+                        <CountUp
+                          end={Number(summary?.totalIncome || 0)}
+                          prefix={
+                            cur === 'USD'
+                              ? '$'
+                              : cur === 'EUR'
+                                ? '\u20AC'
+                                : cur === 'RUB'
+                                  ? '\u20BD'
+                                  : ''
+                          }
+                          duration={1000}
+                        />
                       </p>
                       <p className="text-muted-foreground mt-1.5 text-xs">
                         {summary?.incomeCount || 0} txn

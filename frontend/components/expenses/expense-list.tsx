@@ -74,6 +74,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
                 size="sm"
                 variant="ghost"
                 onClick={() => onEdit(expense)}
+                aria-label={`Edit expense: ${expense.description || expense.amount}`}
                 className="h-8 px-2.5 text-xs"
               >
                 Edit
@@ -82,6 +83,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
                 size="sm"
                 variant="ghost"
                 onClick={() => onDelete(expense.id)}
+                aria-label={`Delete expense: ${expense.description || expense.amount}`}
                 className="h-8 px-2.5 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
               >
                 Delete

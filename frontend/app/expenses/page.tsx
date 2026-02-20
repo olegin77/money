@@ -12,8 +12,9 @@ import { ExpenseList } from '@/components/expenses/expense-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { expensesApi, Expense, CreateExpenseData } from '@/lib/api/expenses';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, Search, X, Loader2 } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
+import { usePullRefresh } from '@/hooks/use-pull-refresh';
 
 export default function ExpensesPage() {
   const { isLoading: authLoading } = useAuth(true);
@@ -30,6 +31,11 @@ export default function ExpensesPage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const openForm = useCallback(() => setShowForm(true), []);
+  const { containerRef, pullDistance, refreshing } = usePullRefresh({
+    onRefresh: async () => {
+      await loadExpenses();
+    },
+  });
 
   useEffect(() => {
     if (!authLoading) loadExpenses();
@@ -139,109 +145,120 @@ export default function ExpensesPage() {
 
   return (
     <ResponsiveContainer>
-      <PageFadeIn className="p-4 md:p-8">
-        <div className="mx-auto max-w-2xl">
-          {/* Desktop header */}
-          <div className="mb-6 hidden items-center justify-between md:flex">
-            <div>
-              <h1 className="text-foreground text-2xl font-bold">{t('exp_title')}</h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">{t('exp_empty_sub')}</p>
-            </div>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus size={15} /> {t('exp_new')}
-            </Button>
+      <div ref={containerRef} className="relative overflow-auto">
+        {/* Pull-to-refresh indicator */}
+        {(pullDistance > 0 || refreshing) && (
+          <div
+            className="flex items-center justify-center py-2 transition-all"
+            style={{ height: refreshing ? 40 : pullDistance * 0.5 }}
+          >
+            <Loader2 size={18} className={`text-indigo-500 ${refreshing ? 'animate-spin' : ''}`} />
           </div>
+        )}
+        <PageFadeIn className="p-4 md:p-8">
+          <div className="mx-auto max-w-2xl">
+            {/* Desktop header */}
+            <div className="mb-6 hidden items-center justify-between md:flex">
+              <div>
+                <h1 className="text-foreground text-2xl font-bold">{t('exp_title')}</h1>
+                <p className="text-muted-foreground mt-0.5 text-sm">{t('exp_empty_sub')}</p>
+              </div>
+              <Button onClick={() => setShowForm(true)}>
+                <Plus size={15} /> {t('exp_new')}
+              </Button>
+            </div>
 
-          {/* Search & filters */}
-          <div className="mb-4 space-y-2">
-            <div className="relative">
-              <Search
-                size={16}
-                className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
-              />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder={t('filter_search')}
-                className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
-              />
+            {/* Search & filters */}
+            <div className="mb-4 space-y-2">
+              <div className="relative">
+                <Search
+                  size={16}
+                  className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
+                />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder={t('filter_search')}
+                  className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => {
+                    setStartDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="border-border bg-card text-foreground flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
+                />
+                <span className="text-muted-foreground text-xs">{t('filter_to')}</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={e => {
+                    setEndDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="border-border bg-card text-foreground flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
+                />
+                {hasFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition-colors"
+                  >
+                    <X size={14} />
+                    {t('filter_clear')}
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={e => {
-                  setStartDate(e.target.value);
-                  setPage(1);
-                }}
-                className="border-border bg-card text-foreground flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
-              />
-              <span className="text-muted-foreground text-xs">{t('filter_to')}</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={e => {
-                  setEndDate(e.target.value);
-                  setPage(1);
-                }}
-                className="border-border bg-card text-foreground flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
-              />
-              {hasFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition-colors"
-                >
-                  <X size={14} />
-                  {t('filter_clear')}
-                </button>
-              )}
-            </div>
+
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <>
+                <ExpenseList
+                  expenses={expenses}
+                  onEdit={expense => setEditingExpense(expense)}
+                  onDelete={handleDelete}
+                />
+
+                {totalPages > 1 && (
+                  <div className="mt-6 flex items-center justify-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      {t('exp_prev')}
+                    </Button>
+                    <span className="text-muted-foreground text-sm tabular-nums">
+                      {t('exp_page')} {page} {t('exp_of')} {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                    >
+                      {t('exp_next')}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
+        </PageFadeIn>
 
-          {loading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 rounded-xl" />
-              ))}
-            </div>
-          ) : (
-            <>
-              <ExpenseList
-                expenses={expenses}
-                onEdit={expense => setEditingExpense(expense)}
-                onDelete={handleDelete}
-              />
-
-              {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    {t('exp_prev')}
-                  </Button>
-                  <span className="text-muted-foreground text-sm tabular-nums">
-                    {t('exp_page')} {page} {t('exp_of')} {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                  >
-                    {t('exp_next')}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </PageFadeIn>
-
-      <FloatingActionButton onClick={() => setShowForm(true)} />
+        <FloatingActionButton onClick={() => setShowForm(true)} />
+      </div>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>
