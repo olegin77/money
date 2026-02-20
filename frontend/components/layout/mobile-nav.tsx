@@ -33,7 +33,8 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="bg-card border-border fixed bottom-0 left-0 right-0 z-50 h-16 border-t md:hidden"
+      className="bg-card border-border fixed bottom-0 left-0 right-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
+      style={{ minHeight: '4rem' }}
     >
       <div className="flex h-full items-stretch">
         {navItems.map(({ label, href, icon: Icon }) => {

@@ -37,11 +37,14 @@ export function ExpenseChart({ data }: ExpenseChartProps) {
             <YAxis stroke="#9CA3AF" fontSize={12} />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                border: '1px solid #374151',
-                borderRadius: '8px',
+                backgroundColor: 'hsl(var(--bg-card) / 0.85)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid hsl(var(--border) / 0.5)',
+                borderRadius: '12px',
+                fontSize: '12px',
               }}
-              labelStyle={{ color: '#F3F4F6' }}
+              labelStyle={{ color: 'hsl(var(--text))' }}
             />
             <Line
               type="monotone"

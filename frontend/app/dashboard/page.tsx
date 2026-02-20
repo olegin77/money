@@ -196,6 +196,16 @@ export default function DashboardPage() {
                       </p>
                       <p className="text-muted-foreground mt-1.5 text-xs">
                         {summary?.expenseCount || 0} txn
+                        {(summary as Record<string, unknown>)?.expenseChange != null && (
+                          <span
+                            className={`ml-1.5 ${Number((summary as Record<string, unknown>).expenseChange) <= 0 ? 'text-emerald-500' : 'text-red-400'}`}
+                          >
+                            {Number((summary as Record<string, unknown>).expenseChange) > 0
+                              ? '+'
+                              : ''}
+                            {Number((summary as Record<string, unknown>).expenseChange).toFixed(1)}%
+                          </span>
+                        )}
                       </p>
                     </CardContent>
                   </Card>
@@ -230,6 +240,16 @@ export default function DashboardPage() {
                       </p>
                       <p className="text-muted-foreground mt-1.5 text-xs">
                         {summary?.incomeCount || 0} txn
+                        {(summary as Record<string, unknown>)?.incomeChange != null && (
+                          <span
+                            className={`ml-1.5 ${Number((summary as Record<string, unknown>).incomeChange) >= 0 ? 'text-emerald-500' : 'text-red-400'}`}
+                          >
+                            {Number((summary as Record<string, unknown>).incomeChange) > 0
+                              ? '+'
+                              : ''}
+                            {Number((summary as Record<string, unknown>).incomeChange).toFixed(1)}%
+                          </span>
+                        )}
                       </p>
                     </CardContent>
                   </Card>

@@ -49,9 +49,11 @@ export function CashFlowChart({ data }: CashFlowChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#fff',
-                border: '1px solid hsl(220 13% 91%)',
-                borderRadius: '8px',
+                backgroundColor: 'hsl(var(--bg-card) / 0.85)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid hsl(var(--border) / 0.5)',
+                borderRadius: '12px',
                 fontSize: '12px',
               }}
               formatter={(value: number) => [`$${value.toFixed(2)}`, '']}

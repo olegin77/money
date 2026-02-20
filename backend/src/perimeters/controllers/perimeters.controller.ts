@@ -67,13 +67,15 @@ export class PerimetersController {
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
     @Query('page') page?: string,
-    @Query('limit') limit?: string
+    @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string
   ) {
     const result = await this.perimetersService.getPerimeterFeed(
       id,
       user.id,
       page ? parseInt(page, 10) : 1,
-      limit ? Math.min(parseInt(limit, 10), 100) : 20
+      limit ? Math.min(parseInt(limit, 10), 100) : 20,
+      cursor
     );
 
     return {

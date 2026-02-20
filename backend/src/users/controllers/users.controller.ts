@@ -7,6 +7,7 @@ import {
   UseGuards,
   Delete,
   Res,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -92,13 +93,27 @@ export class UsersController {
 
   // GDPR: Data portability export
   @Get('me/export')
-  async exportData(@CurrentUser() currentUser: CurrentUserData, @Res() res: Response) {
-    const data = await this.usersService.exportUserData(currentUser.id);
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="fintrack-export-${currentUser.id}.json"`
-    );
-    res.send(JSON.stringify(data, null, 2));
+  async exportData(
+    @CurrentUser() currentUser: CurrentUserData,
+    @Query('format') format: 'json' | 'csv' = 'json',
+    @Res() res: Response
+  ) {
+    const data = await this.usersService.exportUserData(currentUser.id, format);
+
+    if (format === 'csv') {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="fintrack-export-${currentUser.id}.csv"`
+      );
+      res.send(data);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="fintrack-export-${currentUser.id}.json"`
+      );
+      res.send(JSON.stringify(data, null, 2));
+    }
   }
 }

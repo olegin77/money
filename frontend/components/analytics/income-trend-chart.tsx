@@ -29,6 +29,12 @@ export function IncomeTrendChart({ data }: IncomeTrendChartProps) {
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={data}>
+              <defs>
+                <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="date"
@@ -42,9 +48,11 @@ export function IncomeTrendChart({ data }: IncomeTrendChartProps) {
               <YAxis stroke="hsl(var(--text-muted))" fontSize={11} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--color-card, #fff)',
-                  border: '1px solid var(--color-border, #e5e7eb)',
-                  borderRadius: '8px',
+                  backgroundColor: 'hsl(var(--bg-card) / 0.85)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: '1px solid hsl(var(--border) / 0.5)',
+                  borderRadius: '12px',
                   fontSize: '12px',
                 }}
                 formatter={(value: number) => [`$${value.toFixed(2)}`, 'Income']}
@@ -53,8 +61,7 @@ export function IncomeTrendChart({ data }: IncomeTrendChartProps) {
                 type="monotone"
                 dataKey="total"
                 stroke="#10b981"
-                fill="#10b981"
-                fillOpacity={0.15}
+                fill="url(#incomeGradient)"
                 strokeWidth={2}
               />
             </AreaChart>

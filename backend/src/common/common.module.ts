@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
@@ -13,6 +13,7 @@ import { GlobalExceptionFilter } from './filters/http-exception.filter';
 import { AdminAuditLogsController } from './controllers/admin-audit-logs.controller';
 import { UploadController } from './controllers/upload.controller';
 import { UploadService } from './services/upload.service';
+import { IdempotencyMiddleware } from './middleware/idempotency.middleware';
 
 @Global()
 @Module({
@@ -38,4 +39,8 @@ import { UploadService } from './services/upload.service';
   ],
   exports: [EventsGateway, NotificationService, CacheService, EncryptionService, UploadService],
 })
-export class CommonModule {}
+export class CommonModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(IdempotencyMiddleware).forRoutes('expenses', 'income');
+  }
+}

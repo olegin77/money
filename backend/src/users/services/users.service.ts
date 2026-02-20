@@ -72,15 +72,12 @@ export class UsersService {
       );
     }
 
-    queryBuilder
-      .orderBy('user.createdAt', 'DESC')
-      .skip(skip)
-      .take(limit);
+    queryBuilder.orderBy('user.createdAt', 'DESC').skip(skip).take(limit);
 
     const [items, total] = await queryBuilder.getManyAndCount();
 
     return {
-      items: items.map((user) => {
+      items: items.map(user => {
         const { password, twoFaSecret, ...userData } = user;
         return userData;
       }),
@@ -94,25 +91,19 @@ export class UsersService {
   }
 
   async getAdminStats() {
-    const [
-      totalUsers,
-      activeUsers,
-      verifiedUsers,
-      adminUsers,
-      users2FA,
-      recentUsers,
-    ] = await Promise.all([
-      this.userRepository.count(),
-      this.userRepository.count({ where: { isActive: true } }),
-      this.userRepository.count({ where: { emailVerified: true } }),
-      this.userRepository.count({ where: { isAdmin: true } }),
-      this.userRepository.count({ where: { twoFaEnabled: true } }),
-      this.userRepository.count({
-        where: {
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) as any,
-        },
-      }),
-    ]);
+    const [totalUsers, activeUsers, verifiedUsers, adminUsers, users2FA, recentUsers] =
+      await Promise.all([
+        this.userRepository.count(),
+        this.userRepository.count({ where: { isActive: true } }),
+        this.userRepository.count({ where: { emailVerified: true } }),
+        this.userRepository.count({ where: { isAdmin: true } }),
+        this.userRepository.count({ where: { twoFaEnabled: true } }),
+        this.userRepository.count({
+          where: {
+            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) as any,
+          },
+        }),
+      ]);
 
     return {
       totalUsers,
@@ -130,32 +121,95 @@ export class UsersService {
   }
 
   // GDPR: Export all user data (data portability)
-  async exportUserData(userId: string): Promise<object> {
+  async exportUserData(userId: string, format: 'json' | 'csv' = 'json'): Promise<object | string> {
     const user = await this.findById(userId);
     const { password, twoFaSecret, ...safeUser } = user;
 
     // Fetch all related data
     const [expenses, incomes, perimeters] = await Promise.all([
-      this.dataSource.query(
-        'SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC',
-        [userId]
-      ),
-      this.dataSource.query(
-        'SELECT * FROM income_records WHERE user_id = $1 ORDER BY date DESC',
-        [userId]
-      ),
-      this.dataSource.query(
-        'SELECT * FROM perimeters WHERE owner_id = $1',
-        [userId]
-      ),
+      this.dataSource.query('SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC', [
+        userId,
+      ]),
+      this.dataSource.query('SELECT * FROM income_records WHERE user_id = $1 ORDER BY date DESC', [
+        userId,
+      ]),
+      this.dataSource.query('SELECT * FROM perimeters WHERE owner_id = $1', [userId]),
     ]);
 
-    return {
+    const data = {
       exportedAt: new Date().toISOString(),
       user: safeUser,
       expenses,
       incomes,
       perimeters,
     };
+
+    if (format === 'csv') {
+      return this.convertToCsv(data);
+    }
+
+    return data;
+  }
+
+  private convertToCsv(data: {
+    exportedAt: string;
+    user: Record<string, any>;
+    expenses: Record<string, any>[];
+    incomes: Record<string, any>[];
+    perimeters: Record<string, any>[];
+  }): string {
+    const sections: string[] = [];
+
+    // User section
+    sections.push('# User Profile');
+    const userKeys = Object.keys(data.user);
+    sections.push(userKeys.map(k => this.escapeCsvField(k)).join(','));
+    sections.push(userKeys.map(k => this.escapeCsvField(String(data.user[k] ?? ''))).join(','));
+    sections.push('');
+
+    // Expenses section
+    sections.push('# Expenses');
+    if (data.expenses.length > 0) {
+      const expenseKeys = Object.keys(data.expenses[0]);
+      sections.push(expenseKeys.map(k => this.escapeCsvField(k)).join(','));
+      for (const expense of data.expenses) {
+        sections.push(
+          expenseKeys.map(k => this.escapeCsvField(String(expense[k] ?? ''))).join(',')
+        );
+      }
+    }
+    sections.push('');
+
+    // Incomes section
+    sections.push('# Incomes');
+    if (data.incomes.length > 0) {
+      const incomeKeys = Object.keys(data.incomes[0]);
+      sections.push(incomeKeys.map(k => this.escapeCsvField(k)).join(','));
+      for (const income of data.incomes) {
+        sections.push(incomeKeys.map(k => this.escapeCsvField(String(income[k] ?? ''))).join(','));
+      }
+    }
+    sections.push('');
+
+    // Perimeters section
+    sections.push('# Perimeters');
+    if (data.perimeters.length > 0) {
+      const perimeterKeys = Object.keys(data.perimeters[0]);
+      sections.push(perimeterKeys.map(k => this.escapeCsvField(k)).join(','));
+      for (const perimeter of data.perimeters) {
+        sections.push(
+          perimeterKeys.map(k => this.escapeCsvField(String(perimeter[k] ?? ''))).join(',')
+        );
+      }
+    }
+
+    return sections.join('\n');
+  }
+
+  private escapeCsvField(field: string): string {
+    if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+      return `"${field.replace(/"/g, '""')}"`;
+    }
+    return field;
   }
 }

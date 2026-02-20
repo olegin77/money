@@ -102,8 +102,8 @@ const config: Config = {
           to: { opacity: '1', transform: 'translateY(0)' },
         },
         shimmer: {
-          from: { backgroundPosition: '-400px 0' },
-          to: { backgroundPosition: '400px 0' },
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       animation: {

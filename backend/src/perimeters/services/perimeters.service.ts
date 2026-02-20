@@ -42,8 +42,8 @@ export class PerimetersService {
     });
 
     const shared = shares
-      .filter((share) => !share.perimeter.isDeleted)
-      .map((share) => ({
+      .filter(share => !share.perimeter.isDeleted)
+      .map(share => ({
         ...share.perimeter,
         sharedRole: share.role,
       }));
@@ -186,9 +186,7 @@ export class PerimetersService {
     }
 
     // Calculate date range based on budget period
-    const { startDate, endDate } = this.getBudgetPeriodDates(
-      perimeter.budgetPeriod || 'monthly'
-    );
+    const { startDate, endDate } = this.getBudgetPeriodDates(perimeter.budgetPeriod || 'monthly');
 
     // Get total spent in period
     const expenses = await this.expenseRepository
@@ -212,28 +210,77 @@ export class PerimetersService {
     };
   }
 
-  async getPerimeterFeed(
-    id: string,
-    userId: string,
-    page = 1,
-    limit = 20,
-  ): Promise<{ items: Expense[]; total: number; page: number; limit: number; totalPages: number }> {
+  async getPerimeterFeed(id: string, userId: string, page = 1, limit = 20, cursor?: string) {
     await this.checkAccess(id, userId, 'viewer');
 
-    const [items, total] = await this.expenseRepository.findAndCount({
-      where: { categoryId: id },
-      order: { date: 'DESC', createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const queryBuilder = this.expenseRepository
+      .createQueryBuilder('expense')
+      .where('expense.categoryId = :categoryId', { categoryId: id })
+      .orderBy('expense.date', 'DESC')
+      .addOrderBy('expense.createdAt', 'DESC');
+
+    // Cursor-based pagination takes priority
+    if (cursor) {
+      const decoded = this.decodeFeedCursor(cursor);
+      if (decoded) {
+        queryBuilder.andWhere(
+          '(expense.date < :cursorDate OR (expense.date = :cursorDate AND expense.createdAt < :cursorCreatedAt))',
+          { cursorDate: decoded.date, cursorCreatedAt: decoded.createdAt }
+        );
+      }
+    }
+
+    queryBuilder.take(limit + 1);
+
+    if (!cursor) {
+      queryBuilder.skip((page - 1) * limit);
+    }
+
+    const items = await queryBuilder.getMany();
+    const hasMore = items.length > limit;
+    if (hasMore) items.pop();
+
+    const nextCursor =
+      hasMore && items.length > 0
+        ? this.encodeFeedCursor(items[items.length - 1].date, items[items.length - 1].createdAt)
+        : null;
+
+    if (!cursor) {
+      const total = await this.expenseRepository.count({
+        where: { categoryId: id },
+      });
+
+      return {
+        items,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        cursor: nextCursor,
+      };
+    }
 
     return {
       items,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      cursor: nextCursor,
+      hasMore,
     };
+  }
+
+  private encodeFeedCursor(date: string | Date, createdAt: Date): string {
+    return Buffer.from(
+      JSON.stringify({ date: String(date), createdAt: createdAt.toISOString() })
+    ).toString('base64');
+  }
+
+  private decodeFeedCursor(cursor: string): { date: string; createdAt: string } | null {
+    try {
+      const decoded = JSON.parse(Buffer.from(cursor, 'base64').toString('utf-8'));
+      if (decoded.date && decoded.createdAt) return decoded;
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   private async checkAccess(
@@ -274,9 +321,7 @@ export class PerimetersService {
     };
 
     if (roleHierarchy[share.role] < roleHierarchy[requiredRole]) {
-      throw new ForbiddenException(
-        `You need ${requiredRole} role to perform this action`
-      );
+      throw new ForbiddenException(`You need ${requiredRole} role to perform this action`);
     }
   }
 

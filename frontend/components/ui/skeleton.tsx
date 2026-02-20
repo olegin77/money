@@ -3,7 +3,13 @@ import { cn } from '@/lib/utils';
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800', className)}
+      className={cn(
+        'relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800',
+        'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite]',
+        'before:bg-gradient-to-r before:from-transparent before:via-zinc-200/60 before:to-transparent',
+        'dark:before:via-zinc-700/40',
+        className
+      )}
       {...props}
     />
   );
