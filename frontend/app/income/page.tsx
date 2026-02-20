@@ -151,6 +151,7 @@ export default function IncomePage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder={t('filter_search')}
+                aria-label={t('filter_search')}
                 className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
             </div>
@@ -158,6 +159,7 @@ export default function IncomePage() {
               <input
                 type="date"
                 value={startDate}
+                aria-label="Start date"
                 onChange={e => {
                   setStartDate(e.target.value);
                   setPage(1);
@@ -168,6 +170,7 @@ export default function IncomePage() {
               <input
                 type="date"
                 value={endDate}
+                aria-label="End date"
                 onChange={e => {
                   setEndDate(e.target.value);
                   setPage(1);
@@ -177,6 +180,7 @@ export default function IncomePage() {
               {hasFilters && (
                 <button
                   onClick={clearFilters}
+                  aria-label={t('filter_clear')}
                   className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition-colors"
                 >
                   <X size={14} />

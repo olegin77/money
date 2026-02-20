@@ -272,6 +272,24 @@ const en = {
   toast_user_updated: 'User updated',
   toast_user_deleted: 'User deleted',
   toast_confirm_delete: 'Are you sure?',
+
+  // Keyboard shortcuts
+  kb_title: 'Keyboard shortcuts',
+  kb_description: 'Use these shortcuts to navigate faster.',
+  kb_navigation: 'Navigation',
+  kb_general: 'General',
+  kb_new_expense: 'New expense',
+  kb_new_income: 'New income',
+  kb_show_shortcuts: 'Show shortcuts',
+  kb_close_dialog: 'Close dialog',
+
+  // Notification preferences (settings)
+  set_notify_recurring: 'Recurring reminders',
+  set_notify_friends: 'Friend requests',
+  set_notify_shared: 'Shared category updates',
+  set_quiet_hours: 'Quiet hours',
+  set_quiet_from: 'From',
+  set_quiet_to: 'To',
 };
 
 const ru: typeof en = {
@@ -545,6 +563,24 @@ const ru: typeof en = {
   toast_user_updated: 'Пользователь обновлён',
   toast_user_deleted: 'Пользователь удалён',
   toast_confirm_delete: 'Вы уверены?',
+
+  // Keyboard shortcuts
+  kb_title: 'Горячие клавиши',
+  kb_description: 'Используйте клавиши для быстрой навигации.',
+  kb_navigation: 'Навигация',
+  kb_general: 'Общие',
+  kb_new_expense: 'Новый расход',
+  kb_new_income: 'Новый доход',
+  kb_show_shortcuts: 'Показать клавиши',
+  kb_close_dialog: 'Закрыть диалог',
+
+  // Notification preferences (settings)
+  set_notify_recurring: 'Напоминания о повторяющихся',
+  set_notify_friends: 'Запросы дружбы',
+  set_notify_shared: 'Обновления общих категорий',
+  set_quiet_hours: 'Тихие часы',
+  set_quiet_from: 'С',
+  set_quiet_to: 'До',
 };
 
 export const translations: Record<Lang, typeof en> = { en, ru };

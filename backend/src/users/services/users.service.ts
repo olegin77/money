@@ -3,13 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { AdminUpdateUserDto } from '../dto/admin-update-user.dto';
+import { Expense } from '../../expenses/entities/expense.entity';
+import { Income } from '../../income/entities/income.entity';
+import { ImportDataDto } from '../dto/import-data.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly dataSource: DataSource
+    @InjectRepository(Expense)
+    private readonly expenseRepository: Repository<Expense>,
+    @InjectRepository(Income)
+    private readonly incomeRepository: Repository<Income>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async findById(id: string): Promise<User | null> {
@@ -59,6 +66,48 @@ export class UsersService {
     return result.affected || 0;
   }
 
+  // ─── Data Import ──────────────────────────────────────────────
+
+  async importData(
+    userId: string,
+    dto: ImportDataDto,
+  ): Promise<{ expensesImported: number; incomesImported: number }> {
+    let expensesImported = 0;
+    let incomesImported = 0;
+
+    if (dto.expenses && dto.expenses.length > 0) {
+      const expenseEntities = dto.expenses.map((item) =>
+        this.expenseRepository.create({
+          description: item.description,
+          amount: item.amount,
+          date: item.date as unknown as Date,
+          categoryId: item.category || null,
+          userId,
+        }),
+      );
+      const saved = await this.expenseRepository.save(expenseEntities);
+      expensesImported = saved.length;
+    }
+
+    if (dto.incomes && dto.incomes.length > 0) {
+      const incomeEntities = dto.incomes.map((item) =>
+        this.incomeRepository.create({
+          description: item.description,
+          amount: item.amount,
+          date: item.date as unknown as Date,
+          source: item.source || null,
+          userId,
+        }),
+      );
+      const saved = await this.incomeRepository.save(incomeEntities);
+      incomesImported = saved.length;
+    }
+
+    return { expensesImported, incomesImported };
+  }
+
+  // ─── Admin ────────────────────────────────────────────────────
+
   async findAllAdmin(params: { page: number; limit: number; search?: string }) {
     const { page, limit, search } = params;
     const skip = (page - 1) * limit;
@@ -68,7 +117,7 @@ export class UsersService {
     if (search) {
       queryBuilder.where(
         '(user.username ILIKE :search OR user.email ILIKE :search OR user.fullName ILIKE :search)',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
 
@@ -77,8 +126,8 @@ export class UsersService {
     const [items, total] = await queryBuilder.getManyAndCount();
 
     return {
-      items: items.map(user => {
-        const { password, twoFaSecret, ...userData } = user;
+      items: items.map((user) => {
+        const { password: _password, twoFaSecret: _twoFaSecret, ...userData } = user;
         return userData;
       }),
       pagination: {
@@ -123,16 +172,17 @@ export class UsersService {
   // GDPR: Export all user data (data portability)
   async exportUserData(userId: string, format: 'json' | 'csv' = 'json'): Promise<object | string> {
     const user = await this.findById(userId);
-    const { password, twoFaSecret, ...safeUser } = user;
+    const { password: _password, twoFaSecret: _twoFaSecret, ...safeUser } = user;
 
     // Fetch all related data
     const [expenses, incomes, perimeters] = await Promise.all([
       this.dataSource.query('SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC', [
         userId,
       ]),
-      this.dataSource.query('SELECT * FROM income_records WHERE user_id = $1 ORDER BY date DESC', [
-        userId,
-      ]),
+      this.dataSource.query(
+        'SELECT * FROM income_records WHERE user_id = $1 ORDER BY date DESC',
+        [userId],
+      ),
       this.dataSource.query('SELECT * FROM perimeters WHERE owner_id = $1', [userId]),
     ]);
 
@@ -163,18 +213,20 @@ export class UsersService {
     // User section
     sections.push('# User Profile');
     const userKeys = Object.keys(data.user);
-    sections.push(userKeys.map(k => this.escapeCsvField(k)).join(','));
-    sections.push(userKeys.map(k => this.escapeCsvField(String(data.user[k] ?? ''))).join(','));
+    sections.push(userKeys.map((k) => this.escapeCsvField(k)).join(','));
+    sections.push(
+      userKeys.map((k) => this.escapeCsvField(String(data.user[k] ?? ''))).join(','),
+    );
     sections.push('');
 
     // Expenses section
     sections.push('# Expenses');
     if (data.expenses.length > 0) {
       const expenseKeys = Object.keys(data.expenses[0]);
-      sections.push(expenseKeys.map(k => this.escapeCsvField(k)).join(','));
+      sections.push(expenseKeys.map((k) => this.escapeCsvField(k)).join(','));
       for (const expense of data.expenses) {
         sections.push(
-          expenseKeys.map(k => this.escapeCsvField(String(expense[k] ?? ''))).join(',')
+          expenseKeys.map((k) => this.escapeCsvField(String(expense[k] ?? ''))).join(','),
         );
       }
     }
@@ -184,9 +236,11 @@ export class UsersService {
     sections.push('# Incomes');
     if (data.incomes.length > 0) {
       const incomeKeys = Object.keys(data.incomes[0]);
-      sections.push(incomeKeys.map(k => this.escapeCsvField(k)).join(','));
+      sections.push(incomeKeys.map((k) => this.escapeCsvField(k)).join(','));
       for (const income of data.incomes) {
-        sections.push(incomeKeys.map(k => this.escapeCsvField(String(income[k] ?? ''))).join(','));
+        sections.push(
+          incomeKeys.map((k) => this.escapeCsvField(String(income[k] ?? ''))).join(','),
+        );
       }
     }
     sections.push('');
@@ -195,10 +249,10 @@ export class UsersService {
     sections.push('# Perimeters');
     if (data.perimeters.length > 0) {
       const perimeterKeys = Object.keys(data.perimeters[0]);
-      sections.push(perimeterKeys.map(k => this.escapeCsvField(k)).join(','));
+      sections.push(perimeterKeys.map((k) => this.escapeCsvField(k)).join(','));
       for (const perimeter of data.perimeters) {
         sections.push(
-          perimeterKeys.map(k => this.escapeCsvField(String(perimeter[k] ?? ''))).join(',')
+          perimeterKeys.map((k) => this.escapeCsvField(String(perimeter[k] ?? ''))).join(','),
         );
       }
     }

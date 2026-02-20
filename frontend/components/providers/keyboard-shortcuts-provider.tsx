@@ -1,8 +1,10 @@
 'use client';
 
 import { useGlobalKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { ShortcutsHelpDialog } from '@/components/ui/shortcuts-help-dialog';
 
 export function KeyboardShortcutsProvider() {
-  useGlobalKeyboardShortcuts();
-  return null;
+  const { helpOpen, setHelpOpen } = useGlobalKeyboardShortcuts();
+
+  return <ShortcutsHelpDialog open={helpOpen} onOpenChange={setHelpOpen} />;
 }

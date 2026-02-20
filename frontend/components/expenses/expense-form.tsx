@@ -225,6 +225,9 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
           </div>
           <button
             type="button"
+            role="switch"
+            aria-checked={isRecurring}
+            aria-label={t('form_recurring')}
             onClick={() => setIsRecurring(!isRecurring)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               isRecurring ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'

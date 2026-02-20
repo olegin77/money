@@ -6,12 +6,14 @@ import {
   Delete,
   Param,
   Query,
+  Body,
   UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { NotificationsService } from '../services/notifications.service';
+import { UpdateNotificationPreferenceDto } from '../dto/update-notification-preference.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
@@ -21,13 +23,48 @@ import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
+  // ─── Preferences ──────────────────────────────────────────────
+
+  @Get('preferences')
+  async getPreferences(@CurrentUser() user: CurrentUserData) {
+    const prefs = await this.notificationsService.getPreferences(user.id);
+
+    return {
+      success: true,
+      data: prefs,
+    };
+  }
+
+  @Patch('preferences')
+  async updatePreferences(
+    @CurrentUser() user: CurrentUserData,
+    @Body() dto: UpdateNotificationPreferenceDto,
+  ) {
+    const prefs = await this.notificationsService.updatePreferences(
+      user.id,
+      dto,
+    );
+
+    return {
+      success: true,
+      message: 'Notification preferences updated',
+      data: prefs,
+    };
+  }
+
+  // ─── Notifications ────────────────────────────────────────────
+
   @Get()
   async findAll(
     @CurrentUser() user: CurrentUserData,
     @Query('page') page = 1,
-    @Query('limit') limit = 20
+    @Query('limit') limit = 20,
   ) {
-    const result = await this.notificationsService.findAll(user.id, Number(page), Number(limit));
+    const result = await this.notificationsService.findAll(
+      user.id,
+      Number(page),
+      Number(limit),
+    );
 
     return {
       success: true,
@@ -56,7 +93,10 @@ export class NotificationsController {
 
   @Patch(':id/read')
   @HttpCode(HttpStatus.OK)
-  async markAsRead(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
+  async markAsRead(
+    @CurrentUser() user: CurrentUserData,
+    @Param('id') id: string,
+  ) {
     await this.notificationsService.markAsRead(id, user.id);
 
     return {
@@ -78,7 +118,10 @@ export class NotificationsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async remove(@CurrentUser() user: CurrentUserData, @Param('id') id: string) {
+  async remove(
+    @CurrentUser() user: CurrentUserData,
+    @Param('id') id: string,
+  ) {
     await this.notificationsService.delete(id, user.id);
 
     return {

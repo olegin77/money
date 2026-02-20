@@ -171,6 +171,7 @@ export function NotificationBell() {
               )}
               <button
                 onClick={() => setOpen(false)}
+                aria-label="Close notifications"
                 className="text-muted-foreground rounded p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 <X size={14} />
@@ -207,6 +208,7 @@ export function NotificationBell() {
                     {!n.isRead && (
                       <button
                         onClick={() => handleMarkRead(n.id)}
+                        aria-label="Mark as read"
                         className="rounded p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       >
                         <Check size={14} className="text-muted-foreground" />
@@ -214,6 +216,7 @@ export function NotificationBell() {
                     )}
                     <button
                       onClick={() => handleDelete(n.id)}
+                      aria-label="Delete notification"
                       className="rounded p-1 hover:bg-red-50 dark:hover:bg-red-950/30"
                     >
                       <Trash2 size={14} className="text-muted-foreground" />

@@ -8,6 +8,24 @@ import { UpdatePerimeterDto } from '../dto/update-perimeter.dto';
 import { SharePerimeterDto } from '../dto/share-perimeter.dto';
 import { Expense } from '../../expenses/entities/expense.entity';
 
+const PERMISSION_MATRIX = {
+  viewer: {
+    read: ['summary', 'categoryTotals'],
+    write: [] as string[],
+    canRevoke: false,
+  },
+  contributor: {
+    read: ['summary', 'categoryTotals', 'ownExpenses'],
+    write: ['expenses'],
+    canRevoke: false,
+  },
+  manager: {
+    read: ['summary', 'categoryTotals', 'ownExpenses', 'allExpenses'],
+    write: ['expenses', 'perimeter', 'shares'],
+    canRevoke: true,
+  },
+};
+
 @Injectable()
 export class PerimetersService {
   constructor(
@@ -16,8 +34,61 @@ export class PerimetersService {
     @InjectRepository(PerimeterShare)
     private readonly perimeterShareRepository: Repository<PerimeterShare>,
     @InjectRepository(Expense)
-    private readonly expenseRepository: Repository<Expense>
+    private readonly expenseRepository: Repository<Expense>,
   ) {}
+
+  // ─── Permission Matrix ────────────────────────────────────────
+
+  /**
+   * Check whether a user has permission for a given action+resource on a perimeter.
+   * Owner always has full access.
+   * Throws ForbiddenException when not permitted.
+   */
+  async checkPermission(
+    userId: string,
+    perimeterId: string,
+    action: 'read' | 'write',
+    resource: string,
+  ): Promise<void> {
+    const perimeter = await this.perimeterRepository.findOne({
+      where: { id: perimeterId, isDeleted: false },
+    });
+
+    if (!perimeter) {
+      throw new NotFoundException('Perimeter not found');
+    }
+
+    // Owner always has full access
+    if (perimeter.ownerId === userId) {
+      return;
+    }
+
+    const share = await this.perimeterShareRepository.findOne({
+      where: { perimeterId, sharedWithId: userId },
+    });
+
+    if (!share) {
+      throw new ForbiddenException('You do not have access to this perimeter');
+    }
+
+    const permissions = PERMISSION_MATRIX[share.role];
+    if (!permissions) {
+      throw new ForbiddenException('Unknown role');
+    }
+
+    const allowed =
+      action === 'read'
+        ? permissions.read.includes(resource)
+        : permissions.write.includes(resource);
+
+    if (!allowed) {
+      throw new ForbiddenException(
+        `Your role "${share.role}" does not have ${action} permission for "${resource}"`,
+      );
+    }
+  }
+
+  // ─── CRUD ─────────────────────────────────────────────────────
 
   async create(userId: string, createPerimeterDto: CreatePerimeterDto): Promise<Perimeter> {
     const perimeter = this.perimeterRepository.create({
@@ -42,8 +113,8 @@ export class PerimetersService {
     });
 
     const shared = shares
-      .filter(share => !share.perimeter.isDeleted)
-      .map(share => ({
+      .filter((share) => !share.perimeter.isDeleted)
+      .map((share) => ({
         ...share.perimeter,
         sharedRole: share.role,
       }));
@@ -60,8 +131,8 @@ export class PerimetersService {
       throw new NotFoundException('Perimeter not found');
     }
 
-    // Check access
-    await this.checkAccess(id, userId, 'viewer');
+    // Check access via permission matrix (read summary)
+    await this.checkPermission(userId, id, 'read', 'summary');
 
     return perimeter;
   }
@@ -69,12 +140,18 @@ export class PerimetersService {
   async update(
     id: string,
     userId: string,
-    updatePerimeterDto: UpdatePerimeterDto
+    updatePerimeterDto: UpdatePerimeterDto,
   ): Promise<Perimeter> {
-    const perimeter = await this.findOne(id, userId);
+    const perimeter = await this.perimeterRepository.findOne({
+      where: { id, isDeleted: false },
+    });
 
-    // Check if user has permission to update
-    await this.checkAccess(id, userId, 'manager');
+    if (!perimeter) {
+      throw new NotFoundException('Perimeter not found');
+    }
+
+    // Check write permission on perimeter resource
+    await this.checkPermission(userId, id, 'write', 'perimeter');
 
     Object.assign(perimeter, updatePerimeterDto);
 
@@ -82,7 +159,13 @@ export class PerimetersService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const perimeter = await this.findOne(id, userId);
+    const perimeter = await this.perimeterRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!perimeter) {
+      throw new NotFoundException('Perimeter not found');
+    }
 
     // Only owner can delete
     if (perimeter.ownerId !== userId) {
@@ -97,12 +180,12 @@ export class PerimetersService {
   async share(
     id: string,
     userId: string,
-    sharePerimeterDto: SharePerimeterDto
+    sharePerimeterDto: SharePerimeterDto,
   ): Promise<PerimeterShare> {
     const perimeter = await this.findOne(id, userId);
 
-    // Only owner or manager can share
-    await this.checkAccess(id, userId, 'manager');
+    // Only owner or manager can share — check write permission on shares resource
+    await this.checkPermission(userId, id, 'write', 'shares');
 
     // Check if already shared
     const existingShare = await this.perimeterShareRepository.findOne({
@@ -133,7 +216,7 @@ export class PerimetersService {
   }
 
   async unshare(id: string, userId: string, targetUserId: string): Promise<void> {
-    await this.checkAccess(id, userId, 'manager');
+    await this.checkPermission(userId, id, 'write', 'shares');
 
     const share = await this.perimeterShareRepository.findOne({
       where: {
@@ -163,7 +246,7 @@ export class PerimetersService {
   }
 
   async getShares(id: string, userId: string): Promise<PerimeterShare[]> {
-    await this.checkAccess(id, userId, 'viewer');
+    await this.checkPermission(userId, id, 'read', 'summary');
 
     return this.perimeterShareRepository.find({
       where: { perimeterId: id },
@@ -172,7 +255,7 @@ export class PerimetersService {
   }
 
   async getBudgetStatus(id: string, userId: string) {
-    await this.checkAccess(id, userId, 'viewer');
+    await this.checkPermission(userId, id, 'read', 'summary');
 
     const perimeter = await this.findOne(id, userId);
 
@@ -186,7 +269,9 @@ export class PerimetersService {
     }
 
     // Calculate date range based on budget period
-    const { startDate, endDate } = this.getBudgetPeriodDates(perimeter.budgetPeriod || 'monthly');
+    const { startDate, endDate } = this.getBudgetPeriodDates(
+      perimeter.budgetPeriod || 'monthly',
+    );
 
     // Get total spent in period
     const expenses = await this.expenseRepository
@@ -211,7 +296,7 @@ export class PerimetersService {
   }
 
   async getPerimeterFeed(id: string, userId: string, page = 1, limit = 20, cursor?: string) {
-    await this.checkAccess(id, userId, 'viewer');
+    await this.checkPermission(userId, id, 'read', 'summary');
 
     const queryBuilder = this.expenseRepository
       .createQueryBuilder('expense')
@@ -225,7 +310,7 @@ export class PerimetersService {
       if (decoded) {
         queryBuilder.andWhere(
           '(expense.date < :cursorDate OR (expense.date = :cursorDate AND expense.createdAt < :cursorCreatedAt))',
-          { cursorDate: decoded.date, cursorCreatedAt: decoded.createdAt }
+          { cursorDate: decoded.date, cursorCreatedAt: decoded.createdAt },
         );
       }
     }
@@ -267,9 +352,11 @@ export class PerimetersService {
     };
   }
 
+  // ─── Private helpers ──────────────────────────────────────────
+
   private encodeFeedCursor(date: string | Date, createdAt: Date): string {
     return Buffer.from(
-      JSON.stringify({ date: String(date), createdAt: createdAt.toISOString() })
+      JSON.stringify({ date: String(date), createdAt: createdAt.toISOString() }),
     ).toString('base64');
   }
 
@@ -280,48 +367,6 @@ export class PerimetersService {
       return null;
     } catch {
       return null;
-    }
-  }
-
-  private async checkAccess(
-    perimeterId: string,
-    userId: string,
-    requiredRole: 'viewer' | 'contributor' | 'manager'
-  ): Promise<void> {
-    const perimeter = await this.perimeterRepository.findOne({
-      where: { id: perimeterId, isDeleted: false },
-    });
-
-    if (!perimeter) {
-      throw new NotFoundException('Perimeter not found');
-    }
-
-    // Owner has all permissions
-    if (perimeter.ownerId === userId) {
-      return;
-    }
-
-    // Check shared access
-    const share = await this.perimeterShareRepository.findOne({
-      where: {
-        perimeterId,
-        sharedWithId: userId,
-      },
-    });
-
-    if (!share) {
-      throw new ForbiddenException('You do not have access to this perimeter');
-    }
-
-    // Check role hierarchy
-    const roleHierarchy = {
-      viewer: 1,
-      contributor: 2,
-      manager: 3,
-    };
-
-    if (roleHierarchy[share.role] < roleHierarchy[requiredRole]) {
-      throw new ForbiddenException(`You need ${requiredRole} role to perform this action`);
     }
   }
 

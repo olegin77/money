@@ -13,8 +13,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
-import { Bell, Download, Globe, Shield, User } from 'lucide-react';
+import { Bell, Download, Globe, Keyboard, Shield, User } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
+import { ShortcutsHelpDialog } from '@/components/ui/shortcuts-help-dialog';
 
 export default function SettingsPage() {
   useAuth();
@@ -26,6 +27,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
 
   const [exporting, setExporting] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   // 2FA
   const [show2faSetup, setShow2faSetup] = useState(false);
@@ -340,6 +342,9 @@ export default function SettingsPage() {
               <div key={item.key} className="flex items-center justify-between">
                 <span className="text-foreground text-sm">{item.label}</span>
                 <button
+                  aria-label={`Toggle ${item.label}`}
+                  role="switch"
+                  aria-checked={!!user?.[item.key]}
                   onClick={() => handleNotifyToggle(item.key)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     user?.[item.key] ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-700'
@@ -355,6 +360,23 @@ export default function SettingsPage() {
             ))}
           </CardContent>
         </Card>
+
+        {/* Keyboard Shortcuts */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Keyboard size={14} />
+              {t('kb_title')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-3 text-sm">{t('kb_description')}</p>
+            <Button variant="outline" onClick={() => setShortcutsOpen(true)}>
+              {t('kb_show_shortcuts')}
+            </Button>
+          </CardContent>
+        </Card>
+        <ShortcutsHelpDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
 
         {/* Data Export */}
         <Card>

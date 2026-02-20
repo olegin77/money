@@ -2,15 +2,78 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification, NotificationType } from '../entities/notification.entity';
+import { NotificationPreference } from '../entities/notification-preference.entity';
+import { UpdateNotificationPreferenceDto } from '../dto/update-notification-preference.dto';
 import { EventsGateway } from '../../common/gateways/events.gateway';
+
+/** Maps NotificationType to the corresponding preference flag. */
+const TYPE_TO_PREFERENCE: Record<NotificationType, keyof NotificationPreference | null> = {
+  [NotificationType.BUDGET_WARNING]: 'budgetAlerts',
+  [NotificationType.BUDGET_EXCEEDED]: 'budgetAlerts',
+  [NotificationType.FRIEND_REQUEST]: 'friendRequests',
+  [NotificationType.FRIEND_ACCEPTED]: 'friendRequests',
+  [NotificationType.PERIMETER_SHARED]: 'perimeterShares',
+  [NotificationType.SYSTEM]: null, // system notifications always send
+};
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
+    @InjectRepository(NotificationPreference)
+    private preferenceRepository: Repository<NotificationPreference>,
     private eventsGateway: EventsGateway,
   ) {}
+
+  // ─── Preferences ──────────────────────────────────────────────
+
+  async getPreferences(userId: string): Promise<NotificationPreference> {
+    let prefs = await this.preferenceRepository.findOne({
+      where: { userId },
+    });
+
+    if (!prefs) {
+      // Create default preferences
+      prefs = this.preferenceRepository.create({ userId });
+      prefs = await this.preferenceRepository.save(prefs);
+    }
+
+    return prefs;
+  }
+
+  async updatePreferences(
+    userId: string,
+    dto: UpdateNotificationPreferenceDto,
+  ): Promise<NotificationPreference> {
+    let prefs = await this.getPreferences(userId);
+
+    Object.assign(prefs, dto);
+    prefs = await this.preferenceRepository.save(prefs);
+
+    return prefs;
+  }
+
+  /**
+   * Check whether a notification of the given type should be delivered
+   * to the user based on their preferences.
+   */
+  async shouldNotify(
+    userId: string,
+    type: NotificationType,
+  ): Promise<boolean> {
+    const prefKey = TYPE_TO_PREFERENCE[type];
+
+    // System notifications always go through
+    if (prefKey === null) {
+      return true;
+    }
+
+    const prefs = await this.getPreferences(userId);
+    return !!prefs[prefKey];
+  }
+
+  // ─── Core CRUD ────────────────────────────────────────────────
 
   async create(
     userId: string,
@@ -82,8 +145,12 @@ export class NotificationsService {
     await this.notificationRepository.delete({ id, userId });
   }
 
-  // Convenience methods for creating typed notifications
+  // ─── Convenience methods for creating typed notifications ─────
+
   async notifyFriendRequest(userId: string, fromUsername: string): Promise<void> {
+    if (!(await this.shouldNotify(userId, NotificationType.FRIEND_REQUEST))) {
+      return;
+    }
     await this.create(
       userId,
       NotificationType.FRIEND_REQUEST,
@@ -94,6 +161,9 @@ export class NotificationsService {
   }
 
   async notifyFriendAccepted(userId: string, friendUsername: string): Promise<void> {
+    if (!(await this.shouldNotify(userId, NotificationType.FRIEND_ACCEPTED))) {
+      return;
+    }
     await this.create(
       userId,
       NotificationType.FRIEND_ACCEPTED,
@@ -108,6 +178,9 @@ export class NotificationsService {
     perimeterName: string,
     percentage: number,
   ): Promise<void> {
+    if (!(await this.shouldNotify(userId, NotificationType.BUDGET_WARNING))) {
+      return;
+    }
     await this.create(
       userId,
       NotificationType.BUDGET_WARNING,
@@ -121,6 +194,9 @@ export class NotificationsService {
     userId: string,
     perimeterName: string,
   ): Promise<void> {
+    if (!(await this.shouldNotify(userId, NotificationType.BUDGET_EXCEEDED))) {
+      return;
+    }
     await this.create(
       userId,
       NotificationType.BUDGET_EXCEEDED,
@@ -135,6 +211,9 @@ export class NotificationsService {
     perimeterName: string,
     sharedByUsername: string,
   ): Promise<void> {
+    if (!(await this.shouldNotify(userId, NotificationType.PERIMETER_SHARED))) {
+      return;
+    }
     await this.create(
       userId,
       NotificationType.PERIMETER_SHARED,

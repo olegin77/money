@@ -18,6 +18,7 @@ import { UsersService } from '../services/users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { ImportDataDto } from '../dto/import-data.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -29,7 +30,7 @@ export class UsersController {
   async getProfile(@CurrentUser() currentUser: CurrentUserData) {
     const user = await this.usersService.findById(currentUser.id);
 
-    const { password, twoFaSecret, ...userWithoutSensitive } = user;
+    const { password: _password, twoFaSecret: _twoFaSecret, ...userWithoutSensitive } = user;
 
     return {
       success: true,
@@ -41,11 +42,11 @@ export class UsersController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async updateProfile(
     @CurrentUser() currentUser: CurrentUserData,
-    @Body() updateUserDto: UpdateUserDto
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     const user = await this.usersService.update(currentUser.id, updateUserDto);
 
-    const { password, twoFaSecret, ...userWithoutSensitive } = user;
+    const { password: _password, twoFaSecret: _twoFaSecret, ...userWithoutSensitive } = user;
 
     return {
       success: true,
@@ -96,7 +97,7 @@ export class UsersController {
   async exportData(
     @CurrentUser() currentUser: CurrentUserData,
     @Query('format') format: 'json' | 'csv' = 'json',
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     const data = await this.usersService.exportUserData(currentUser.id, format);
 
@@ -104,16 +105,33 @@ export class UsersController {
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="fintrack-export-${currentUser.id}.csv"`
+        `attachment; filename="fintrack-export-${currentUser.id}.csv"`,
       );
       res.send(data);
     } else {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="fintrack-export-${currentUser.id}.json"`
+        `attachment; filename="fintrack-export-${currentUser.id}.json"`,
       );
       res.send(JSON.stringify(data, null, 2));
     }
+  }
+
+  // Data import
+  @Post('me/import')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async importData(
+    @CurrentUser() currentUser: CurrentUserData,
+    @Body() importDataDto: ImportDataDto,
+  ) {
+    const result = await this.usersService.importData(currentUser.id, importDataDto);
+
+    return {
+      success: true,
+      message: 'Data imported successfully',
+      data: result,
+    };
   }
 }
