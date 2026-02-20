@@ -11,38 +11,46 @@ import { IncomeForm } from '@/components/income/income-form';
 import { IncomeList } from '@/components/income/income-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
-import { incomeApi, Income, CreateIncomeData } from '@/lib/api/income';
+import { Income, CreateIncomeData } from '@/lib/api/income';
+import { useIncome, useCreateIncome, useUpdateIncome, useDeleteIncome } from '@/hooks/use-income';
 import { Plus, Search, X } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
 
 export default function IncomePage() {
   const { isLoading: authLoading } = useAuth(true);
   const t = useT();
-  const [incomes, setIncomes] = useState<Income[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const openForm = useCallback(() => setShowForm(true), []);
+  const { data, isLoading } = useIncome({
+    page,
+    limit: 20,
+    search: debouncedSearch || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  });
 
-  useEffect(() => {
-    if (!authLoading) loadIncomes();
-  }, [authLoading, page, startDate, endDate]);
+  const createMutation = useCreateIncome();
+  const updateMutation = useUpdateIncome();
+  const deleteMutation = useDeleteIncome();
+
+  const incomes = data?.items || [];
+  const totalPages = data?.pagination?.totalPages || 1;
+
+  const openForm = useCallback(() => setShowForm(true), []);
 
   // Debounced search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      if (!authLoading) {
-        setPage(1);
-        loadIncomes();
-      }
+      setDebouncedSearch(search);
+      setPage(1);
     }, 400);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -62,27 +70,9 @@ export default function IncomePage() {
     return () => window.removeEventListener('shortcut:open-form', openForm);
   }, [openForm]);
 
-  const loadIncomes = async () => {
-    try {
-      setLoading(true);
-      const result = await incomeApi.findAll({
-        page,
-        limit: 20,
-        search: search || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-      });
-      setIncomes(result.items);
-      setTotalPages(result.pagination.totalPages);
-    } catch {
-      toast.error(t('toast_error_load'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const clearFilters = () => {
     setSearch('');
+    setDebouncedSearch('');
     setStartDate('');
     setEndDate('');
     setPage(1);
@@ -92,10 +82,9 @@ export default function IncomePage() {
 
   const handleCreate = async (data: CreateIncomeData) => {
     try {
-      await incomeApi.create(data);
+      await createMutation.mutateAsync(data);
       setShowForm(false);
       toast.success(t('toast_income_created'));
-      loadIncomes();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -104,10 +93,9 @@ export default function IncomePage() {
   const handleUpdate = async (data: CreateIncomeData) => {
     if (!editingIncome) return;
     try {
-      await incomeApi.update(editingIncome.id, data);
+      await updateMutation.mutateAsync({ id: editingIncome.id, data });
       setEditingIncome(null);
       toast.success(t('toast_income_updated'));
-      loadIncomes();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -116,9 +104,8 @@ export default function IncomePage() {
   const handleDelete = async (id: string) => {
     if (!confirm(t('toast_confirm_delete'))) return;
     try {
-      await incomeApi.delete(id);
+      await deleteMutation.mutateAsync(id);
       toast.success(t('toast_income_deleted'));
-      loadIncomes();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -199,7 +186,7 @@ export default function IncomePage() {
             </div>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
                 <Skeleton key={i} className="h-16 rounded-xl" />

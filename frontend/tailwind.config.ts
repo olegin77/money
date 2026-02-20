@@ -105,11 +105,24 @@ const config: Config = {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
         },
+        'fab-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(99, 102, 241, 0.4)' },
+          '50%': { boxShadow: '0 0 0 8px rgba(99, 102, 241, 0)' },
+        },
+        'scale-bounce': {
+          '0%': { transform: 'scale(0)', opacity: '0' },
+          '60%': { transform: 'scale(1.15)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'draw-check': {
+          to: { strokeDashoffset: '0' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease-out',
         'slide-up': 'slide-up 0.3s ease-out',
         shimmer: 'shimmer 1.5s ease-in-out infinite',
+        'fab-pulse': 'fab-pulse 2s ease-in-out infinite',
       },
     },
   },

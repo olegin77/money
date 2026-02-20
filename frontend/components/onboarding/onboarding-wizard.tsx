@@ -20,6 +20,8 @@ import {
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB', 'JPY', 'CNY', 'INR', 'BRL', 'CAD', 'AUD'];
 const ONBOARDING_KEY = 'fintrack_onboarding_complete';
 
+const TOTAL_STEPS = 5;
+
 export function OnboardingWizard() {
   const t = useT();
   const { user, updateUser } = useAuthStore();
@@ -70,7 +72,7 @@ export function OnboardingWizard() {
         <CardContent className="pt-6">
           {/* Progress */}
           <div className="mb-6 flex items-center gap-2">
-            {[0, 1, 2].map(i => (
+            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
               <div
                 key={i}
                 className={`h-1 flex-1 rounded-full transition-colors ${
@@ -133,8 +135,78 @@ export function OnboardingWizard() {
             </div>
           )}
 
-          {/* Step 2: Features overview + finish */}
+          {/* Step 2: Add first expense hint */}
           {step === 2 && (
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
+                <TrendingDown className="text-red-500" size={28} />
+              </div>
+              <h2 className="text-foreground text-xl font-bold">{t('onb_expense_title')}</h2>
+              <p className="text-muted-foreground mt-2 text-sm">{t('onb_expense_sub')}</p>
+
+              <div className="mt-5 space-y-2 text-left">
+                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
+                  <span className="text-lg">🛒</span>
+                  <span className="text-foreground text-sm">{t('onb_expense_ex1')}</span>
+                </div>
+                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
+                  <span className="text-lg">☕</span>
+                  <span className="text-foreground text-sm">{t('onb_expense_ex2')}</span>
+                </div>
+                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
+                  <span className="text-lg">🚗</span>
+                  <span className="text-foreground text-sm">{t('onb_expense_ex3')}</span>
+                </div>
+              </div>
+
+              <div className="mt-8 flex gap-3">
+                <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+                  {t('onb_back')}
+                </Button>
+                <Button className="flex-1" onClick={() => setStep(3)}>
+                  {t('onb_next')} <ChevronRight size={14} />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Add first income hint */}
+          {step === 3 && (
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
+                <TrendingUp className="text-emerald-500" size={28} />
+              </div>
+              <h2 className="text-foreground text-xl font-bold">{t('onb_income_title')}</h2>
+              <p className="text-muted-foreground mt-2 text-sm">{t('onb_income_sub')}</p>
+
+              <div className="mt-5 space-y-2 text-left">
+                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
+                  <span className="text-lg">💼</span>
+                  <span className="text-foreground text-sm">{t('onb_income_ex1')}</span>
+                </div>
+                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
+                  <span className="text-lg">💻</span>
+                  <span className="text-foreground text-sm">{t('onb_income_ex2')}</span>
+                </div>
+                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
+                  <span className="text-lg">📈</span>
+                  <span className="text-foreground text-sm">{t('onb_income_ex3')}</span>
+                </div>
+              </div>
+
+              <div className="mt-8 flex gap-3">
+                <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
+                  {t('onb_back')}
+                </Button>
+                <Button className="flex-1" onClick={() => setStep(4)}>
+                  {t('onb_next')} <ChevronRight size={14} />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Features overview + finish */}
+          {step === 4 && (
             <div>
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-600/10">

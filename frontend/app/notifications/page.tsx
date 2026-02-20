@@ -1,51 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { notificationsApi, Notification, NotificationsResponse } from '@/lib/api/notifications';
+import { Notification } from '@/lib/api/notifications';
 import { PageFadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
 import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import {
+  useNotifications,
+  useMarkAsRead,
+  useMarkAllAsRead,
+  useDeleteNotification,
+} from '@/hooks/use-notifications';
 
 export default function NotificationsPage() {
   const { isLoading: authLoading } = useAuth(true);
   const t = useT();
-  const [data, setData] = useState<NotificationsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    if (!authLoading) loadNotifications();
-  }, [authLoading, page]);
-
-  const loadNotifications = async () => {
-    try {
-      setLoading(true);
-      const res = await notificationsApi.findAll(page, 20);
-      setData(res);
-    } catch {
-      toast.error(t('toast_error_load'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, isLoading } = useNotifications(page, 20);
+  const markAsReadMutation = useMarkAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
+  const deleteNotifMutation = useDeleteNotification();
 
   const handleMarkRead = async (id: string) => {
     try {
-      await notificationsApi.markAsRead(id);
-      setData(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          items: prev.items.map(n => (n.id === id ? { ...n, isRead: true } : n)),
-          unread: Math.max(0, prev.unread - 1),
-        };
-      });
+      await markAsReadMutation.mutateAsync(id);
     } catch {
       toast.error(t('toast_error'));
     }
@@ -53,15 +38,7 @@ export default function NotificationsPage() {
 
   const handleMarkAllRead = async () => {
     try {
-      await notificationsApi.markAllAsRead();
-      setData(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          items: prev.items.map(n => ({ ...n, isRead: true })),
-          unread: 0,
-        };
-      });
+      await markAllAsReadMutation.mutateAsync();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -69,17 +46,7 @@ export default function NotificationsPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      await notificationsApi.delete(id);
-      setData(prev => {
-        if (!prev) return prev;
-        const removed = prev.items.find(n => n.id === id);
-        return {
-          ...prev,
-          items: prev.items.filter(n => n.id !== id),
-          total: prev.total - 1,
-          unread: removed && !removed.isRead ? prev.unread - 1 : prev.unread,
-        };
-      });
+      await deleteNotifMutation.mutateAsync(id);
     } catch {
       toast.error(t('toast_error'));
     }
@@ -99,7 +66,7 @@ export default function NotificationsPage() {
     return d.toLocaleDateString();
   };
 
-  if (authLoading || loading) {
+  if (authLoading || isLoading) {
     return (
       <ResponsiveContainer>
         <div className="mx-auto max-w-2xl space-y-4 p-4 md:p-8">

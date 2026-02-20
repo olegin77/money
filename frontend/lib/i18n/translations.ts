@@ -237,6 +237,16 @@ const en = {
   onb_finish: 'Go to Dashboard',
   onb_skip: 'Skip',
   onb_step: 'Step {current} of {total}',
+  onb_expense_title: 'Track your expenses',
+  onb_expense_sub: 'Start by adding your daily spending to build a clear picture.',
+  onb_expense_ex1: 'Groceries & food shopping',
+  onb_expense_ex2: 'Coffee & dining out',
+  onb_expense_ex3: 'Transport & fuel',
+  onb_income_title: 'Log your income',
+  onb_income_sub: 'Add income sources so you can see your full financial picture.',
+  onb_income_ex1: 'Salary & wages',
+  onb_income_ex2: 'Freelance & side projects',
+  onb_income_ex3: 'Investments & dividends',
 
   // Toast messages
   toast_expense_created: 'Expense added',
@@ -500,6 +510,16 @@ const ru: typeof en = {
   onb_finish: 'На главную',
   onb_skip: 'Пропустить',
   onb_step: 'Шаг {current} из {total}',
+  onb_expense_title: 'Отслеживайте расходы',
+  onb_expense_sub: 'Начните добавлять ежедневные траты для полной картины.',
+  onb_expense_ex1: 'Продукты и покупки',
+  onb_expense_ex2: 'Кофе и рестораны',
+  onb_expense_ex3: 'Транспорт и топливо',
+  onb_income_title: 'Учитывайте доходы',
+  onb_income_sub: 'Добавьте источники дохода для полной финансовой картины.',
+  onb_income_ex1: 'Зарплата',
+  onb_income_ex2: 'Фриланс и подработка',
+  onb_income_ex3: 'Инвестиции и дивиденды',
 
   // Toast messages
   toast_expense_created: 'Расход добавлен',

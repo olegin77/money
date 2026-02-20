@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { toast } from '@/hooks/use-toast';
@@ -12,41 +12,34 @@ import { ShareDialog } from '@/components/perimeters/share-dialog';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { perimetersApi, Perimeter, CreatePerimeterData } from '@/lib/api/perimeters';
+import { Perimeter, CreatePerimeterData } from '@/lib/api/perimeters';
+import {
+  usePerimeters,
+  useCreatePerimeter,
+  useUpdatePerimeter,
+  useDeletePerimeter,
+} from '@/hooks/use-perimeters';
+import { CategoryGrid } from '@/components/categories/category-grid';
 import { FolderOpen, Plus } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
 
 export default function CategoriesPage() {
   const { isLoading: authLoading } = useAuth(true);
   const t = useT();
-  const [perimeters, setPerimeters] = useState<Perimeter[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPerimeter, setEditingPerimeter] = useState<Perimeter | null>(null);
   const [sharingPerimeter, setSharingPerimeter] = useState<Perimeter | null>(null);
 
-  useEffect(() => {
-    if (!authLoading) loadPerimeters();
-  }, [authLoading]);
-
-  const loadPerimeters = async () => {
-    try {
-      setLoading(true);
-      const data = await perimetersApi.findAll();
-      setPerimeters(data);
-    } catch {
-      toast.error(t('toast_error_load'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: perimeters = [], isLoading } = usePerimeters();
+  const createMutation = useCreatePerimeter();
+  const updateMutation = useUpdatePerimeter();
+  const deleteMutation = useDeletePerimeter();
 
   const handleCreate = async (data: CreatePerimeterData) => {
     try {
-      await perimetersApi.create(data);
+      await createMutation.mutateAsync(data);
       setShowForm(false);
       toast.success(t('toast_category_created'));
-      loadPerimeters();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -55,10 +48,9 @@ export default function CategoriesPage() {
   const handleUpdate = async (data: CreatePerimeterData) => {
     if (!editingPerimeter) return;
     try {
-      await perimetersApi.update(editingPerimeter.id, data);
+      await updateMutation.mutateAsync({ id: editingPerimeter.id, data });
       setEditingPerimeter(null);
       toast.success(t('toast_category_updated'));
-      loadPerimeters();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -67,15 +59,14 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm(t('toast_confirm_delete'))) return;
     try {
-      await perimetersApi.delete(id);
+      await deleteMutation.mutateAsync(id);
       toast.success(t('toast_category_deleted'));
-      loadPerimeters();
     } catch {
       toast.error(t('toast_error'));
     }
   };
 
-  if (authLoading || loading) {
+  if (authLoading || isLoading) {
     return (
       <ResponsiveContainer>
         <div className="mx-auto max-w-5xl space-y-3 p-4 md:p-8">
@@ -122,23 +113,13 @@ export default function CategoriesPage() {
             </div>
           )}
 
-          {/* My categories */}
+          {/* My categories - grid view */}
           {ownedPerimeters.length > 0 && (
             <div className="mb-8">
               <p className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wide">
                 {t('cat_expenses')}
               </p>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {ownedPerimeters.map(perimeter => (
-                  <PerimeterCard
-                    key={perimeter.id}
-                    perimeter={perimeter}
-                    onEdit={setEditingPerimeter}
-                    onDelete={handleDelete}
-                    onShare={setSharingPerimeter}
-                  />
-                ))}
-              </div>
+              <CategoryGrid perimeters={ownedPerimeters} onEdit={setEditingPerimeter} />
             </div>
           )}
 

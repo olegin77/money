@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,22 +11,23 @@ import { CashFlowChart } from '@/components/analytics/cash-flow-chart';
 import { MonthlyComparison } from '@/components/analytics/monthly-comparison';
 import { IncomeTrendChart } from '@/components/analytics/income-trend-chart';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import {
-  analyticsApi,
-  DashboardData,
-  TrendData,
-  CashFlowData,
-  MonthlyComparisonData,
-} from '@/lib/api/analytics';
+import { Expense } from '@/lib/api/expenses';
+import { Income } from '@/lib/api/income';
 import { Button } from '@/components/ui/button';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
-import { expensesApi, Expense } from '@/lib/api/expenses';
-import { incomeApi, Income } from '@/lib/api/income';
+import { expensesApi } from '@/lib/api/expenses';
+import { incomeApi } from '@/lib/api/income';
 import { toast } from '@/hooks/use-toast';
 import { PageFadeIn } from '@/components/ui/motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import {
+  useDashboard,
+  useCashFlow,
+  useIncomeTrendAnalytics,
+  useMonthlyComparison,
+} from '@/hooks/use-dashboard';
 
 type Period = 'week' | 'month' | 'year' | 'all';
 const PERIODS: Period[] = ['week', 'month', 'year', 'all'];
@@ -41,40 +42,22 @@ const PERIOD_KEYS = {
 export default function AnalyticsPage() {
   const { isLoading: authLoading } = useAuth(true);
   const t = useT();
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [cashFlow, setCashFlow] = useState<CashFlowData[]>([]);
-  const [incomeTrend, setIncomeTrend] = useState<TrendData[]>([]);
-  const [monthlyData, setMonthlyData] = useState<MonthlyComparisonData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>('month');
   const [exporting, setExporting] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading) loadAll();
-  }, [authLoading, period]);
+  const { data: dashboard, isLoading: dashLoading } = useDashboard(period);
+  const { data: cashFlow = [] } = useCashFlow({
+    startDate: period !== 'all' ? undefined : '2020-01-01',
+    endDate: undefined,
+  });
+  const { data: incomeTrend = [] } = useIncomeTrendAnalytics({
+    groupBy: period === 'week' ? 'day' : 'week',
+  });
+  const { data: monthlyData = [] } = useMonthlyComparison(
+    period === 'year' ? 12 : period === 'all' ? 24 : 6
+  );
 
-  const loadAll = async () => {
-    try {
-      setLoading(true);
-      const [data, flow, incTrend, monthly] = await Promise.all([
-        analyticsApi.getDashboard({ period }),
-        analyticsApi.getCashFlow({
-          startDate: period !== 'all' ? undefined : '2020-01-01',
-          endDate: undefined,
-        }),
-        analyticsApi.getIncomeTrend({ groupBy: period === 'week' ? 'day' : 'week' }),
-        analyticsApi.getMonthlyComparison(period === 'year' ? 12 : period === 'all' ? 24 : 6),
-      ]);
-      setDashboard(data);
-      setCashFlow(flow);
-      setIncomeTrend(incTrend);
-      setMonthlyData(monthly);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = authLoading || dashLoading;
 
   const handleExportCSV = async () => {
     setExporting(true);
@@ -209,7 +192,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <ResponsiveContainer>
         <div className="mx-auto max-w-5xl space-y-4 p-4 md:p-8">

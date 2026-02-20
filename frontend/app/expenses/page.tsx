@@ -11,44 +11,59 @@ import { ExpenseForm } from '@/components/expenses/expense-form';
 import { ExpenseList } from '@/components/expenses/expense-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
-import { expensesApi, Expense, CreateExpenseData } from '@/lib/api/expenses';
+import { Expense, CreateExpenseData } from '@/lib/api/expenses';
+import {
+  useExpenses,
+  useCreateExpense,
+  useUpdateExpense,
+  useDeleteExpense,
+} from '@/hooks/use-expenses';
 import { Plus, Search, X, Loader2 } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
+import { SuccessCheck } from '@/components/ui/success-check';
 import { usePullRefresh } from '@/hooks/use-pull-refresh';
 
 export default function ExpensesPage() {
   const { isLoading: authLoading } = useAuth(true);
   const t = useT();
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
+  const { data, isLoading, refetch } = useExpenses({
+    page,
+    limit: 20,
+    search: debouncedSearch || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  });
+
+  const createMutation = useCreateExpense();
+  const updateMutation = useUpdateExpense();
+  const deleteMutation = useDeleteExpense();
+
+  const expenses = data?.items || [];
+  const totalPages = data?.pagination?.totalPages || 1;
+
   const openForm = useCallback(() => setShowForm(true), []);
   const { containerRef, pullDistance, refreshing } = usePullRefresh({
     onRefresh: async () => {
-      await loadExpenses();
+      await refetch();
     },
   });
-
-  useEffect(() => {
-    if (!authLoading) loadExpenses();
-  }, [authLoading, page, startDate, endDate]);
 
   // Debounced search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      if (!authLoading) {
-        setPage(1);
-        loadExpenses();
-      }
+      setDebouncedSearch(search);
+      setPage(1);
     }, 400);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -68,27 +83,9 @@ export default function ExpensesPage() {
     return () => window.removeEventListener('shortcut:open-form', openForm);
   }, [openForm]);
 
-  const loadExpenses = async () => {
-    try {
-      setLoading(true);
-      const result = await expensesApi.findAll({
-        page,
-        limit: 20,
-        search: search || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-      });
-      setExpenses(result.items);
-      setTotalPages(result.pagination.totalPages);
-    } catch {
-      toast.error(t('toast_error_load'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const clearFilters = () => {
     setSearch('');
+    setDebouncedSearch('');
     setStartDate('');
     setEndDate('');
     setPage(1);
@@ -98,10 +95,10 @@ export default function ExpensesPage() {
 
   const handleCreate = async (data: CreateExpenseData) => {
     try {
-      await expensesApi.create(data);
+      await createMutation.mutateAsync(data);
       setShowForm(false);
+      setShowSuccess(true);
       toast.success(t('toast_expense_created'));
-      loadExpenses();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -110,10 +107,9 @@ export default function ExpensesPage() {
   const handleUpdate = async (data: CreateExpenseData) => {
     if (!editingExpense) return;
     try {
-      await expensesApi.update(editingExpense.id, data);
+      await updateMutation.mutateAsync({ id: editingExpense.id, data });
       setEditingExpense(null);
       toast.success(t('toast_expense_updated'));
-      loadExpenses();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -122,9 +118,8 @@ export default function ExpensesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm(t('toast_confirm_delete'))) return;
     try {
-      await expensesApi.delete(id);
+      await deleteMutation.mutateAsync(id);
       toast.success(t('toast_expense_deleted'));
-      loadExpenses();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -215,7 +210,7 @@ export default function ExpensesPage() {
               </div>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-3">
                 {[...Array(5)].map((_, i) => (
                   <Skeleton key={i} className="h-16 rounded-xl" />
@@ -283,6 +278,8 @@ export default function ExpensesPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <SuccessCheck show={showSuccess} onDone={() => setShowSuccess(false)} />
     </ResponsiveContainer>
   );
 }

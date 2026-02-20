@@ -45,10 +45,13 @@ export function MobileNav() {
               href={href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'text-muted-foreground flex flex-1 flex-col items-center justify-center gap-1 transition-colors',
+                'text-muted-foreground relative flex flex-1 flex-col items-center justify-center gap-1 transition-colors',
                 active ? 'text-indigo-600 dark:text-indigo-400' : 'hover:text-foreground'
               )}
             >
+              {active && (
+                <span className="absolute -top-px left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+              )}
               <Icon
                 size={20}
                 strokeWidth={active ? 2.5 : 1.8}

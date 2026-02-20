@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { toast } from '@/hooks/use-toast';
@@ -13,41 +13,34 @@ import { UserSearch } from '@/components/friends/user-search';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { friendsApi, Friend, FriendRequest } from '@/lib/api/friends';
+import {
+  useFriends,
+  usePendingRequests,
+  useSendFriendRequest,
+  useAcceptFriendRequest,
+  useRejectFriendRequest,
+  useRemoveFriend,
+} from '@/hooks/use-friends';
 import { UserPlus, Users } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
 
 export default function FriendsPage() {
   const { isLoading: authLoading } = useAuth(true);
   const t = useT();
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading) loadData();
-  }, [authLoading]);
+  const { data: friends = [], isLoading: friendsLoading } = useFriends();
+  const { data: pendingRequests = [], isLoading: requestsLoading } = usePendingRequests();
+  const sendRequestMutation = useSendFriendRequest();
+  const acceptMutation = useAcceptFriendRequest();
+  const rejectMutation = useRejectFriendRequest();
+  const removeMutation = useRemoveFriend();
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [friendsData, requestsData] = await Promise.all([
-        friendsApi.getFriends(),
-        friendsApi.getPendingRequests(),
-      ]);
-      setFriends(friendsData);
-      setPendingRequests(requestsData);
-    } catch {
-      toast.error(t('toast_error_load'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = authLoading || friendsLoading || requestsLoading;
 
   const handleSendRequest = async (userId: string) => {
     try {
-      await friendsApi.sendRequest(userId);
+      await sendRequestMutation.mutateAsync(userId);
       setShowSearch(false);
       toast.success(t('toast_friend_request_sent'));
     } catch {
@@ -57,9 +50,8 @@ export default function FriendsPage() {
 
   const handleAccept = async (requestId: string) => {
     try {
-      await friendsApi.acceptRequest(requestId);
+      await acceptMutation.mutateAsync(requestId);
       toast.success(t('toast_friend_accepted'));
-      loadData();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -67,9 +59,8 @@ export default function FriendsPage() {
 
   const handleReject = async (requestId: string) => {
     try {
-      await friendsApi.rejectRequest(requestId);
+      await rejectMutation.mutateAsync(requestId);
       toast.success(t('toast_friend_rejected'));
-      loadData();
     } catch {
       toast.error(t('toast_error'));
     }
@@ -78,15 +69,14 @@ export default function FriendsPage() {
   const handleRemove = async (friendshipId: string) => {
     if (!confirm(t('toast_confirm_delete'))) return;
     try {
-      await friendsApi.removeFriend(friendshipId);
+      await removeMutation.mutateAsync(friendshipId);
       toast.success(t('toast_friend_removed'));
-      loadData();
     } catch {
       toast.error(t('toast_error'));
     }
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <ResponsiveContainer>
         <div className="mx-auto max-w-2xl space-y-3 p-4 md:p-8">

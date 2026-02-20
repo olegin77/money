@@ -21,9 +21,10 @@ export function FloatingActionButton({
       className={cn(
         'fixed bottom-20 right-4 z-40 md:hidden',
         'h-13 w-13 rounded-full',
-        'bg-indigo-600 text-white shadow-md',
+        'bg-indigo-600 text-white shadow-lg',
         'flex items-center justify-center',
-        'transition-transform hover:bg-indigo-700 active:scale-95',
+        'transition-all hover:bg-indigo-700 active:scale-95',
+        'animate-[fab-pulse_2s_ease-in-out_infinite]',
         className
       )}
       style={{ width: '52px', height: '52px' }}

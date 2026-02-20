@@ -1,48 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useT } from '@/hooks/use-t';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { analyticsApi, DashboardData } from '@/lib/api/analytics';
 import { formatCurrency } from '@/lib/api/currency';
 import Link from 'next/link';
-import {
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-  BarChart2,
-  FolderOpen,
-  Users,
-  ArrowRight,
-} from 'lucide-react';
+import { TrendingDown, TrendingUp, BarChart2, FolderOpen, Users, ArrowRight } from 'lucide-react';
 import { PageFadeIn, StaggerContainer, StaggerItem, HoverCard } from '@/components/ui/motion';
 import { CountUp } from '@/components/ui/count-up';
 import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard';
+import { BalanceHero } from '@/components/dashboard/balance-hero';
+import { useDashboard } from '@/hooks/use-dashboard';
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth(true);
   const t = useT();
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!isLoading) loadStats();
-  }, [isLoading]);
-
-  const loadStats = async () => {
-    try {
-      setStatsLoading(true);
-      const data = await analyticsApi.getDashboard({ period: 'month' });
-      setDashboard(data);
-    } catch {
-      /* silent */
-    } finally {
-      setStatsLoading(false);
-    }
-  };
+  const { data: dashboard, isLoading: statsLoading } = useDashboard('month');
 
   if (isLoading) {
     return (
@@ -62,7 +37,6 @@ export default function DashboardPage() {
 
   const summary = dashboard?.summary;
   const balance = summary?.balance || 0;
-  const balancePositive = balance >= 0;
   const cur = user?.currency || 'USD';
   const fmt = (amount: number) => formatCurrency(amount, cur);
 
@@ -126,135 +100,106 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <StaggerContainer className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {/* Balance */}
+            <StaggerContainer className="mb-6 space-y-4">
+              {/* Balance Hero */}
               <StaggerItem>
-                <HoverCard>
-                  <Card
-                    className={
-                      balancePositive ? 'gradient-hero' : 'border-red-600 bg-red-600 text-white'
-                    }
-                  >
-                    <CardContent className="pt-5">
-                      <div className="mb-3 flex items-center gap-2 opacity-80">
-                        <Wallet size={14} />
-                        <span className="text-xs font-medium uppercase tracking-wide">
-                          {t('dash_balance')}
-                        </span>
-                      </div>
-                      <p className="font-heading text-3xl font-bold tabular-nums">
-                        <CountUp
-                          end={balance}
-                          prefix={
-                            cur === 'USD'
-                              ? '$'
-                              : cur === 'EUR'
-                                ? '\u20AC'
-                                : cur === 'RUB'
-                                  ? '\u20BD'
-                                  : ''
-                          }
-                          duration={1000}
-                        />
-                      </p>
-                      {summary?.savingsRate !== undefined && (
-                        <p className="mt-1 text-xs opacity-70">
-                          {Number(summary.savingsRate) >= 0 ? '+' : ''}
-                          {Number(summary.savingsRate).toFixed(1)}% savings rate
+                <BalanceHero balance={balance} savingsRate={summary?.savingsRate} currency={cur} />
+              </StaggerItem>
+
+              {/* Expense & Income cards */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Expenses */}
+                <StaggerItem>
+                  <HoverCard>
+                    <Card>
+                      <CardContent className="pt-5">
+                        <div className="text-muted-foreground mb-3 flex items-center gap-2">
+                          <TrendingDown size={14} />
+                          <span className="text-xs font-medium uppercase tracking-wide">
+                            {t('dash_expenses')}
+                          </span>
+                        </div>
+                        <p className="text-3xl font-bold tabular-nums text-red-500">
+                          <CountUp
+                            end={Number(summary?.totalExpenses || 0)}
+                            prefix={
+                              cur === 'USD'
+                                ? '$'
+                                : cur === 'EUR'
+                                  ? '\u20AC'
+                                  : cur === 'RUB'
+                                    ? '\u20BD'
+                                    : ''
+                            }
+                            duration={1000}
+                          />
                         </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </HoverCard>
-              </StaggerItem>
+                        <p className="text-muted-foreground mt-1.5 text-xs">
+                          {summary?.expenseCount || 0} txn
+                          {(summary as Record<string, unknown>)?.expenseChange != null && (
+                            <span
+                              className={`ml-1.5 ${Number((summary as Record<string, unknown>).expenseChange) <= 0 ? 'text-emerald-500' : 'text-red-400'}`}
+                            >
+                              {Number((summary as Record<string, unknown>).expenseChange) > 0
+                                ? '+'
+                                : ''}
+                              {Number((summary as Record<string, unknown>).expenseChange).toFixed(
+                                1
+                              )}
+                              %
+                            </span>
+                          )}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </HoverCard>
+                </StaggerItem>
 
-              {/* Expenses */}
-              <StaggerItem>
-                <HoverCard>
-                  <Card>
-                    <CardContent className="pt-5">
-                      <div className="text-muted-foreground mb-3 flex items-center gap-2">
-                        <TrendingDown size={14} />
-                        <span className="text-xs font-medium uppercase tracking-wide">
-                          {t('dash_expenses')}
-                        </span>
-                      </div>
-                      <p className="text-3xl font-bold tabular-nums text-red-500">
-                        <CountUp
-                          end={Number(summary?.totalExpenses || 0)}
-                          prefix={
-                            cur === 'USD'
-                              ? '$'
-                              : cur === 'EUR'
-                                ? '\u20AC'
-                                : cur === 'RUB'
-                                  ? '\u20BD'
-                                  : ''
-                          }
-                          duration={1000}
-                        />
-                      </p>
-                      <p className="text-muted-foreground mt-1.5 text-xs">
-                        {summary?.expenseCount || 0} txn
-                        {(summary as Record<string, unknown>)?.expenseChange != null && (
-                          <span
-                            className={`ml-1.5 ${Number((summary as Record<string, unknown>).expenseChange) <= 0 ? 'text-emerald-500' : 'text-red-400'}`}
-                          >
-                            {Number((summary as Record<string, unknown>).expenseChange) > 0
-                              ? '+'
-                              : ''}
-                            {Number((summary as Record<string, unknown>).expenseChange).toFixed(1)}%
+                {/* Income */}
+                <StaggerItem>
+                  <HoverCard>
+                    <Card>
+                      <CardContent className="pt-5">
+                        <div className="text-muted-foreground mb-3 flex items-center gap-2">
+                          <TrendingUp size={14} />
+                          <span className="text-xs font-medium uppercase tracking-wide">
+                            {t('dash_income')}
                           </span>
-                        )}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </HoverCard>
-              </StaggerItem>
-
-              {/* Income */}
-              <StaggerItem>
-                <HoverCard>
-                  <Card>
-                    <CardContent className="pt-5">
-                      <div className="text-muted-foreground mb-3 flex items-center gap-2">
-                        <TrendingUp size={14} />
-                        <span className="text-xs font-medium uppercase tracking-wide">
-                          {t('dash_income')}
-                        </span>
-                      </div>
-                      <p className="text-3xl font-bold tabular-nums text-emerald-500">
-                        <CountUp
-                          end={Number(summary?.totalIncome || 0)}
-                          prefix={
-                            cur === 'USD'
-                              ? '$'
-                              : cur === 'EUR'
-                                ? '\u20AC'
-                                : cur === 'RUB'
-                                  ? '\u20BD'
-                                  : ''
-                          }
-                          duration={1000}
-                        />
-                      </p>
-                      <p className="text-muted-foreground mt-1.5 text-xs">
-                        {summary?.incomeCount || 0} txn
-                        {(summary as Record<string, unknown>)?.incomeChange != null && (
-                          <span
-                            className={`ml-1.5 ${Number((summary as Record<string, unknown>).incomeChange) >= 0 ? 'text-emerald-500' : 'text-red-400'}`}
-                          >
-                            {Number((summary as Record<string, unknown>).incomeChange) > 0
-                              ? '+'
-                              : ''}
-                            {Number((summary as Record<string, unknown>).incomeChange).toFixed(1)}%
-                          </span>
-                        )}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </HoverCard>
-              </StaggerItem>
+                        </div>
+                        <p className="text-3xl font-bold tabular-nums text-emerald-500">
+                          <CountUp
+                            end={Number(summary?.totalIncome || 0)}
+                            prefix={
+                              cur === 'USD'
+                                ? '$'
+                                : cur === 'EUR'
+                                  ? '\u20AC'
+                                  : cur === 'RUB'
+                                    ? '\u20BD'
+                                    : ''
+                            }
+                            duration={1000}
+                          />
+                        </p>
+                        <p className="text-muted-foreground mt-1.5 text-xs">
+                          {summary?.incomeCount || 0} txn
+                          {(summary as Record<string, unknown>)?.incomeChange != null && (
+                            <span
+                              className={`ml-1.5 ${Number((summary as Record<string, unknown>).incomeChange) >= 0 ? 'text-emerald-500' : 'text-red-400'}`}
+                            >
+                              {Number((summary as Record<string, unknown>).incomeChange) > 0
+                                ? '+'
+                                : ''}
+                              {Number((summary as Record<string, unknown>).incomeChange).toFixed(1)}
+                              %
+                            </span>
+                          )}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </HoverCard>
+                </StaggerItem>
+              </div>
             </StaggerContainer>
           )}
 
