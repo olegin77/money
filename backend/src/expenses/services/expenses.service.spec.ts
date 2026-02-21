@@ -35,20 +35,19 @@ describe('ExpensesService', () => {
 
   beforeEach(async () => {
     repo = {
-      create: jest.fn().mockImplementation((data) => ({ ...data })),
-      save: jest.fn().mockImplementation((entity) =>
-        Promise.resolve(Array.isArray(entity) ? entity : { ...mockExpense, ...entity }),
-      ),
+      create: jest.fn().mockImplementation(data => ({ ...data })),
+      save: jest
+        .fn()
+        .mockImplementation(entity =>
+          Promise.resolve(Array.isArray(entity) ? entity : { ...mockExpense, ...entity })
+        ),
       findOne: jest.fn(),
       remove: jest.fn().mockResolvedValue(undefined),
       createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ExpensesService,
-        { provide: getRepositoryToken(Expense), useValue: repo },
-      ],
+      providers: [ExpensesService, { provide: getRepositoryToken(Expense), useValue: repo }],
     }).compile();
 
     service = module.get<ExpensesService>(ExpensesService);
@@ -61,7 +60,7 @@ describe('ExpensesService', () => {
       const result = await service.create('user-1', dto);
 
       expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ userId: 'user-1', currency: 'USD' }),
+        expect.objectContaining({ userId: 'user-1', currency: 'USD' })
       );
       expect(repo.save).toHaveBeenCalled();
       expect(result).toBeDefined();
@@ -77,9 +76,7 @@ describe('ExpensesService', () => {
 
       await service.create('user-1', dto);
 
-      expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ currency: 'EUR' }),
-      );
+      expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ currency: 'EUR' }));
     });
   });
 
@@ -113,10 +110,9 @@ describe('ExpensesService', () => {
     it('should apply category filter', async () => {
       await service.findAll('user-1', { page: 1, limit: 20, categoryId: 'cat-1' });
 
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'expense.categoryId = :categoryId',
-        { categoryId: 'cat-1' },
-      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('expense.categoryId = :categoryId', {
+        categoryId: 'cat-1',
+      });
     });
 
     it('should apply date range filter', async () => {
@@ -129,17 +125,16 @@ describe('ExpensesService', () => {
 
       expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
         'expense.date BETWEEN :startDate AND :endDate',
-        { startDate: '2026-01-01', endDate: '2026-02-01' },
+        { startDate: '2026-01-01', endDate: '2026-02-01' }
       );
     });
 
     it('should apply search filter', async () => {
       await service.findAll('user-1', { page: 1, limit: 20, search: 'lunch' });
 
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'expense.description ILIKE :search',
-        { search: '%lunch%' },
-      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('expense.description ILIKE :search', {
+        search: '%lunch%',
+      });
     });
   });
 
@@ -165,7 +160,7 @@ describe('ExpensesService', () => {
 
       const result = await service.update('exp-1', 'user-1', { description: 'Updated' });
 
-      expect(result.description).toBe('Updated');
+      expect(result.data.description).toBe('Updated');
       expect(repo.save).toHaveBeenCalled();
     });
   });

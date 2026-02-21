@@ -89,6 +89,8 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
                 key={icon}
                 type="button"
                 onClick={() => handleChange('icon', icon)}
+                aria-label={`Select icon ${icon}`}
+                aria-pressed={formData.icon === icon}
                 className={`rounded-lg p-2 text-2xl transition-all ${
                   formData.icon === icon
                     ? 'bg-indigo-50 ring-2 ring-indigo-500 dark:bg-indigo-900/30'
@@ -110,6 +112,8 @@ export function PerimeterForm({ onSubmit, onCancel, initialData }: PerimeterForm
                 key={color}
                 type="button"
                 onClick={() => handleChange('color', color)}
+                aria-label={`Select color ${color}`}
+                aria-pressed={formData.color === color}
                 className={`h-10 rounded-lg transition-all ${
                   formData.color === color ? 'ring-2 ring-indigo-500 ring-offset-2' : ''
                 }`}

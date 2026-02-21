@@ -145,9 +145,12 @@ export function NotificationBell() {
         aria-expanded={open}
         className="relative rounded-lg p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
       >
-        <Bell size={18} className="text-muted-foreground" />
+        <Bell size={18} className="text-muted-foreground" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+            aria-live="polite"
+          >
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -161,9 +164,10 @@ export function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
+                  aria-label={t('aria_mark_all_read')}
                   className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
-                  <Check size={12} />
+                  <Check size={12} aria-hidden="true" />
                   <span className="hidden sm:inline">
                     {t('nav_notifications') === 'Уведомления' ? 'Прочитать все' : 'Mark all read'}
                   </span>
@@ -171,17 +175,19 @@ export function NotificationBell() {
               )}
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Close notifications"
+                aria-label={t('aria_close_notifications')}
                 className="text-muted-foreground rounded p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
-                <X size={14} />
+                <X size={14} aria-hidden="true" />
               </button>
             </div>
           </div>
 
           <div className="divide-border max-h-80 divide-y overflow-y-auto">
             {loading ? (
-              <div className="text-muted-foreground py-8 text-center text-sm">Loading...</div>
+              <div className="text-muted-foreground py-8 text-center text-sm" role="status">
+                Loading...
+              </div>
             ) : notifications.length === 0 ? (
               <div className="text-muted-foreground py-8 text-center text-sm">
                 {t('nav_notifications') === 'Уведомления'
@@ -208,18 +214,18 @@ export function NotificationBell() {
                     {!n.isRead && (
                       <button
                         onClick={() => handleMarkRead(n.id)}
-                        aria-label="Mark as read"
+                        aria-label={t('aria_mark_read')}
                         className="rounded p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       >
-                        <Check size={14} className="text-muted-foreground" />
+                        <Check size={14} className="text-muted-foreground" aria-hidden="true" />
                       </button>
                     )}
                     <button
                       onClick={() => handleDelete(n.id)}
-                      aria-label="Delete notification"
+                      aria-label={t('aria_delete_notification')}
                       className="rounded p-1 hover:bg-red-50 dark:hover:bg-red-950/30"
                     >
-                      <Trash2 size={14} className="text-muted-foreground" />
+                      <Trash2 size={14} className="text-muted-foreground" aria-hidden="true" />
                     </button>
                   </div>
                 </div>

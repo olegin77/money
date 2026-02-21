@@ -1,4 +1,17 @@
-export type Lang = 'en' | 'ru';
+export type Lang = 'en' | 'ru' | 'ar';
+
+/** RTL languages supported by the application */
+const RTL_LANGUAGES: ReadonlySet<string> = new Set(['ar', 'he', 'fa', 'ur']);
+
+/** Check whether the given locale uses right-to-left script */
+export function isRtlLang(lang: string): boolean {
+  return RTL_LANGUAGES.has(lang);
+}
+
+/** Return the text direction for the given locale */
+export function getLangDir(lang: string): 'rtl' | 'ltr' {
+  return isRtlLang(lang) ? 'rtl' : 'ltr';
+}
 
 const en = {
   // Nav
@@ -155,6 +168,7 @@ const en = {
   set_language: 'Language',
   set_lang_en: 'English',
   set_lang_ru: 'Russian',
+  set_lang_ar: 'Arabic',
   set_theme: 'Theme',
   set_theme_light: 'Light',
   set_theme_dark: 'Dark',
@@ -205,6 +219,14 @@ const en = {
   form_cancel: 'Cancel',
   exp_save: 'Save expense',
   inc_save: 'Save income',
+  form_receipt: 'Receipt',
+  form_receipt_hint: 'Attach a photo or PDF of the receipt (max 5 MB)',
+  form_receipt_select: 'Choose file',
+  form_receipt_change: 'Change file',
+  form_receipt_uploading: 'Uploading receipt...',
+  form_receipt_remove: 'Remove',
+  toast_receipt_uploaded: 'Receipt uploaded',
+  toast_receipt_error: 'Failed to upload receipt',
 
   // Expense presets
   preset_groceries: 'Groceries',
@@ -246,16 +268,31 @@ const en = {
   onb_finish: 'Go to Dashboard',
   onb_skip: 'Skip',
   onb_step: 'Step {current} of {total}',
-  onb_expense_title: 'Track your expenses',
-  onb_expense_sub: 'Start by adding your daily spending to build a clear picture.',
+  onb_expense_title: 'Add your first expense',
+  onb_expense_sub: 'Select the categories you spend on most. You can always change these later.',
   onb_expense_ex1: 'Groceries & food shopping',
   onb_expense_ex2: 'Coffee & dining out',
   onb_expense_ex3: 'Transport & fuel',
-  onb_income_title: 'Log your income',
-  onb_income_sub: 'Add income sources so you can see your full financial picture.',
+  onb_expense_preset_food: 'Food',
+  onb_expense_preset_transport: 'Transport',
+  onb_expense_preset_housing: 'Housing',
+  onb_expense_preset_entertainment: 'Entertainment',
+  onb_expense_preset_health: 'Health',
+  onb_expense_preset_shopping: 'Shopping',
+  onb_expense_preset_utilities: 'Utilities',
+  onb_expense_preset_education: 'Education',
+  onb_income_title: 'Create your first income source',
+  onb_income_sub: 'Select the sources that match your income. You can always add more later.',
   onb_income_ex1: 'Salary & wages',
   onb_income_ex2: 'Freelance & side projects',
   onb_income_ex3: 'Investments & dividends',
+  onb_income_preset_salary: 'Salary',
+  onb_income_preset_freelance: 'Freelance',
+  onb_income_preset_investments: 'Investments',
+  onb_income_preset_rental: 'Rental',
+  onb_income_preset_gifts: 'Gifts',
+  onb_income_preset_business: 'Business',
+  onb_selected_count: '{count} selected',
 
   // Toast messages
   toast_expense_created: 'Expense added',
@@ -299,6 +336,52 @@ const en = {
   set_quiet_hours: 'Quiet hours',
   set_quiet_from: 'From',
   set_quiet_to: 'To',
+
+  // ARIA labels
+  aria_back: 'Go back',
+  aria_close: 'Close',
+  aria_loading: 'Loading',
+  aria_remove_friend: 'Remove friend',
+  aria_accept_request: 'Accept friend request',
+  aria_reject_request: 'Decline friend request',
+  aria_add_friend: 'Send friend request',
+  aria_edit_category: 'Edit category',
+  aria_delete_category: 'Delete category',
+  aria_share_category: 'Share category',
+  aria_select_icon: 'Select icon',
+  aria_select_color: 'Select color',
+  aria_select_currency: 'Select currency',
+  aria_select_period: 'Select period',
+  aria_select_language: 'Select language',
+  aria_select_theme: 'Select theme',
+  aria_delete_key: 'Delete',
+  aria_numpad: 'Number pad',
+  aria_quick_add: 'Quick add transaction',
+  aria_add_expense: 'Add new expense',
+  aria_add_income: 'Add new income',
+  aria_edit_expense: 'Edit expense',
+  aria_delete_expense: 'Delete expense',
+  aria_edit_income: 'Edit income',
+  aria_delete_income: 'Delete income',
+  aria_export_csv: 'Export as CSV',
+  aria_export_pdf: 'Export as PDF',
+  aria_export_excel: 'Export as Excel',
+  aria_mark_all_read: 'Mark all as read',
+  aria_mark_read: 'Mark as read',
+  aria_delete_notification: 'Delete notification',
+  aria_close_notifications: 'Close notifications panel',
+  aria_toggle_user_active: 'Toggle user active status',
+  aria_toggle_user_admin: 'Toggle admin access',
+  aria_delete_user: 'Delete user',
+  aria_syncing: 'Syncing data',
+  aria_offline: 'Offline mode active',
+  aria_search_users: 'Search by username or email',
+  aria_remove_access: 'Remove access',
+  aria_progress: 'Progress',
+  aria_onboarding: 'Account setup wizard',
+  aria_budget_progress: 'Budget usage progress',
+  aria_shared_badge: 'Shared category',
+  aria_unread_indicator: 'Unread notification',
 };
 
 const ru: typeof en = {
@@ -455,6 +538,7 @@ const ru: typeof en = {
   set_language: 'Язык',
   set_lang_en: 'English',
   set_lang_ru: 'Русский',
+  set_lang_ar: 'Арабский',
   set_theme: 'Тема',
   set_theme_light: 'Светлая',
   set_theme_dark: 'Тёмная',
@@ -505,6 +589,14 @@ const ru: typeof en = {
   form_cancel: 'Отмена',
   exp_save: 'Сохранить расход',
   inc_save: 'Сохранить доход',
+  form_receipt: 'Чек',
+  form_receipt_hint: 'Прикрепите фото или PDF чека (макс. 5 МБ)',
+  form_receipt_select: 'Выбрать файл',
+  form_receipt_change: 'Изменить файл',
+  form_receipt_uploading: 'Загрузка чека...',
+  form_receipt_remove: 'Удалить',
+  toast_receipt_uploaded: 'Чек загружен',
+  toast_receipt_error: 'Не удалось загрузить чек',
 
   // Expense presets
   preset_groceries: 'Продукты',
@@ -546,16 +638,42 @@ const ru: typeof en = {
   onb_finish: 'На главную',
   onb_skip: 'Пропустить',
   onb_step: 'Шаг {current} из {total}',
-  onb_expense_title: 'Отслеживайте расходы',
-  onb_expense_sub: 'Начните добавлять ежедневные траты для полной картины.',
-  onb_expense_ex1: 'Продукты и покупки',
-  onb_expense_ex2: 'Кофе и рестораны',
-  onb_expense_ex3: 'Транспорт и топливо',
-  onb_income_title: 'Учитывайте доходы',
-  onb_income_sub: 'Добавьте источники дохода для полной финансовой картины.',
-  onb_income_ex1: 'Зарплата',
-  onb_income_ex2: 'Фриланс и подработка',
-  onb_income_ex3: 'Инвестиции и дивиденды',
+  onb_expense_title:
+    '\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 \u043f\u0435\u0440\u0432\u044b\u0439 \u0440\u0430\u0441\u0445\u043e\u0434',
+  onb_expense_sub:
+    '\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u0438, \u043d\u0430 \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0432\u044b \u0442\u0440\u0430\u0442\u0438\u0442\u0435 \u0431\u043e\u043b\u044c\u0448\u0435 \u0432\u0441\u0435\u0433\u043e. \u0418\u0445 \u0432\u0441\u0435\u0433\u0434\u0430 \u043c\u043e\u0436\u043d\u043e \u0438\u0437\u043c\u0435\u043d\u0438\u0442\u044c.',
+  onb_expense_ex1:
+    '\u041f\u0440\u043e\u0434\u0443\u043a\u0442\u044b \u0438 \u043f\u043e\u043a\u0443\u043f\u043a\u0438',
+  onb_expense_ex2:
+    '\u041a\u043e\u0444\u0435 \u0438 \u0440\u0435\u0441\u0442\u043e\u0440\u0430\u043d\u044b',
+  onb_expense_ex3:
+    '\u0422\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442 \u0438 \u0442\u043e\u043f\u043b\u0438\u0432\u043e',
+  onb_expense_preset_food: '\u0415\u0434\u0430',
+  onb_expense_preset_transport: '\u0422\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442',
+  onb_expense_preset_housing: '\u0416\u0438\u043b\u044c\u0451',
+  onb_expense_preset_entertainment:
+    '\u0420\u0430\u0437\u0432\u043b\u0435\u0447\u0435\u043d\u0438\u044f',
+  onb_expense_preset_health: '\u0417\u0434\u043e\u0440\u043e\u0432\u044c\u0435',
+  onb_expense_preset_shopping: '\u041f\u043e\u043a\u0443\u043f\u043a\u0438',
+  onb_expense_preset_utilities: '\u041a\u043e\u043c\u043c\u0443\u043d\u0430\u043b\u043a\u0430',
+  onb_expense_preset_education:
+    '\u041e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435',
+  onb_income_title:
+    '\u0421\u043e\u0437\u0434\u0430\u0439\u0442\u0435 \u043f\u0435\u0440\u0432\u044b\u0439 \u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u0434\u043e\u0445\u043e\u0434\u0430',
+  onb_income_sub:
+    '\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a\u0438, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0441\u043e\u043e\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u044e\u0442 \u0432\u0430\u0448\u0438\u043c \u0434\u043e\u0445\u043e\u0434\u0430\u043c. \u0412\u0441\u0435\u0433\u0434\u0430 \u043c\u043e\u0436\u043d\u043e \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0435\u0449\u0451.',
+  onb_income_ex1: '\u0417\u0430\u0440\u043f\u043b\u0430\u0442\u0430',
+  onb_income_ex2:
+    '\u0424\u0440\u0438\u043b\u0430\u043d\u0441 \u0438 \u043f\u043e\u0434\u0440\u0430\u0431\u043e\u0442\u043a\u0430',
+  onb_income_ex3:
+    '\u0418\u043d\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u0438 \u0438 \u0434\u0438\u0432\u0438\u0434\u0435\u043d\u0434\u044b',
+  onb_income_preset_salary: '\u0417\u0430\u0440\u043f\u043b\u0430\u0442\u0430',
+  onb_income_preset_freelance: '\u0424\u0440\u0438\u043b\u0430\u043d\u0441',
+  onb_income_preset_investments: '\u0418\u043d\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u0438',
+  onb_income_preset_rental: '\u0410\u0440\u0435\u043d\u0434\u0430',
+  onb_income_preset_gifts: '\u041f\u043e\u0434\u0430\u0440\u043a\u0438',
+  onb_income_preset_business: '\u0411\u0438\u0437\u043d\u0435\u0441',
+  onb_selected_count: '{count} \u0432\u044b\u0431\u0440\u0430\u043d\u043e',
 
   // Toast messages
   toast_expense_created: 'Расход добавлен',
@@ -599,6 +717,136 @@ const ru: typeof en = {
   set_quiet_hours: 'Тихие часы',
   set_quiet_from: 'С',
   set_quiet_to: 'До',
+
+  // ARIA labels
+  aria_back: 'Назад',
+  aria_close: 'Закрыть',
+  aria_loading: 'Загрузка',
+  aria_remove_friend: 'Удалить друга',
+  aria_accept_request: 'Принять запрос дружбы',
+  aria_reject_request: 'Отклонить запрос дружбы',
+  aria_add_friend: 'Отправить запрос дружбы',
+  aria_edit_category: 'Редактировать категорию',
+  aria_delete_category: 'Удалить категорию',
+  aria_share_category: 'Поделиться категорией',
+  aria_select_icon: 'Выбрать иконку',
+  aria_select_color: 'Выбрать цвет',
+  aria_select_currency: 'Выбрать валюту',
+  aria_select_period: 'Выбрать период',
+  aria_select_language: 'Выбрать язык',
+  aria_select_theme: 'Выбрать тему',
+  aria_delete_key: 'Удалить',
+  aria_numpad: 'Цифровая клавиатура',
+  aria_quick_add: 'Быстрое добавление операции',
+  aria_add_expense: 'Добавить расход',
+  aria_add_income: 'Добавить доход',
+  aria_edit_expense: 'Редактировать расход',
+  aria_delete_expense: 'Удалить расход',
+  aria_edit_income: 'Редактировать доход',
+  aria_delete_income: 'Удалить доход',
+  aria_export_csv: 'Экспорт в CSV',
+  aria_export_pdf: 'Экспорт в PDF',
+  aria_export_excel: 'Экспорт в Excel',
+  aria_mark_all_read: 'Отметить все прочитанными',
+  aria_mark_read: 'Отметить прочитанным',
+  aria_delete_notification: 'Удалить уведомление',
+  aria_close_notifications: 'Закрыть панель уведомлений',
+  aria_toggle_user_active: 'Изменить статус пользователя',
+  aria_toggle_user_admin: 'Изменить права администратора',
+  aria_delete_user: 'Удалить пользователя',
+  aria_syncing: 'Синхронизация данных',
+  aria_offline: 'Режим офлайн',
+  aria_search_users: 'Поиск по имени или email',
+  aria_remove_access: 'Удалить доступ',
+  aria_progress: 'Прогресс',
+  aria_onboarding: 'Мастер настройки аккаунта',
+  aria_budget_progress: 'Использование бюджета',
+  aria_shared_badge: 'Общая категория',
+  aria_unread_indicator: 'Непрочитанное уведомление',
 };
 
-export const translations: Record<Lang, typeof en> = { en, ru };
+/**
+ * Arabic translation stub.
+ * Key navigation and core UI items are translated; remaining keys fall back to English
+ * via the spread of `en` so TypeScript is satisfied and the useT hook works.
+ */
+const ar: typeof en = {
+  ...en,
+
+  // Nav
+  nav_dashboard: '\u0644\u0648\u062d\u0629 \u0627\u0644\u062a\u062d\u0643\u0645',
+  nav_expenses: '\u0627\u0644\u0645\u0635\u0631\u0648\u0641\u0627\u062a',
+  nav_income: '\u0627\u0644\u062f\u062e\u0644',
+  nav_categories: '\u0627\u0644\u0641\u0626\u0627\u062a',
+  nav_analytics: '\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a',
+  nav_friends: '\u0627\u0644\u0623\u0635\u062f\u0642\u0627\u0621',
+  nav_settings: '\u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a',
+  nav_admin: '\u0627\u0644\u0625\u062f\u0627\u0631\u0629',
+  nav_signout: '\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062e\u0631\u0648\u062c',
+  nav_notifications: '\u0627\u0644\u0625\u0634\u0639\u0627\u0631\u0627\u062a',
+
+  // Landing
+  landing_headline:
+    '\u0627\u0644\u062a\u0645\u0648\u064a\u0644 \u0627\u0644\u0634\u062e\u0635\u064a\u060c\n\u0628\u0628\u0633\u0627\u0637\u0629.',
+  landing_sub:
+    '\u062a\u062a\u0628\u0639 \u0627\u0644\u0645\u0635\u0631\u0648\u0641\u0627\u062a \u0648\u0631\u0627\u0642\u0628 \u0627\u0644\u062f\u062e\u0644 \u0648\u0627\u062d\u0635\u0644 \u0639\u0644\u0649 \u0631\u0624\u0649 \u0648\u0627\u0636\u062d\u0629 \u0644\u0623\u0645\u0648\u0627\u0644\u0643.',
+  landing_cta: '\u0627\u0628\u062f\u0623 \u0645\u062c\u0627\u0646\u064b\u0627',
+  landing_signin: '\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644',
+
+  // Auth
+  auth_login_title: '\u0645\u0631\u062d\u0628\u064b\u0627 \u0628\u0639\u0648\u062f\u062a\u0643',
+  auth_login_sub:
+    '\u0633\u062c\u0651\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0625\u0644\u0649 \u062d\u0633\u0627\u0628\u0643',
+  auth_register_title: '\u0625\u0646\u0634\u0627\u0621 \u062d\u0633\u0627\u0628',
+  auth_register_sub:
+    '\u0627\u0628\u062f\u0623 \u0628\u062a\u062a\u0628\u0639 \u0623\u0645\u0648\u0627\u0644\u0643 \u0627\u0644\u064a\u0648\u0645',
+  auth_btn_login: '\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644',
+  auth_btn_register: '\u0625\u0646\u0634\u0627\u0621 \u062d\u0633\u0627\u0628',
+
+  // Dashboard
+  dash_balance: '\u0627\u0644\u0631\u0635\u064a\u062f',
+  dash_expenses: '\u0627\u0644\u0645\u0635\u0631\u0648\u0641\u0627\u062a',
+  dash_income: '\u0627\u0644\u062f\u062e\u0644',
+  dash_quick: '\u0625\u062c\u0631\u0627\u0621\u0627\u062a \u0633\u0631\u064a\u0639\u0629',
+  dash_add_expense: '\u0625\u0636\u0627\u0641\u0629 \u0645\u0635\u0631\u0648\u0641',
+  dash_add_income: '\u0625\u0636\u0627\u0641\u0629 \u062f\u062e\u0644',
+  dash_categories: '\u0627\u0644\u0641\u0626\u0627\u062a',
+  dash_analytics: '\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a',
+  dash_recent:
+    '\u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0627\u062a \u0627\u0644\u0623\u062e\u064a\u0631\u0629',
+  dash_no_transactions:
+    '\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0639\u0627\u0645\u0644\u0627\u062a \u0628\u0639\u062f',
+
+  // Settings (key items for language picker)
+  set_title: '\u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a',
+  set_profile: '\u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0634\u062e\u0635\u064a',
+  set_language: '\u0627\u0644\u0644\u063a\u0629',
+  set_lang_en: 'English',
+  set_lang_ru: '\u0627\u0644\u0631\u0648\u0633\u064a\u0629',
+  set_theme: '\u0627\u0644\u0633\u0645\u0629',
+  set_theme_light: '\u0641\u0627\u062a\u062d',
+  set_theme_dark: '\u062f\u0627\u0643\u0646',
+  set_save: '\u062d\u0641\u0638 \u0627\u0644\u062a\u063a\u064a\u064a\u0631\u0627\u062a',
+  set_saving: '\u062c\u0627\u0631\u064a \u0627\u0644\u062d\u0641\u0638\u2026',
+  set_saved: '\u062a\u0645 \u0627\u0644\u062d\u0641\u0638!',
+
+  // Expenses / Income titles
+  exp_title: '\u0627\u0644\u0645\u0635\u0631\u0648\u0641\u0627\u062a',
+  inc_title: '\u0627\u0644\u062f\u062e\u0644',
+  cat_title: '\u0627\u0644\u0641\u0626\u0627\u062a',
+  ana_title: '\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a',
+  fri_title: '\u0627\u0644\u0623\u0635\u062f\u0642\u0627\u0621',
+
+  // Onboarding
+  onb_welcome: '\u0645\u0631\u062d\u0628\u064b\u0627 \u0628\u0643 \u0641\u064a FinTrack!',
+  onb_next: '\u0627\u0644\u062a\u0627\u0644\u064a',
+  onb_back: '\u0627\u0644\u0633\u0627\u0628\u0642',
+  onb_finish:
+    '\u0627\u0644\u0630\u0647\u0627\u0628 \u0625\u0644\u0649 \u0644\u0648\u062d\u0629 \u0627\u0644\u062a\u062d\u0643\u0645',
+  onb_skip: '\u062a\u062e\u0637\u064a',
+
+  // Common toast
+  toast_error: '\u062d\u062f\u062b \u062e\u0637\u0623',
+};
+
+export const translations: Record<Lang, typeof en> = { en, ru, ar };

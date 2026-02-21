@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ExpenseForm } from '@/components/expenses/expense-form';
 import { ExpenseList } from '@/components/expenses/expense-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { Expense, CreateExpenseData } from '@/lib/api/expenses';
+import { Expense, CreateExpenseData, expensesApi } from '@/lib/api/expenses';
 import {
   useExpenses,
   useCreateExpense,
@@ -92,9 +92,17 @@ export default function ExpensesPage() {
 
   const hasFilters = search || startDate || endDate;
 
-  const handleCreate = async (data: CreateExpenseData) => {
+  const handleCreate = async (data: CreateExpenseData, receiptFile?: File) => {
     try {
-      await createMutation.mutateAsync(data);
+      const expense = await createMutation.mutateAsync(data);
+      if (receiptFile && expense?.id) {
+        try {
+          await expensesApi.uploadReceipt(expense.id, receiptFile);
+          toast.success(t('toast_receipt_uploaded'));
+        } catch {
+          toast.error(t('toast_receipt_error'));
+        }
+      }
       setShowForm(false);
       setShowSuccess(true);
       toast.success(t('toast_expense_created'));
@@ -103,10 +111,18 @@ export default function ExpensesPage() {
     }
   };
 
-  const handleUpdate = async (data: CreateExpenseData) => {
+  const handleUpdate = async (data: CreateExpenseData, receiptFile?: File) => {
     if (!editingExpense) return;
     try {
       await updateMutation.mutateAsync({ id: editingExpense.id, data });
+      if (receiptFile) {
+        try {
+          await expensesApi.uploadReceipt(editingExpense.id, receiptFile);
+          toast.success(t('toast_receipt_uploaded'));
+        } catch {
+          toast.error(t('toast_receipt_error'));
+        }
+      }
       setEditingExpense(null);
       toast.success(t('toast_expense_updated'));
     } catch {
@@ -145,8 +161,15 @@ export default function ExpensesPage() {
           <div
             className="flex items-center justify-center py-2 transition-all"
             style={{ height: refreshing ? 40 : pullDistance * 0.5 }}
+            role="status"
+            aria-live="polite"
+            aria-label={refreshing ? t('aria_loading') : undefined}
           >
-            <Loader2 size={18} className={`text-indigo-500 ${refreshing ? 'animate-spin' : ''}`} />
+            <Loader2
+              size={18}
+              className={`text-indigo-500 ${refreshing ? 'animate-spin' : ''}`}
+              aria-hidden="true"
+            />
           </div>
         )}
         <PageFadeIn className="p-4 md:p-8">
@@ -168,6 +191,7 @@ export default function ExpensesPage() {
                 <Search
                   size={16}
                   className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
+                  aria-hidden="true"
                 />
                 <input
                   type="text"
@@ -206,7 +230,7 @@ export default function ExpensesPage() {
                     aria-label={t('filter_clear')}
                     className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition-colors"
                   >
-                    <X size={14} />
+                    <X size={14} aria-hidden="true" />
                     {t('filter_clear')}
                   </button>
                 )}

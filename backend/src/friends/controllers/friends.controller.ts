@@ -12,12 +12,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { FriendsService } from '../services/friends.service';
 import { SendFriendRequestDto } from '../dto/send-request.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
 @ApiTags('Friends')
+@ApiErrorResponses()
 @Controller('friends')
 @UseGuards(JwtAuthGuard)
 export class FriendsController {

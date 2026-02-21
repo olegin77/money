@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
         {submitted ? (
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/40">
-              <Mail size={22} className="text-indigo-600 dark:text-indigo-400" />
+              <Mail size={22} className="text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
             </div>
             <h1 className="text-foreground mb-2 text-2xl font-bold">Check your email</h1>
             <p className="text-muted-foreground mb-8 text-sm">

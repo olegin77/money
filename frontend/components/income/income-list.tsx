@@ -55,7 +55,7 @@ export function IncomeList({ incomes, onEdit, onDelete }: IncomeListProps) {
                 <span className="text-muted-foreground text-xs">{income.currency}</span>
                 {income.isRecurring && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-                    <RefreshCw size={10} />
+                    <RefreshCw size={10} aria-hidden="true" />
                     {recurringLabel(t, income.recurrenceRule)}
                   </span>
                 )}
@@ -73,6 +73,7 @@ export function IncomeList({ incomes, onEdit, onDelete }: IncomeListProps) {
                 size="sm"
                 variant="ghost"
                 onClick={() => onEdit(income)}
+                aria-label={`${t('aria_edit_income')}: ${income.description || income.amount}`}
                 className="h-8 px-2.5 text-xs"
               >
                 Edit
@@ -81,6 +82,7 @@ export function IncomeList({ incomes, onEdit, onDelete }: IncomeListProps) {
                 size="sm"
                 variant="ghost"
                 onClick={() => onDelete(income.id)}
+                aria-label={`${t('aria_delete_income')}: ${income.description || income.amount}`}
                 className="h-8 px-2.5 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
               >
                 Delete

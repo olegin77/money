@@ -1,11 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { AnalyticsService } from '../services/analytics.service';
+import { AnalyticsReadService } from '../services/analytics-read.service';
+import { AnalyticsWriteService } from '../services/analytics-write.service';
 import { Expense } from '../../expenses/entities/expense.entity';
 import { Income } from '../../income/entities/income.entity';
+import { CacheService } from '../../common/services/cache.service';
 
 describe('AnalyticsService', () => {
   let service: AnalyticsService;
+  let readService: AnalyticsReadService;
   let expenseRepo: Record<string, jest.Mock>;
   let incomeRepo: Record<string, jest.Mock>;
 
@@ -70,6 +75,24 @@ describe('AnalyticsService', () => {
     getRawMany: jest.fn().mockResolvedValue([]),
   });
 
+  const mockCacheService = {
+    get: jest.fn().mockResolvedValue(undefined),
+    set: jest.fn().mockResolvedValue(undefined),
+    del: jest.fn().mockResolvedValue(undefined),
+    reset: jest.fn().mockResolvedValue(undefined),
+    generateUserCacheKey: jest
+      .fn()
+      .mockImplementation((userId: string, prefix: string) => `user:${userId}:${prefix}`),
+    generateDashboardCacheKey: jest
+      .fn()
+      .mockImplementation((userId: string, period: string) => `dashboard:${userId}:${period}`),
+    invalidateUserCache: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const mockDataSource = {
+    query: jest.fn().mockRejectedValue(new Error('MV does not exist')),
+  };
+
   beforeEach(async () => {
     const expenseQB = createMockQueryBuilder(mockExpenses);
     const incomeQB = createMockQueryBuilder(mockIncomes);
@@ -82,15 +105,24 @@ describe('AnalyticsService', () => {
       createQueryBuilder: jest.fn().mockReturnValue(incomeQB),
     };
 
+    // Reset mocks
+    mockCacheService.get.mockResolvedValue(undefined);
+    mockDataSource.query.mockRejectedValue(new Error('MV does not exist'));
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AnalyticsService,
+        AnalyticsReadService,
+        AnalyticsWriteService,
         { provide: getRepositoryToken(Expense), useValue: expenseRepo },
         { provide: getRepositoryToken(Income), useValue: incomeRepo },
+        { provide: CacheService, useValue: mockCacheService },
+        { provide: DataSource, useValue: mockDataSource },
       ],
     }).compile();
 
     service = module.get<AnalyticsService>(AnalyticsService);
+    readService = module.get<AnalyticsReadService>(AnalyticsReadService);
   });
 
   describe('getDashboard', () => {
@@ -142,6 +174,18 @@ describe('AnalyticsService', () => {
       const result = await service.getDashboard('user-1', undefined, undefined, 'month');
 
       expect(result.period.label).toBe('month');
+    });
+
+    it('should use cached result when available', async () => {
+      const cachedData = {
+        summary: { totalExpenses: 999 },
+        period: { label: 'cached' },
+      };
+      mockCacheService.get.mockResolvedValueOnce(cachedData);
+
+      const result = await service.getDashboard('user-1', '2026-02-01', '2026-02-28');
+
+      expect(result).toBe(cachedData);
     });
   });
 
@@ -288,6 +332,20 @@ describe('AnalyticsService', () => {
         expect(result[0]).toHaveProperty('income');
         expect(result[0]).toHaveProperty('balance');
       }
+    });
+  });
+
+  describe('CQRS delegation', () => {
+    it('should delegate getDashboard to readService', async () => {
+      const spy = jest.spyOn(readService, 'getDashboard');
+      await service.getDashboard('user-1', '2026-02-01', '2026-02-28');
+      expect(spy).toHaveBeenCalledWith('user-1', '2026-02-01', '2026-02-28', undefined);
+    });
+
+    it('should delegate getExpensesByCategory to readService', async () => {
+      const spy = jest.spyOn(readService, 'getExpensesByCategory');
+      await service.getExpensesByCategory('user-1', '2026-02-01', '2026-02-28');
+      expect(spy).toHaveBeenCalledWith('user-1', '2026-02-01', '2026-02-28');
     });
   });
 });

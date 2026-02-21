@@ -237,9 +237,10 @@ export default function AnalyticsPage() {
                 size="sm"
                 onClick={handleExportCSV}
                 disabled={exporting}
+                aria-label={t('aria_export_csv')}
                 className="h-8 gap-1 text-xs"
               >
-                <Download size={13} />
+                <Download size={13} aria-hidden="true" />
                 CSV
               </Button>
               <Button
@@ -247,9 +248,10 @@ export default function AnalyticsPage() {
                 size="sm"
                 onClick={handleExportPDF}
                 disabled={exporting}
+                aria-label={t('aria_export_pdf')}
                 className="h-8 gap-1 text-xs"
               >
-                <FileText size={13} />
+                <FileText size={13} aria-hidden="true" />
                 PDF
               </Button>
               <Button
@@ -257,16 +259,22 @@ export default function AnalyticsPage() {
                 size="sm"
                 onClick={handleExportExcel}
                 disabled={exporting}
+                aria-label={t('aria_export_excel')}
                 className="h-8 gap-1 text-xs"
               >
-                <FileSpreadsheet size={13} />
+                <FileSpreadsheet size={13} aria-hidden="true" />
                 Excel
               </Button>
-              <div className="flex gap-1.5 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
+              <div
+                className="flex gap-1.5 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800"
+                role="group"
+                aria-label={t('aria_select_period')}
+              >
                 {PERIODS.map(p => (
                   <button
                     key={p}
                     onClick={() => setPeriod(p)}
+                    aria-pressed={period === p}
                     className={[
                       'rounded-md px-3 py-1 text-xs font-medium transition-all',
                       period === p

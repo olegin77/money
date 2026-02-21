@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Friend } from '@/lib/api/friends';
 import { format } from 'date-fns';
+import { useT } from '@/hooks/use-t';
 
 interface FriendCardProps {
   friend: Friend;
@@ -11,6 +12,7 @@ interface FriendCardProps {
 }
 
 export function FriendCard({ friend, onRemove }: FriendCardProps) {
+  const t = useT();
   const initial = friend.friend.username.charAt(0).toUpperCase();
 
   return (
@@ -31,6 +33,7 @@ export function FriendCard({ friend, onRemove }: FriendCardProps) {
         size="sm"
         variant="ghost"
         onClick={() => onRemove(friend.friendshipId)}
+        aria-label={`${t('aria_remove_friend')}: ${friend.friend.username}`}
         className="h-8 shrink-0 px-2.5 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
       >
         Remove

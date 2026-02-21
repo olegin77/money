@@ -1,5 +1,6 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { ApiErrorResponses } from '../decorators/api-error-responses.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
@@ -7,6 +8,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../../auth/guards/admin.guard';
 
 @ApiTags('Admin')
+@ApiErrorResponses()
 @Controller('admin/audit-logs')
 @UseGuards(JwtAuthGuard, AdminGuard)
 export class AdminAuditLogsController {

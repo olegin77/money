@@ -45,6 +45,7 @@ export function CategoryGrid({ perimeters, onEdit }: CategoryGridProps) {
               <FolderOpen
                 size={18}
                 style={{ color: perimeter.color || 'hsl(var(--text-muted))' }}
+                aria-hidden="true"
               />
             )}
           </div>
@@ -62,7 +63,11 @@ export function CategoryGrid({ perimeters, onEdit }: CategoryGridProps) {
 
           {/* Shared badge */}
           {perimeter.isShared && (
-            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-violet-500" />
+            <span
+              className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-violet-500"
+              aria-label="Shared category"
+              role="img"
+            />
           )}
         </Link>
       ))}

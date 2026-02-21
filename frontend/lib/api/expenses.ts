@@ -13,6 +13,7 @@ export interface Expense {
   isRecurring: boolean;
   recurrenceRule?: string;
   attachments?: string[];
+  receiptUrl?: string;
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -95,5 +96,19 @@ export const expensesApi = {
       params: { days },
     });
     return response.data.data;
+  },
+
+  uploadReceipt: async (expenseId: string, file: File): Promise<{ receiptUrl: string }> => {
+    const formData = new FormData();
+    formData.append('receipt', file);
+    const response = await api.post(`/expenses/${expenseId}/receipt`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data;
+  },
+
+  getReceiptUrl: (expenseId: string): string => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+    return `${baseUrl}/expenses/${expenseId}/receipt`;
   },
 };

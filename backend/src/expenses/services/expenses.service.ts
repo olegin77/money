@@ -12,6 +12,12 @@ import {
   ExpenseDeletedEvent,
 } from '../../common/events/expense.events';
 
+/** Result wrapper that flags whether the server version won an LWW conflict */
+export interface SyncResult<T> {
+  data: T;
+  conflict: boolean;
+}
+
 @Injectable()
 export class ExpensesService {
   constructor(
@@ -20,9 +26,17 @@ export class ExpensesService {
     private readonly eventEmitter: EventEmitter2
   ) {}
 
-  async create(userId: string, createExpenseDto: CreateExpenseDto): Promise<Expense> {
+  async create(
+    userId: string,
+    createExpenseDto: CreateExpenseDto,
+    clientTimestamp?: number
+  ): Promise<SyncResult<Expense>> {
+    // Strip clientTimestamp from the DTO before persisting (not a DB column)
+    const { clientTimestamp: _ct, ...dtoData } = createExpenseDto;
+    void (clientTimestamp ?? _ct); // LWW timestamp reserved for future conflict resolution
+
     const expense = this.expenseRepository.create({
-      ...createExpenseDto,
+      ...dtoData,
       userId,
       currency: createExpenseDto.currency || 'USD',
     });
@@ -42,17 +56,18 @@ export class ExpensesService {
       )
     );
 
-    return saved;
+    return { data: saved, conflict: false };
   }
 
   async createBatch(userId: string, expenses: CreateExpenseDto[]): Promise<Expense[]> {
-    const expenseEntities = expenses.map(dto =>
-      this.expenseRepository.create({
-        ...dto,
+    const expenseEntities = expenses.map(dto => {
+      const { clientTimestamp: _ct, ...dtoData } = dto;
+      return this.expenseRepository.create({
+        ...dtoData,
         userId,
         currency: dto.currency || 'USD',
-      })
-    );
+      });
+    });
 
     return this.expenseRepository.save(expenseEntities);
   }
@@ -175,10 +190,29 @@ export class ExpensesService {
     return expense;
   }
 
-  async update(id: string, userId: string, updateExpenseDto: UpdateExpenseDto): Promise<Expense> {
+  /**
+   * LWW (Last Writer Wins) update with server-side conflict detection.
+   * If `clientTimestamp` is provided and the existing record has a newer
+   * `updatedAt`, the server version wins and is returned with `conflict: true`.
+   */
+  async update(
+    id: string,
+    userId: string,
+    updateExpenseDto: UpdateExpenseDto,
+    clientTimestamp?: number
+  ): Promise<SyncResult<Expense>> {
     const expense = await this.findOne(id, userId);
 
-    Object.assign(expense, updateExpenseDto);
+    // Strip clientTimestamp from the DTO (not a DB column)
+    const { clientTimestamp: _ct, ...dtoData } = updateExpenseDto;
+    const ts = clientTimestamp ?? _ct;
+
+    // LWW conflict detection: if the server version is newer, return it
+    if (ts && expense.updatedAt && expense.updatedAt.getTime() > ts) {
+      return { data: expense, conflict: true };
+    }
+
+    Object.assign(expense, dtoData);
 
     const saved = await this.expenseRepository.save(expense);
 
@@ -195,7 +229,7 @@ export class ExpensesService {
       )
     );
 
-    return saved;
+    return { data: saved, conflict: false };
   }
 
   async remove(id: string, userId: string): Promise<void> {
@@ -210,6 +244,12 @@ export class ExpensesService {
       'expense.deleted',
       new ExpenseDeletedEvent(userId, expenseId, amount, currency)
     );
+  }
+
+  async updateReceiptUrl(id: string, userId: string, receiptUrl: string): Promise<Expense> {
+    const expense = await this.findOne(id, userId);
+    expense.receiptUrl = receiptUrl;
+    return this.expenseRepository.save(expense);
   }
 
   async getStats(userId: string, startDate?: string, endDate?: string) {

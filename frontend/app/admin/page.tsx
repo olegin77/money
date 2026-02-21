@@ -159,18 +159,20 @@ export default function AdminPage() {
         )}
 
         {/* Tabs */}
-        <div className="mb-5 flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
-          {(['users', 'audit'] as const).map(t => (
+        <div className="mb-5 flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800" role="tablist">
+          {(['users', 'audit'] as const).map(tabName => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tabName}
+              role="tab"
+              aria-selected={tab === tabName}
+              onClick={() => setTab(tabName)}
               className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                tab === t
+                tab === tabName
                   ? 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              {t === 'users' ? 'Users' : 'Audit Logs'}
+              {tabName === 'users' ? 'Users' : 'Audit Logs'}
             </button>
           ))}
         </div>
@@ -184,6 +186,7 @@ export default function AdminPage() {
                 <Input
                   type="text"
                   placeholder="Search…"
+                  aria-label="Search users"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   className="h-8 max-w-48 text-xs"
@@ -232,6 +235,7 @@ export default function AdminPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleToggleActive(userData.id, userData.isActive)}
+                          aria-label={`${userData.isActive ? 'Disable' : 'Enable'} user ${userData.username}`}
                           className="h-7 px-2 text-xs"
                         >
                           {userData.isActive ? 'Disable' : 'Enable'}
@@ -240,6 +244,7 @@ export default function AdminPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleToggleAdmin(userData.id, userData.isAdmin)}
+                          aria-label={`${userData.isAdmin ? 'Remove admin from' : 'Grant admin to'} ${userData.username}`}
                           className="h-7 px-2 text-xs"
                         >
                           {userData.isAdmin ? '−Admin' : '+Admin'}
@@ -248,6 +253,7 @@ export default function AdminPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleDeleteUser(userData.id)}
+                          aria-label={`Delete user ${userData.username}`}
                           className="h-7 px-2 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                         >
                           Del

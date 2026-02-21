@@ -183,6 +183,39 @@
     letter-spacing: -0.02em;
   }
 
+  /* ─── RTL support utilities ─── */
+
+  /* Mirror horizontal flex gap / padding for RTL layouts */
+  [dir='rtl'] .rtl\:flip {
+    direction: rtl;
+  }
+
+  /* Flip start/end margin and padding automatically in RTL context */
+  [dir='rtl'] .ms-auto {
+    margin-inline-start: auto;
+  }
+  [dir='rtl'] .me-auto {
+    margin-inline-end: auto;
+  }
+
+  /* RTL-aware text alignment */
+  .text-start {
+    text-align: start;
+  }
+  .text-end {
+    text-align: end;
+  }
+
+  /* RTL-aware flex direction (useful for navigation rows) */
+  [dir='rtl'] .rtl\:flex-row-reverse {
+    flex-direction: row-reverse;
+  }
+
+  /* Flip transforms for chevrons / arrows in RTL */
+  [dir='rtl'] .rtl\:rotate-180 {
+    transform: rotate(180deg);
+  }
+
   /* Scrollbar */
   ::-webkit-scrollbar {
     width: 4px;

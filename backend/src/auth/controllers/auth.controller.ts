@@ -1,5 +1,6 @@
 import { Controller, Post, Body, UseGuards, Get, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { AuthService } from '../services/auth.service';
@@ -17,6 +18,7 @@ import { Public } from '../decorators/public.decorator';
 import { CurrentUser, CurrentUserData } from '../decorators/current-user.decorator';
 
 @ApiTags('Auth')
+@ApiErrorResponses()
 @Controller('auth')
 @Throttle({ default: { ttl: 60000, limit: 100 } })
 export class AuthController {

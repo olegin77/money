@@ -62,6 +62,7 @@ export function PerimeterCard({ perimeter, onEdit, onDelete, onShare }: Perimete
                   size="sm"
                   variant="ghost"
                   onClick={() => onEdit(perimeter)}
+                  aria-label={`Edit category: ${perimeter.name}`}
                   className="h-7 px-2 text-xs"
                 >
                   Edit
@@ -70,6 +71,7 @@ export function PerimeterCard({ perimeter, onEdit, onDelete, onShare }: Perimete
                   size="sm"
                   variant="ghost"
                   onClick={() => onShare(perimeter)}
+                  aria-label={`Share category: ${perimeter.name}`}
                   className="h-7 px-2 text-xs"
                 >
                   Share
@@ -81,6 +83,7 @@ export function PerimeterCard({ perimeter, onEdit, onDelete, onShare }: Perimete
                 size="sm"
                 variant="ghost"
                 onClick={() => onDelete(perimeter.id)}
+                aria-label={`Delete category: ${perimeter.name}`}
                 className="h-7 px-2 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
               >
                 Del
@@ -98,7 +101,14 @@ export function PerimeterCard({ perimeter, onEdit, onDelete, onShare }: Perimete
               </span>
             </div>
 
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+            <div
+              className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800"
+              role="progressbar"
+              aria-valuenow={Math.min(budgetStatus.percentage, 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Budget usage"
+            >
               <div
                 className={`h-full rounded-full transition-all ${
                   budgetStatus.percentage > 90

@@ -7,13 +7,21 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   Query,
   HttpCode,
   HttpStatus,
+  Headers,
+  Res,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { Response } from 'express';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { ExpensesService } from '../services/expenses.service';
+import { ReceiptService } from '../services/receipt.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { QueryExpenseDto } from '../dto/query-expense.dto';
@@ -22,21 +30,33 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
 @ApiTags('Expenses')
+@ApiErrorResponses()
 @Controller('expenses')
 @UseGuards(JwtAuthGuard)
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) {}
+  constructor(
+    private readonly expensesService: ExpensesService,
+    private readonly receiptService: ReceiptService
+  ) {}
 
   @Post()
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
-  async create(@CurrentUser() user: CurrentUserData, @Body() createExpenseDto: CreateExpenseDto) {
-    const expense = await this.expensesService.create(user.id, createExpenseDto);
+  async create(
+    @CurrentUser() user: CurrentUserData,
+    @Body() createExpenseDto: CreateExpenseDto,
+    @Headers('x-client-timestamp') clientTs?: string
+  ) {
+    const clientTimestamp = clientTs ? Number(clientTs) : undefined;
+    const result = await this.expensesService.create(user.id, createExpenseDto, clientTimestamp);
 
     return {
       success: true,
-      message: 'Expense created successfully',
-      data: expense,
+      message: result.conflict
+        ? 'Server version is newer (conflict resolved)'
+        : 'Expense created successfully',
+      data: result.data,
+      conflict: result.conflict,
     };
   }
 
@@ -108,14 +128,24 @@ export class ExpensesController {
   async update(
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
-    @Body() updateExpenseDto: UpdateExpenseDto
+    @Body() updateExpenseDto: UpdateExpenseDto,
+    @Headers('x-client-timestamp') clientTs?: string
   ) {
-    const expense = await this.expensesService.update(id, user.id, updateExpenseDto);
+    const clientTimestamp = clientTs ? Number(clientTs) : undefined;
+    const result = await this.expensesService.update(
+      id,
+      user.id,
+      updateExpenseDto,
+      clientTimestamp
+    );
 
     return {
       success: true,
-      message: 'Expense updated successfully',
-      data: expense,
+      message: result.conflict
+        ? 'Server version is newer (conflict resolved)'
+        : 'Expense updated successfully',
+      data: result.data,
+      conflict: result.conflict,
     };
   }
 
@@ -129,5 +159,53 @@ export class ExpensesController {
       success: true,
       message: 'Expense deleted successfully',
     };
+  }
+
+  @Post(':id/receipt')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @UseInterceptors(FileInterceptor('receipt', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  @HttpCode(HttpStatus.OK)
+  async uploadReceipt(
+    @CurrentUser() user: CurrentUserData,
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    // Verify expense belongs to user
+    const expense = await this.expensesService.findOne(id, user.id);
+
+    const receiptUrl = await this.receiptService.saveReceipt(file, user.id, expense.id);
+
+    // Delete old receipt if replacing
+    if (expense.receiptUrl) {
+      this.receiptService.deleteReceipt(expense.receiptUrl);
+    }
+
+    await this.expensesService.updateReceiptUrl(id, user.id, receiptUrl);
+
+    return {
+      success: true,
+      message: 'Receipt uploaded successfully',
+      data: { receiptUrl },
+    };
+  }
+
+  @Get(':id/receipt')
+  async getReceipt(
+    @CurrentUser() user: CurrentUserData,
+    @Param('id') id: string,
+    @Res() res: Response
+  ) {
+    const expense = await this.expensesService.findOne(id, user.id);
+
+    if (!expense.receiptUrl) {
+      return res.status(404).json({
+        success: false,
+        message: 'No receipt attached to this expense',
+      });
+    }
+
+    const absPath = this.receiptService.getReceiptAbsolutePath(expense.receiptUrl);
+
+    return res.sendFile(absPath);
   }
 }

@@ -93,3 +93,49 @@ export const Radii: Story = {
     </div>
   ),
 };
+
+const SHADOWS = [
+  { label: 'shadow-sm', cls: 'shadow-sm' },
+  { label: 'shadow', cls: 'shadow' },
+  { label: 'shadow-md', cls: 'shadow-md' },
+  { label: 'shadow-lg', cls: 'shadow-lg' },
+  { label: 'shadow-xl', cls: 'shadow-xl' },
+];
+
+export const Shadows: Story = {
+  render: () => (
+    <div className="flex gap-6">
+      {SHADOWS.map(item => (
+        <div key={item.label} className="text-center">
+          <div className={`${item.cls} h-16 w-16 rounded-xl bg-white dark:bg-zinc-800`} />
+          <p className="mt-2 text-xs text-zinc-400">{item.label}</p>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+const SEMANTIC_COLORS = [
+  { name: 'Primary', css: 'bg-indigo-600', usage: 'CTA buttons, active states' },
+  { name: 'Success', css: 'bg-emerald-500', usage: 'Income, positive balance' },
+  { name: 'Danger', css: 'bg-red-500', usage: 'Expenses, destructive actions' },
+  { name: 'Warning', css: 'bg-amber-500', usage: 'Budget alerts, caution' },
+  { name: 'Info', css: 'bg-blue-500', usage: 'Informational badges' },
+  { name: 'Muted', css: 'bg-zinc-400', usage: 'Secondary text, borders' },
+];
+
+export const SemanticColors: Story = {
+  render: () => (
+    <div className="space-y-3">
+      {SEMANTIC_COLORS.map(color => (
+        <div key={color.name} className="flex items-center gap-4">
+          <div className={`${color.css} h-8 w-8 shrink-0 rounded-lg`} />
+          <div>
+            <p className="text-sm font-medium">{color.name}</p>
+            <p className="text-xs text-zinc-400">{color.usage}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
+};

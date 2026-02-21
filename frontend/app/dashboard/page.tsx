@@ -119,7 +119,7 @@ export default function DashboardPage() {
                     <Card>
                       <CardContent className="pt-5">
                         <div className="text-muted-foreground mb-3 flex items-center gap-2">
-                          <TrendingDown size={14} />
+                          <TrendingDown size={14} aria-hidden="true" />
                           <span className="text-xs font-medium uppercase tracking-wide">
                             {t('dash_expenses')}
                           </span>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                     <Card>
                       <CardContent className="pt-5">
                         <div className="text-muted-foreground mb-3 flex items-center gap-2">
-                          <TrendingUp size={14} />
+                          <TrendingUp size={14} aria-hidden="true" />
                           <span className="text-xs font-medium uppercase tracking-wide">
                             {t('dash_income')}
                           </span>
@@ -268,7 +268,7 @@ export default function DashboardPage() {
                         <div
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 ${color}`}
                         >
-                          <Icon size={15} />
+                          <Icon size={15} aria-hidden="true" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-foreground text-sm font-medium">{t(labelKey)}</p>
@@ -277,6 +277,7 @@ export default function DashboardPage() {
                         <ArrowRight
                           size={14}
                           className="text-muted-foreground shrink-0 transition-transform group-hover:translate-x-0.5"
+                          aria-hidden="true"
                         />
                       </Link>
                     ))}

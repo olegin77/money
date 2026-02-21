@@ -10,9 +10,11 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { IncomeService } from '../services/income.service';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
@@ -21,6 +23,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
 @ApiTags('Income')
+@ApiErrorResponses()
 @Controller('income')
 @UseGuards(JwtAuthGuard)
 export class IncomeController {
@@ -29,13 +32,21 @@ export class IncomeController {
   @Post()
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
-  async create(@CurrentUser() user: CurrentUserData, @Body() createIncomeDto: CreateIncomeDto) {
-    const income = await this.incomeService.create(user.id, createIncomeDto);
+  async create(
+    @CurrentUser() user: CurrentUserData,
+    @Body() createIncomeDto: CreateIncomeDto,
+    @Headers('x-client-timestamp') clientTs?: string
+  ) {
+    const clientTimestamp = clientTs ? Number(clientTs) : undefined;
+    const result = await this.incomeService.create(user.id, createIncomeDto, clientTimestamp);
 
     return {
       success: true,
-      message: 'Income created successfully',
-      data: income,
+      message: result.conflict
+        ? 'Server version is newer (conflict resolved)'
+        : 'Income created successfully',
+      data: result.data,
+      conflict: result.conflict,
     };
   }
 
@@ -88,14 +99,19 @@ export class IncomeController {
   async update(
     @CurrentUser() user: CurrentUserData,
     @Param('id') id: string,
-    @Body() updateIncomeDto: UpdateIncomeDto
+    @Body() updateIncomeDto: UpdateIncomeDto,
+    @Headers('x-client-timestamp') clientTs?: string
   ) {
-    const income = await this.incomeService.update(id, user.id, updateIncomeDto);
+    const clientTimestamp = clientTs ? Number(clientTs) : undefined;
+    const result = await this.incomeService.update(id, user.id, updateIncomeDto, clientTimestamp);
 
     return {
       success: true,
-      message: 'Income updated successfully',
-      data: income,
+      message: result.conflict
+        ? 'Server version is newer (conflict resolved)'
+        : 'Income updated successfully',
+      data: result.data,
+      conflict: result.conflict,
     };
   }
 

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NumPad } from '@/components/ui/num-pad';
 import { useT } from '@/hooks/use-t';
 import { CreateExpenseData } from '@/lib/api/expenses';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Paperclip, X as XIcon } from 'lucide-react';
 
 type PresetKey =
   | 'preset_groceries'
@@ -36,14 +36,18 @@ interface RecurRule {
 }
 
 interface ExpenseFormProps {
-  onSubmit: (data: CreateExpenseData) => Promise<void>;
+  onSubmit: (data: CreateExpenseData, receiptFile?: File) => Promise<void>;
   onCancel: () => void;
   initialData?: Partial<CreateExpenseData>;
 }
 
+const RECEIPT_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const RECEIPT_ACCEPT = 'image/jpeg,image/png,application/pdf';
+
 export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProps) {
   const t = useT();
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initialRule: RecurRule | null = initialData?.recurrenceRule
     ? (() => {
@@ -64,6 +68,35 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
   const [isRecurring, setIsRecurring] = useState(initialData?.isRecurring || false);
   const [recurPeriod, setRecurPeriod] = useState<RecurPeriod>(initialRule?.period || 'monthly');
   const [recurDay, setRecurDay] = useState<number>(initialRule?.day || new Date().getDate());
+
+  // Receipt state
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > RECEIPT_MAX_SIZE) {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    setReceiptFile(file);
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        setReceiptPreview(ev.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setReceiptPreview(null);
+    }
+  };
+
+  const removeReceipt = () => {
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const getProjection = (): string | null => {
     const amt = parseFloat(amount);
@@ -98,16 +131,19 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
           ? { period: 'monthly', day: recurDay }
           : { period: recurPeriod }
         : undefined;
-      await onSubmit({
-        amount: amt,
-        currency,
-        description: description || undefined,
-        date,
-        paymentMethod: paymentMethod || undefined,
-        location: location || undefined,
-        isRecurring,
-        recurrenceRule: rule ? JSON.stringify(rule) : undefined,
-      });
+      await onSubmit(
+        {
+          amount: amt,
+          currency,
+          description: description || undefined,
+          date,
+          paymentMethod: paymentMethod || undefined,
+          location: location || undefined,
+          isRecurring,
+          recurrenceRule: rule ? JSON.stringify(rule) : undefined,
+        },
+        receiptFile || undefined
+      );
     } finally {
       setLoading(false);
     }
@@ -216,6 +252,75 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
         />
       </div>
 
+      {/* Receipt upload */}
+      <div className="border-border space-y-2 rounded-xl border p-3">
+        <div>
+          <p className="text-foreground text-sm font-medium">{t('form_receipt')}</p>
+          <p className="text-muted-foreground text-xs">{t('form_receipt_hint')}</p>
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={RECEIPT_ACCEPT}
+          onChange={handleReceiptChange}
+          disabled={loading}
+          className="hidden"
+          aria-label={t('form_receipt')}
+        />
+
+        {receiptFile ? (
+          <div className="flex items-center gap-3">
+            {receiptPreview ? (
+              <img
+                src={receiptPreview}
+                alt="Receipt preview"
+                className="h-16 w-16 rounded-lg border object-cover"
+              />
+            ) : (
+              <div className="border-border bg-muted flex h-16 w-16 items-center justify-center rounded-lg border text-xs">
+                PDF
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-foreground truncate text-sm">{receiptFile.name}</p>
+              <p className="text-muted-foreground text-xs">
+                {(receiptFile.size / 1024).toFixed(0)} KB
+              </p>
+            </div>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading}
+                className="text-muted-foreground hover:text-foreground rounded-md p-1.5 text-xs transition-colors"
+              >
+                {t('form_receipt_change')}
+              </button>
+              <button
+                type="button"
+                onClick={removeReceipt}
+                disabled={loading}
+                className="text-muted-foreground rounded-md p-1.5 transition-colors hover:text-red-500"
+                aria-label={t('form_receipt_remove')}
+              >
+                <XIcon size={14} />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loading}
+            className="border-border text-muted-foreground flex w-full items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-3 text-sm transition-colors hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400"
+          >
+            <Paperclip size={14} />
+            {t('form_receipt_select')}
+          </button>
+        )}
+      </div>
+
       {/* Recurring */}
       <div className="border-border space-y-3 rounded-xl border p-3">
         <div className="flex items-center justify-between">
@@ -275,8 +380,11 @@ export function ExpenseForm({ onSubmit, onCancel, initialData }: ExpenseFormProp
             )}
 
             {projection && (
-              <div className="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400">
-                <RefreshCw size={13} />
+              <div
+                className="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400"
+                aria-live="polite"
+              >
+                <RefreshCw size={13} aria-hidden="true" />
                 {projection}
               </div>
             )}

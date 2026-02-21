@@ -12,6 +12,12 @@ import {
   IncomeDeletedEvent,
 } from '../../common/events/income.events';
 
+/** Result wrapper that flags whether the server version won an LWW conflict */
+export interface SyncResult<T> {
+  data: T;
+  conflict: boolean;
+}
+
 @Injectable()
 export class IncomeService {
   constructor(
@@ -20,9 +26,17 @@ export class IncomeService {
     private readonly eventEmitter: EventEmitter2
   ) {}
 
-  async create(userId: string, createIncomeDto: CreateIncomeDto): Promise<Income> {
+  async create(
+    userId: string,
+    createIncomeDto: CreateIncomeDto,
+    clientTimestamp?: number
+  ): Promise<SyncResult<Income>> {
+    // Strip clientTimestamp from the DTO before persisting (not a DB column)
+    const { clientTimestamp: _ct, ...dtoData } = createIncomeDto;
+    void (clientTimestamp ?? _ct); // LWW timestamp reserved for future conflict resolution
+
     const income = this.incomeRepository.create({
-      ...createIncomeDto,
+      ...dtoData,
       userId,
       currency: createIncomeDto.currency || 'USD',
     });
@@ -42,7 +56,7 @@ export class IncomeService {
       )
     );
 
-    return saved;
+    return { data: saved, conflict: false };
   }
 
   async findAll(userId: string, query: QueryIncomeDto) {
@@ -158,10 +172,29 @@ export class IncomeService {
     return income;
   }
 
-  async update(id: string, userId: string, updateIncomeDto: UpdateIncomeDto): Promise<Income> {
+  /**
+   * LWW (Last Writer Wins) update with server-side conflict detection.
+   * If `clientTimestamp` is provided and the existing record has a newer
+   * `updatedAt`, the server version wins and is returned with `conflict: true`.
+   */
+  async update(
+    id: string,
+    userId: string,
+    updateIncomeDto: UpdateIncomeDto,
+    clientTimestamp?: number
+  ): Promise<SyncResult<Income>> {
     const income = await this.findOne(id, userId);
 
-    Object.assign(income, updateIncomeDto);
+    // Strip clientTimestamp from the DTO (not a DB column)
+    const { clientTimestamp: _ct, ...dtoData } = updateIncomeDto;
+    const ts = clientTimestamp ?? _ct;
+
+    // LWW conflict detection: if the server version is newer, return it
+    if (ts && income.updatedAt && income.updatedAt.getTime() > ts) {
+      return { data: income, conflict: true };
+    }
+
+    Object.assign(income, dtoData);
 
     const saved = await this.incomeRepository.save(income);
 
@@ -178,7 +211,7 @@ export class IncomeService {
       )
     );
 
-    return saved;
+    return { data: saved, conflict: false };
   }
 
   async remove(id: string, userId: string): Promise<void> {

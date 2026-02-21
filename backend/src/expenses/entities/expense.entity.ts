@@ -51,6 +51,9 @@ export class Expense {
   @Column({ type: 'jsonb', nullable: true })
   attachments: string[];
 
+  @Column({ name: 'receipt_url', nullable: true })
+  receiptUrl: string;
+
   @Column({ name: 'user_id' })
   userId: string;
 

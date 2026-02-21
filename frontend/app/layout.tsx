@@ -8,6 +8,7 @@ import { KeyboardShortcutsProvider } from '@/components/providers/keyboard-short
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { OfflineSyncProvider } from '@/components/providers/offline-sync-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
+import { DirectionProvider } from '@/components/providers/direction-provider';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -50,13 +51,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var s=JSON.parse(localStorage.getItem('auth-storage')||'{}');var t=(s.state&&s.state.user&&s.state.user.themeMode)||'';if(t==='dark')d.classList.add('dark');else if(t==='light')d.classList.remove('dark');else if(window.matchMedia('(prefers-color-scheme:dark)').matches)d.classList.add('dark');}catch(e){}})()`,
+            __html: `(function(){try{var d=document.documentElement;var s=JSON.parse(localStorage.getItem('auth-storage')||'{}');var t=(s.state&&s.state.user&&s.state.user.themeMode)||'';if(t==='dark')d.classList.add('dark');else if(t==='light')d.classList.remove('dark');else if(window.matchMedia('(prefers-color-scheme:dark)').matches)d.classList.add('dark');var lang=(s.state&&s.state.user&&s.state.user.language)||'en';var rtl=['ar','he','fa','ur'];d.setAttribute('lang',lang);d.setAttribute('dir',rtl.indexOf(lang)!==-1?'rtl':'ltr');}catch(e){}})()`,
           }}
         />
       </head>
       <body className={`${dmSans.variable} noise-bg bg-page text-primary font-sans antialiased`}>
         <QueryProvider>{children}</QueryProvider>
         <ThemeProvider />
+        <DirectionProvider />
         <OfflineSyncProvider />
         <WebSocketProvider />
         <KeyboardShortcutsProvider />

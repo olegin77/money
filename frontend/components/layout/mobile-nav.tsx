@@ -46,10 +46,11 @@ export function MobileNav() {
                   e.stopPropagation();
                   handleQuickAdd('expense');
                 }}
+                aria-label={t('dash_add_expense')}
                 className="flex flex-col items-center gap-2 rounded-2xl bg-white px-6 py-4 shadow-lg dark:bg-zinc-800"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30">
-                  <TrendingDown size={22} className="text-red-500" />
+                  <TrendingDown size={22} className="text-red-500" aria-hidden="true" />
                 </div>
                 <span className="text-foreground text-xs font-medium">{t('nav_expenses')}</span>
               </button>
@@ -58,10 +59,11 @@ export function MobileNav() {
                   e.stopPropagation();
                   handleQuickAdd('income');
                 }}
+                aria-label={t('dash_add_income')}
                 className="flex flex-col items-center gap-2 rounded-2xl bg-white px-6 py-4 shadow-lg dark:bg-zinc-800"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
-                  <TrendingUp size={22} className="text-emerald-500" />
+                  <TrendingUp size={22} className="text-emerald-500" aria-hidden="true" />
                 </div>
                 <span className="text-foreground text-xs font-medium">{t('nav_income')}</span>
               </button>
@@ -117,7 +119,8 @@ export function MobileNav() {
                 'flex h-12 w-12 -translate-y-3 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition-all active:scale-95',
                 showQuickAdd && 'rotate-45 bg-zinc-600 shadow-zinc-600/30'
               )}
-              aria-label="Quick add"
+              aria-label={t('aria_quick_add')}
+              aria-expanded={showQuickAdd}
             >
               <Plus size={24} strokeWidth={2.5} />
             </button>

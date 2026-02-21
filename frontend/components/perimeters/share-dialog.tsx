@@ -136,6 +136,7 @@ export function ShareDialog({ perimeter, open, onOpenChange }: ShareDialogProps)
                       size="sm"
                       variant="ghost"
                       onClick={() => handleUnshare(share.sharedWithId)}
+                      aria-label={`Remove access for ${share.sharedWith.username}`}
                       className="text-red-500"
                     >
                       Remove

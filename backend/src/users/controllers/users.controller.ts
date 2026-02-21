@@ -14,6 +14,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { UsersService } from '../services/users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
@@ -21,6 +22,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { ImportDataDto } from '../dto/import-data.dto';
 
 @ApiTags('Users')
+@ApiErrorResponses()
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
@@ -42,7 +44,7 @@ export class UsersController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async updateProfile(
     @CurrentUser() currentUser: CurrentUserData,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto
   ) {
     const user = await this.usersService.update(currentUser.id, updateUserDto);
 
@@ -97,7 +99,7 @@ export class UsersController {
   async exportData(
     @CurrentUser() currentUser: CurrentUserData,
     @Query('format') format: 'json' | 'csv' = 'json',
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     const data = await this.usersService.exportUserData(currentUser.id, format);
 
@@ -105,14 +107,14 @@ export class UsersController {
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="fintrack-export-${currentUser.id}.csv"`,
+        `attachment; filename="fintrack-export-${currentUser.id}.csv"`
       );
       res.send(data);
     } else {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="fintrack-export-${currentUser.id}.json"`,
+        `attachment; filename="fintrack-export-${currentUser.id}.json"`
       );
       res.send(JSON.stringify(data, null, 2));
     }
@@ -124,7 +126,7 @@ export class UsersController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async importData(
     @CurrentUser() currentUser: CurrentUserData,
-    @Body() importDataDto: ImportDataDto,
+    @Body() importDataDto: ImportDataDto
   ) {
     const result = await this.usersService.importData(currentUser.id, importDataDto);
 

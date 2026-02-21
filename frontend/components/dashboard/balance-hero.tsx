@@ -46,7 +46,7 @@ export function BalanceHero({ balance, savingsRate, currency }: BalanceHeroProps
 
       <div className="relative z-10">
         <div className="mb-4 flex items-center gap-2 opacity-80">
-          <Wallet size={16} />
+          <Wallet size={16} aria-hidden="true" />
           <span className="text-xs font-medium uppercase tracking-wider">{t('dash_balance')}</span>
         </div>
 

@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/notifications/notification-bell';
+import { useT } from '@/hooks/use-t';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -20,6 +21,7 @@ const authPaths = ['/', '/login', '/register', '/forgot-password'];
 export function MobileHeader() {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useT();
 
   if (authPaths.includes(pathname)) return null;
 
@@ -34,14 +36,17 @@ export function MobileHeader() {
             variant="ghost"
             size="icon"
             onClick={() => router.back()}
+            aria-label={t('aria_back')}
             className="-ml-1 h-8 w-8"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={18} aria-hidden="true" />
           </Button>
         ) : (
           <div className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-600">
-              <span className="text-xs font-bold text-white">F</span>
+              <span className="text-xs font-bold text-white" aria-hidden="true">
+                F
+              </span>
             </div>
           </div>
         )}

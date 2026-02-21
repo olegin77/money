@@ -53,7 +53,7 @@ export function NumPad({ value, onChange, onSubmit }: NumPadProps) {
       </div>
 
       {/* Keypad grid */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2" role="group" aria-label="Number pad">
         {KEYS.map(key => (
           <motion.button
             key={key}
@@ -61,9 +61,14 @@ export function NumPad({ value, onChange, onSubmit }: NumPadProps) {
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.1 }}
             onClick={() => handleKey(key)}
+            aria-label={key === 'del' ? 'Delete' : key === '.' ? 'Decimal point' : key}
             className="text-foreground bg-card border-border flex h-14 items-center justify-center rounded-xl border text-xl font-semibold transition-colors active:bg-indigo-50 dark:active:bg-indigo-950/30"
           >
-            {key === 'del' ? <Delete size={22} className="text-muted-foreground" /> : key}
+            {key === 'del' ? (
+              <Delete size={22} className="text-muted-foreground" aria-hidden="true" />
+            ) : (
+              key
+            )}
           </motion.button>
         ))}
       </div>

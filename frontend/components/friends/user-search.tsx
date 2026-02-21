@@ -55,12 +55,17 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
       <Input
         type="text"
         placeholder="Search by username or email…"
+        aria-label="Search by username or email"
         value={query}
         onChange={e => setQuery(e.target.value)}
         autoFocus
       />
 
-      {loading && <p className="text-muted-foreground text-center text-sm">Searching…</p>}
+      {loading && (
+        <p className="text-muted-foreground text-center text-sm" role="status">
+          Searching…
+        </p>
+      )}
 
       {results.length > 0 && (
         <div className="space-y-1.5">
@@ -82,9 +87,10 @@ export function UserSearch({ onSendRequest }: UserSearchProps) {
                 size="sm"
                 onClick={() => handleSendRequest(user.id)}
                 disabled={sendingTo === user.id}
+                aria-label={`Add friend: ${user.username}`}
                 className="h-8 shrink-0 px-2.5 text-xs"
               >
-                <UserPlus size={13} />
+                <UserPlus size={13} aria-hidden="true" />
                 {sendingTo === user.id ? 'Sending…' : 'Add'}
               </Button>
             </div>

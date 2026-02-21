@@ -89,7 +89,14 @@ export function GettingStarted({
         </div>
 
         {/* Progress bar */}
-        <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+        <div
+          className="mb-4 h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800"
+          role="progressbar"
+          aria-valuenow={completedCount}
+          aria-valuemin={0}
+          aria-valuemax={steps.length}
+          aria-label={`${completedCount} of ${steps.length} steps completed`}
+        >
           <div
             className="h-full rounded-full bg-indigo-600 transition-all duration-500"
             style={{ width: `${progress}%` }}
@@ -113,7 +120,11 @@ export function GettingStarted({
                   step.done ? 'bg-emerald-50 text-emerald-500 dark:bg-emerald-950/30' : step.color
                 )}
               >
-                {step.done ? <Check size={16} /> : <step.icon size={16} />}
+                {step.done ? (
+                  <Check size={16} aria-hidden="true" />
+                ) : (
+                  <step.icon size={16} aria-hidden="true" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p
@@ -130,6 +141,7 @@ export function GettingStarted({
                 <ChevronRight
                   size={14}
                   className="text-muted-foreground shrink-0 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden="true"
                 />
               )}
             </Link>

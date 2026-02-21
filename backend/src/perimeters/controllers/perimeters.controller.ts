@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { PerimetersService } from '../services/perimeters.service';
 import { CreatePerimeterDto } from '../dto/create-perimeter.dto';
 import { UpdatePerimeterDto } from '../dto/update-perimeter.dto';
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user.decorator';
 
 @ApiTags('Perimeters')
+@ApiErrorResponses()
 @Controller('perimeters')
 @UseGuards(JwtAuthGuard)
 export class PerimetersController {

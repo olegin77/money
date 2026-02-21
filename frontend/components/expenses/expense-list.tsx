@@ -60,7 +60,7 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
                 <span className="text-muted-foreground text-xs">{expense.currency}</span>
                 {expense.isRecurring && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
-                    <RefreshCw size={10} />
+                    <RefreshCw size={10} aria-hidden="true" />
                     {recurringLabel(t, expense.recurrenceRule)}
                   </span>
                 )}

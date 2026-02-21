@@ -44,4 +44,9 @@ export class CreateIncomeDto {
   @IsString()
   @IsOptional()
   recurrenceRule?: string;
+
+  /** Client-side timestamp (epoch ms) for offline sync LWW conflict resolution */
+  @IsNumber()
+  @IsOptional()
+  clientTimestamp?: number;
 }

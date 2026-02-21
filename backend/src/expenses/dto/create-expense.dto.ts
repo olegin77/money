@@ -59,4 +59,9 @@ export class CreateExpenseDto {
   @IsString({ each: true })
   @IsOptional()
   attachments?: string[];
+
+  /** Client-side timestamp (epoch ms) for offline sync LWW conflict resolution */
+  @IsNumber()
+  @IsOptional()
+  clientTimestamp?: number;
 }

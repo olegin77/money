@@ -15,12 +15,48 @@ import {
   Check,
   ChevronRight,
   Wallet,
+  ShoppingCart,
+  Car,
+  Home,
+  Film,
+  Heart,
+  ShoppingBag,
+  Zap,
+  GraduationCap,
+  Briefcase,
+  Laptop,
+  LineChart,
+  Building,
+  Gift,
+  Store,
 } from 'lucide-react';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB', 'JPY', 'CNY', 'INR', 'BRL', 'CAD', 'AUD'];
 const ONBOARDING_KEY = 'fintrack_onboarding_complete';
 
 const TOTAL_STEPS = 5;
+
+/** Expense category presets with icons */
+const EXPENSE_PRESETS = [
+  { id: 'food', icon: ShoppingCart, key: 'onb_expense_preset_food' as const },
+  { id: 'transport', icon: Car, key: 'onb_expense_preset_transport' as const },
+  { id: 'housing', icon: Home, key: 'onb_expense_preset_housing' as const },
+  { id: 'entertainment', icon: Film, key: 'onb_expense_preset_entertainment' as const },
+  { id: 'health', icon: Heart, key: 'onb_expense_preset_health' as const },
+  { id: 'shopping', icon: ShoppingBag, key: 'onb_expense_preset_shopping' as const },
+  { id: 'utilities', icon: Zap, key: 'onb_expense_preset_utilities' as const },
+  { id: 'education', icon: GraduationCap, key: 'onb_expense_preset_education' as const },
+] as const;
+
+/** Income source presets with icons */
+const INCOME_PRESETS = [
+  { id: 'salary', icon: Briefcase, key: 'onb_income_preset_salary' as const },
+  { id: 'freelance', icon: Laptop, key: 'onb_income_preset_freelance' as const },
+  { id: 'investments', icon: LineChart, key: 'onb_income_preset_investments' as const },
+  { id: 'rental', icon: Building, key: 'onb_income_preset_rental' as const },
+  { id: 'gifts', icon: Gift, key: 'onb_income_preset_gifts' as const },
+  { id: 'business', icon: Store, key: 'onb_income_preset_business' as const },
+] as const;
 
 export function OnboardingWizard() {
   const t = useT();
@@ -29,6 +65,8 @@ export function OnboardingWizard() {
   const [step, setStep] = useState(0);
   const [currency, setCurrency] = useState(user?.currency || 'USD');
   const [saving, setSaving] = useState(false);
+  const [selectedExpenses, setSelectedExpenses] = useState<Set<string>>(new Set());
+  const [selectedIncome, setSelectedIncome] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user) return;
@@ -58,6 +96,30 @@ export function OnboardingWizard() {
     }
   };
 
+  const toggleExpense = (id: string) => {
+    setSelectedExpenses(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleIncome = (id: string) => {
+    setSelectedIncome(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
   const features = [
     { icon: TrendingDown, label: t('onb_feat_expenses'), color: 'text-red-500' },
     { icon: TrendingUp, label: t('onb_feat_income'), color: 'text-emerald-500' },
@@ -67,11 +129,25 @@ export function OnboardingWizard() {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('aria_onboarding')}
+    >
       <Card className="animate-in fade-in zoom-in-95 w-full max-w-md">
         <CardContent className="pt-6">
           {/* Progress */}
-          <div className="mb-6 flex items-center gap-2">
+          <div
+            className="mb-6 flex items-center gap-2"
+            role="progressbar"
+            aria-valuenow={step + 1}
+            aria-valuemin={1}
+            aria-valuemax={TOTAL_STEPS}
+            aria-label={t('onb_step')
+              .replace('{current}', String(step + 1))
+              .replace('{total}', String(TOTAL_STEPS))}
+          >
             {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
               <div
                 key={i}
@@ -86,7 +162,7 @@ export function OnboardingWizard() {
           {step === 0 && (
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600/10">
-                <Wallet className="text-indigo-600" size={28} />
+                <Wallet className="text-indigo-600" size={28} aria-hidden="true" />
               </div>
               <h2 className="text-foreground text-xl font-bold">{t('onb_welcome')}</h2>
               <p className="text-muted-foreground mt-2 text-sm">{t('onb_welcome_sub')}</p>
@@ -113,6 +189,8 @@ export function OnboardingWizard() {
                   <button
                     key={c}
                     onClick={() => setCurrency(c)}
+                    aria-pressed={currency === c}
+                    aria-label={`Select currency ${c}`}
                     className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                       currency === c
                         ? 'border-indigo-600 bg-indigo-600 text-white'
@@ -135,31 +213,49 @@ export function OnboardingWizard() {
             </div>
           )}
 
-          {/* Step 2: Add first expense hint */}
+          {/* Step 2: Add first expense — interactive preset selection */}
           {step === 2 && (
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
-                <TrendingDown className="text-red-500" size={28} />
-              </div>
-              <h2 className="text-foreground text-xl font-bold">{t('onb_expense_title')}</h2>
-              <p className="text-muted-foreground mt-2 text-sm">{t('onb_expense_sub')}</p>
-
-              <div className="mt-5 space-y-2 text-left">
-                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
-                  <span className="text-lg">🛒</span>
-                  <span className="text-foreground text-sm">{t('onb_expense_ex1')}</span>
+            <div>
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
+                  <TrendingDown className="text-red-500" size={28} aria-hidden="true" />
                 </div>
-                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
-                  <span className="text-lg">☕</span>
-                  <span className="text-foreground text-sm">{t('onb_expense_ex2')}</span>
-                </div>
-                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
-                  <span className="text-lg">🚗</span>
-                  <span className="text-foreground text-sm">{t('onb_expense_ex3')}</span>
-                </div>
+                <h2 className="text-foreground text-xl font-bold">{t('onb_expense_title')}</h2>
+                <p className="text-muted-foreground mt-2 text-sm">{t('onb_expense_sub')}</p>
               </div>
 
-              <div className="mt-8 flex gap-3">
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                {EXPENSE_PRESETS.map(({ id, icon: Icon, key }) => {
+                  const selected = selectedExpenses.has(id);
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => toggleExpense(id)}
+                      aria-pressed={selected}
+                      className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-start text-sm font-medium transition-all ${
+                        selected
+                          ? 'border-red-500 bg-red-500/10 text-red-600 dark:text-red-400'
+                          : 'border-border text-foreground hover:border-red-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                      }`}
+                    >
+                      {selected ? (
+                        <Check size={16} className="shrink-0 text-red-500" />
+                      ) : (
+                        <Icon size={16} className="text-muted-foreground shrink-0" />
+                      )}
+                      {t(key)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedExpenses.size > 0 && (
+                <p className="text-muted-foreground mt-3 text-center text-xs">
+                  {t('onb_selected_count').replace('{count}', String(selectedExpenses.size))}
+                </p>
+              )}
+
+              <div className="mt-6 flex gap-3">
                 <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
                   {t('onb_back')}
                 </Button>
@@ -170,31 +266,49 @@ export function OnboardingWizard() {
             </div>
           )}
 
-          {/* Step 3: Add first income hint */}
+          {/* Step 3: Create first income source — interactive preset selection */}
           {step === 3 && (
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
-                <TrendingUp className="text-emerald-500" size={28} />
-              </div>
-              <h2 className="text-foreground text-xl font-bold">{t('onb_income_title')}</h2>
-              <p className="text-muted-foreground mt-2 text-sm">{t('onb_income_sub')}</p>
-
-              <div className="mt-5 space-y-2 text-left">
-                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
-                  <span className="text-lg">💼</span>
-                  <span className="text-foreground text-sm">{t('onb_income_ex1')}</span>
+            <div>
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
+                  <TrendingUp className="text-emerald-500" size={28} aria-hidden="true" />
                 </div>
-                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
-                  <span className="text-lg">💻</span>
-                  <span className="text-foreground text-sm">{t('onb_income_ex2')}</span>
-                </div>
-                <div className="flex items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2.5 dark:bg-zinc-800/50">
-                  <span className="text-lg">📈</span>
-                  <span className="text-foreground text-sm">{t('onb_income_ex3')}</span>
-                </div>
+                <h2 className="text-foreground text-xl font-bold">{t('onb_income_title')}</h2>
+                <p className="text-muted-foreground mt-2 text-sm">{t('onb_income_sub')}</p>
               </div>
 
-              <div className="mt-8 flex gap-3">
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                {INCOME_PRESETS.map(({ id, icon: Icon, key }) => {
+                  const selected = selectedIncome.has(id);
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => toggleIncome(id)}
+                      aria-pressed={selected}
+                      className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-start text-sm font-medium transition-all ${
+                        selected
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                          : 'border-border text-foreground hover:border-emerald-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                      }`}
+                    >
+                      {selected ? (
+                        <Check size={16} className="shrink-0 text-emerald-500" />
+                      ) : (
+                        <Icon size={16} className="text-muted-foreground shrink-0" />
+                      )}
+                      {t(key)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedIncome.size > 0 && (
+                <p className="text-muted-foreground mt-3 text-center text-xs">
+                  {t('onb_selected_count').replace('{count}', String(selectedIncome.size))}
+                </p>
+              )}
+
+              <div className="mt-6 flex gap-3">
                 <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
                   {t('onb_back')}
                 </Button>
@@ -210,7 +324,7 @@ export function OnboardingWizard() {
             <div>
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-600/10">
-                  <Check className="text-emerald-600" size={28} />
+                  <Check className="text-emerald-600" size={28} aria-hidden="true" />
                 </div>
                 <h2 className="text-foreground text-xl font-bold">{t('onb_features_title')}</h2>
                 <p className="text-muted-foreground mt-1 text-sm">{t('onb_features_sub')}</p>

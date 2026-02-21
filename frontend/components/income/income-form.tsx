@@ -290,8 +290,11 @@ export function IncomeForm({ onSubmit, onCancel, initialData }: IncomeFormProps)
             )}
 
             {projection && (
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-                <RefreshCw size={13} />
+              <div
+                className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+                aria-live="polite"
+              >
+                <RefreshCw size={13} aria-hidden="true" />
                 {projection}
               </div>
             )}

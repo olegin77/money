@@ -49,7 +49,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleLanguage = async (lang: 'en' | 'ru') => {
+  const handleLanguage = async (lang: 'en' | 'ru' | 'ar') => {
     try {
       const updated = await usersApi.updateProfile({ language: lang });
       updateUser(updated);
@@ -146,7 +146,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User size={14} />
+              <User size={14} aria-hidden="true" />
               {t('set_profile')}
             </CardTitle>
           </CardHeader>
@@ -187,23 +187,43 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe size={14} />
+              <Globe size={14} aria-hidden="true" />
               {t('set_language')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-2">
-              {(['en', 'ru'] as const).map(lang => (
+            <div className="grid grid-cols-3 gap-2">
+              {(
+                [
+                  {
+                    code: 'en' as const,
+                    flag: '\uD83C\uDDEC\uD83C\uDDE7',
+                    key: 'set_lang_en' as const,
+                  },
+                  {
+                    code: 'ru' as const,
+                    flag: '\uD83C\uDDF7\uD83C\uDDFA',
+                    key: 'set_lang_ru' as const,
+                  },
+                  {
+                    code: 'ar' as const,
+                    flag: '\uD83C\uDDF8\uD83C\uDDE6',
+                    key: 'set_lang_ar' as const,
+                  },
+                ] as const
+              ).map(lang => (
                 <button
-                  key={lang}
-                  onClick={() => handleLanguage(lang)}
+                  key={lang.code}
+                  onClick={() => handleLanguage(lang.code)}
+                  aria-pressed={currentLang === lang.code}
+                  aria-label={t(lang.key)}
                   className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
-                    currentLang === lang
+                    currentLang === lang.code
                       ? 'border-indigo-600 bg-indigo-600 text-white'
                       : 'border-border text-foreground hover:bg-zinc-50 dark:hover:bg-zinc-900'
                   }`}
                 >
-                  {lang === 'en' ? `🇬🇧 ${t('set_lang_en')}` : `🇷🇺 ${t('set_lang_ru')}`}
+                  {lang.flag} {t(lang.key)}
                 </button>
               ))}
             </div>
@@ -221,6 +241,7 @@ export default function SettingsPage() {
                 <button
                   key={theme}
                   onClick={() => handleTheme(theme)}
+                  aria-pressed={currentTheme === theme}
                   className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
                     currentTheme === theme
                       ? 'border-indigo-600 bg-indigo-600 text-white'
@@ -238,7 +259,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield size={14} />
+              <Shield size={14} aria-hidden="true" />
               {t('set_security')}
             </CardTitle>
           </CardHeader>
@@ -327,7 +348,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bell size={14} />
+              <Bell size={14} aria-hidden="true" />
               {t('set_notifications')}
             </CardTitle>
           </CardHeader>
@@ -365,7 +386,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Keyboard size={14} />
+              <Keyboard size={14} aria-hidden="true" />
               {t('kb_title')}
             </CardTitle>
           </CardHeader>
@@ -382,14 +403,14 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Download size={14} />
+              <Download size={14} aria-hidden="true" />
               {t('set_data')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-3 text-sm">{t('set_export_sub')}</p>
             <Button variant="outline" onClick={handleExport} disabled={exporting}>
-              <Download size={14} />
+              <Download size={14} aria-hidden="true" />
               {exporting ? t('set_exporting') : t('set_export')}
             </Button>
           </CardContent>

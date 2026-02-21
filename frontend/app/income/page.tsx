@@ -144,6 +144,7 @@ export default function IncomePage() {
               <Search
                 size={16}
                 className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
+                aria-hidden="true"
               />
               <input
                 type="text"
@@ -182,7 +183,7 @@ export default function IncomePage() {
                   aria-label={t('filter_clear')}
                   className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded-md px-2 py-1.5 text-xs transition-colors"
                 >
-                  <X size={14} />
+                  <X size={14} aria-hidden="true" />
                   {t('filter_clear')}
                 </button>
               )}

@@ -1,5 +1,6 @@
 import { Controller, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { AnalyticsService } from '../services/analytics.service';
 import { DashboardQueryDto } from '../dto/dashboard-query.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -7,6 +8,7 @@ import { CurrentUser, CurrentUserData } from '../../auth/decorators/current-user
 import { CacheInterceptor } from '../../common/interceptors/cache.interceptor';
 
 @ApiTags('Analytics')
+@ApiErrorResponses()
 @Controller('analytics')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(CacheInterceptor)

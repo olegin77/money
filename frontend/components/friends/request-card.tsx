@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { FriendRequest } from '@/lib/api/friends';
 import { format } from 'date-fns';
 import { Check, X } from 'lucide-react';
+import { useT } from '@/hooks/use-t';
 
 interface RequestCardProps {
   request: FriendRequest;
@@ -12,6 +13,7 @@ interface RequestCardProps {
 }
 
 export function RequestCard({ request, onAccept, onReject }: RequestCardProps) {
+  const t = useT();
   const initial = request.requester.username.charAt(0).toUpperCase();
 
   return (
@@ -32,17 +34,19 @@ export function RequestCard({ request, onAccept, onReject }: RequestCardProps) {
           size="sm"
           variant="success"
           onClick={() => onAccept(request.id)}
+          aria-label={`${t('aria_accept_request')}: ${request.requester.username}`}
           className="h-8 w-8 p-0"
         >
-          <Check size={14} />
+          <Check size={14} aria-hidden="true" />
         </Button>
         <Button
           size="sm"
           variant="outline"
           onClick={() => onReject(request.id)}
+          aria-label={`${t('aria_reject_request')}: ${request.requester.username}`}
           className="h-8 w-8 p-0"
         >
-          <X size={14} />
+          <X size={14} aria-hidden="true" />
         </Button>
       </div>
     </div>
