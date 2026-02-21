@@ -22,9 +22,9 @@ async function bootstrap() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'blob:'],
+          imgSrc: ["'self'", 'data:', 'blob:', 'https://cdn.jsdelivr.net'],
           connectSrc: ["'self'", ...(Array.isArray(corsOrigin) ? corsOrigin : [corsOrigin])],
           fontSrc: ["'self'"],
           objectSrc: ["'none'"],
@@ -53,12 +53,14 @@ async function bootstrap() {
     origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Client-Timestamp', 'X-Client-Id', 'X-Idempotency-Key'],
     maxAge: 86400,
   });
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['api/docs', 'api/docs-json', 'api/docs/(.*)', 'health'],
+  });
 
   // Validation pipe
   app.useGlobalPipes(
