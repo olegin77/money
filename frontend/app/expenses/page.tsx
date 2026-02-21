@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ExpenseForm } from '@/components/expenses/expense-form';
 import { ExpenseList } from '@/components/expenses/expense-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Expense, CreateExpenseData } from '@/lib/api/expenses';
 import {
   useExpenses,
@@ -255,8 +254,6 @@ export default function ExpensesPage() {
             )}
           </div>
         </PageFadeIn>
-
-        <FloatingActionButton onClick={() => setShowForm(true)} />
       </div>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>

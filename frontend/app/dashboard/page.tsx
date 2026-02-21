@@ -12,12 +12,17 @@ import { PageFadeIn, StaggerContainer, StaggerItem, HoverCard } from '@/componen
 import { CountUp } from '@/components/ui/count-up';
 import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard';
 import { BalanceHero } from '@/components/dashboard/balance-hero';
+import { GettingStarted } from '@/components/dashboard/getting-started';
 import { useDashboard } from '@/hooks/use-dashboard';
+import { usePerimeters } from '@/hooks/use-perimeters';
+import { useFriends } from '@/hooks/use-friends';
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth(true);
   const t = useT();
   const { data: dashboard, isLoading: statsLoading } = useDashboard('month');
+  const { data: perimeters = [] } = usePerimeters();
+  const { data: friends = [] } = useFriends();
 
   if (isLoading) {
     return (
@@ -201,6 +206,16 @@ export default function DashboardPage() {
                 </StaggerItem>
               </div>
             </StaggerContainer>
+          )}
+
+          {/* Getting started checklist */}
+          {!statsLoading && (
+            <GettingStarted
+              hasCategories={perimeters.length > 0}
+              hasExpenses={(summary?.expenseCount || 0) > 0}
+              hasIncome={(summary?.incomeCount || 0) > 0}
+              hasFriends={friends.length > 0}
+            />
           )}
 
           {/* Recent transactions */}

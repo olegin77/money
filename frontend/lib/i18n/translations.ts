@@ -69,6 +69,14 @@ const en = {
   dash_recent: 'Recent transactions',
   dash_no_transactions: 'No transactions yet',
 
+  // Getting started
+  gs_title: 'Getting started',
+  gs_completed: 'completed',
+  gs_step_categories: 'Create your first spending category',
+  gs_step_expense: 'Log your first expense',
+  gs_step_income: 'Record your first income',
+  gs_step_friends: 'Connect with a friend',
+
   // Expenses
   exp_title: 'Expenses',
   exp_new: '+ New expense',
@@ -116,6 +124,7 @@ const en = {
   ana_by_category: 'Expenses by category',
   ana_cash_flow: 'Cash flow',
   ana_monthly: 'Monthly comparison',
+  ana_savings: 'Savings %',
   ana_no_data: 'No data for this period',
   ana_loading: 'Loading analytics…',
 
@@ -360,6 +369,14 @@ const ru: typeof en = {
   dash_recent: 'Последние операции',
   dash_no_transactions: 'Операций пока нет',
 
+  // Getting started
+  gs_title: 'Начало работы',
+  gs_completed: 'выполнено',
+  gs_step_categories: 'Создайте первую категорию расходов',
+  gs_step_expense: 'Запишите первый расход',
+  gs_step_income: 'Добавьте первый доход',
+  gs_step_friends: 'Подключите друга',
+
   // Expenses
   exp_title: 'Расходы',
   exp_new: '+ Новый расход',
@@ -407,6 +424,7 @@ const ru: typeof en = {
   ana_by_category: 'Расходы по категориям',
   ana_cash_flow: 'Денежный поток',
   ana_monthly: 'Сравнение по месяцам',
+  ana_savings: 'Сбережения %',
   ana_no_data: 'Нет данных за этот период',
   ana_loading: 'Загрузка аналитики…',
 

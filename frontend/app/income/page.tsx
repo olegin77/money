@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { IncomeForm } from '@/components/income/income-form';
 import { IncomeList } from '@/components/income/income-list';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { FloatingActionButton } from '@/components/ui/floating-action-button';
 import { Income, CreateIncomeData } from '@/lib/api/income';
 import { useIncome, useCreateIncome, useUpdateIncome, useDeleteIncome } from '@/hooks/use-income';
 import { Plus, Search, X } from 'lucide-react';
@@ -232,7 +231,7 @@ export default function IncomePage() {
         </div>
       </PageFadeIn>
 
-      <FloatingActionButton onClick={() => setShowForm(true)} />
+      {/* FloatingActionButton removed — quick-add is in mobile bottom nav */}
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent>

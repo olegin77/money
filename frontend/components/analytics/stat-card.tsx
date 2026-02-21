@@ -21,10 +21,10 @@ export function StatCard({ title, value, subtitle, trend, icon, className }: Sta
       <CardContent className="pt-5">
         <div className="flex items-start justify-between">
           <div className="min-w-0 flex-1">
-            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide opacity-80">
+            <p className="text-muted-foreground mb-2 text-[10px] font-medium uppercase tracking-wide opacity-80 sm:text-xs">
               {title}
             </p>
-            <p className="truncate text-2xl font-bold tabular-nums">{value}</p>
+            <p className="text-lg font-bold tabular-nums sm:text-2xl">{value}</p>
             {subtitle && (
               <p className="text-muted-foreground mt-1 text-xs opacity-70">{subtitle}</p>
             )}

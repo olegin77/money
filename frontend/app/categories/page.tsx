@@ -20,8 +20,9 @@ import {
   useDeletePerimeter,
 } from '@/hooks/use-perimeters';
 import { CategoryGrid } from '@/components/categories/category-grid';
-import { FolderOpen, Plus } from 'lucide-react';
+import { Layers, Plus } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function CategoriesPage() {
   const { isLoading: authLoading } = useAuth(true);
@@ -101,16 +102,14 @@ export default function CategoriesPage() {
 
           {/* Empty state */}
           {perimeters.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                <FolderOpen size={22} className="text-muted-foreground" />
-              </div>
-              <p className="text-foreground mb-1 text-base font-semibold">{t('cat_no_expenses')}</p>
-              <p className="text-muted-foreground mb-6 max-w-xs text-sm">{t('cat_add_first')}</p>
-              <Button onClick={() => setShowForm(true)}>
-                <Plus size={15} /> {t('cat_new')}
-              </Button>
-            </div>
+            <EmptyState
+              icon={Layers}
+              title={t('cat_no_expenses')}
+              description={t('cat_add_first')}
+              actionLabel={t('cat_new')}
+              onAction={() => setShowForm(true)}
+              iconColor="text-amber-500"
+            />
           )}
 
           {/* My categories - grid view */}

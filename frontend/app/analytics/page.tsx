@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
       <ResponsiveContainer>
         <div className="mx-auto max-w-5xl space-y-4 p-4 md:p-8">
           <Skeleton className="h-8 w-36" />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
               <Skeleton key={i} className="h-24 rounded-xl" />
             ))}
@@ -224,7 +224,11 @@ export default function AnalyticsPage() {
           <div className="mb-6 flex items-center justify-between">
             <div className="hidden md:block">
               <h1 className="text-foreground text-2xl font-bold">{t('ana_title')}</h1>
-              <p className="text-muted-foreground mt-0.5 text-sm">{t('ana_no_data')}</p>
+              <p className="text-muted-foreground mt-0.5 text-sm">
+                {summary.expenseCount + summary.incomeCount > 0
+                  ? `${summary.expenseCount + summary.incomeCount} transactions this ${period === 'all' ? 'period' : period}`
+                  : t('ana_no_data')}
+              </p>
             </div>
             {/* Period selector + export */}
             <div className="flex items-center gap-2">
@@ -278,12 +282,12 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Summary Stats */}
-          <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard
               title={t('ana_balance')}
               value={`$${Number(summary.balance).toFixed(2)}`}
               className={[
-                'col-span-2 md:col-span-1',
+                'col-span-2 lg:col-span-1',
                 summary.balance >= 0
                   ? 'border-indigo-600 bg-indigo-600 text-white'
                   : 'border-red-600 bg-red-600 text-white',
@@ -303,7 +307,7 @@ export default function AnalyticsPage() {
               icon="💵"
             />
             <StatCard
-              title="Savings %"
+              title={t('ana_savings')}
               value={`${Number(summary.savingsRate).toFixed(1)}%`}
               subtitle={`Avg: $${Number(summary.avgIncome).toFixed(2)}`}
               icon="📈"

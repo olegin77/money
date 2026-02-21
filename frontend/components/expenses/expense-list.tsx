@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { AnimatedList, AnimatedListItem } from '@/components/ui/motion';
 import { Expense } from '@/lib/api/expenses';
 import { useT } from '@/hooks/use-t';
-import { RefreshCw, TrendingDown } from 'lucide-react';
+import { RefreshCw, Receipt } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -33,13 +34,12 @@ export function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
 
   if (expenses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-          <TrendingDown size={20} className="text-muted-foreground" />
-        </div>
-        <p className="text-foreground mb-1 text-base font-semibold">{t('exp_empty')}</p>
-        <p className="text-muted-foreground text-sm">{t('exp_empty_sub')}</p>
-      </div>
+      <EmptyState
+        icon={Receipt}
+        title={t('exp_empty')}
+        description={t('exp_empty_sub')}
+        iconColor="text-red-400"
+      />
     );
   }
 

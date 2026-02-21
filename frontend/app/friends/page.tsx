@@ -23,6 +23,7 @@ import {
 } from '@/hooks/use-friends';
 import { UserPlus, Users } from 'lucide-react';
 import { PageFadeIn } from '@/components/ui/motion';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function FriendsPage() {
   const { isLoading: authLoading } = useAuth(true);
@@ -143,18 +144,14 @@ export default function FriendsPage() {
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                <Users size={22} className="text-muted-foreground" />
-              </div>
-              <p className="text-foreground mb-1 text-base font-semibold">{t('fri_no_friends')}</p>
-              <p className="text-muted-foreground mb-6 max-w-xs text-sm">
-                {t('fri_no_friends_sub')}
-              </p>
-              <Button onClick={() => setShowSearch(true)}>
-                <UserPlus size={15} /> {t('fri_add')}
-              </Button>
-            </div>
+            <EmptyState
+              icon={Users}
+              title={t('fri_no_friends')}
+              description={t('fri_no_friends_sub')}
+              actionLabel={t('fri_add')}
+              onAction={() => setShowSearch(true)}
+              iconColor="text-violet-500"
+            />
           )}
         </div>
       </PageFadeIn>

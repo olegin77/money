@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Income } from '@/lib/api/income';
 import { useT } from '@/hooks/use-t';
-import { RefreshCw, TrendingUp } from 'lucide-react';
+import { RefreshCw, Wallet } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface IncomeListProps {
   incomes: Income[];
@@ -32,13 +33,12 @@ export function IncomeList({ incomes, onEdit, onDelete }: IncomeListProps) {
 
   if (incomes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
-          <TrendingUp size={20} className="text-muted-foreground" />
-        </div>
-        <p className="text-foreground mb-1 text-base font-semibold">{t('inc_empty')}</p>
-        <p className="text-muted-foreground text-sm">{t('inc_empty_sub')}</p>
-      </div>
+      <EmptyState
+        icon={Wallet}
+        title={t('inc_empty')}
+        description={t('inc_empty_sub')}
+        iconColor="text-emerald-400"
+      />
     );
   }
 

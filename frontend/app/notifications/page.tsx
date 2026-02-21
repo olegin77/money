@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { Notification } from '@/lib/api/notifications';
 import { PageFadeIn, StaggerContainer, StaggerItem } from '@/components/ui/motion';
-import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react';
+import { BellOff, Check, CheckCheck, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from '@/hooks/use-toast';
 import {
   useNotifications,
@@ -109,12 +110,12 @@ export default function NotificationsPage() {
 
           {/* Notifications list */}
           {notifications.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <Bell size={40} className="text-muted-foreground mb-3 opacity-30" />
-                <p className="text-muted-foreground text-sm">No notifications yet</p>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={BellOff}
+              title="All caught up"
+              description="No notifications yet. We'll let you know when something happens."
+              iconColor="text-zinc-400"
+            />
           ) : (
             <StaggerContainer className="space-y-2">
               {notifications.map((notif: Notification) => (
