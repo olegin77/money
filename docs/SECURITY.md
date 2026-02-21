@@ -1,334 +1,233 @@
 # Security Documentation
 
-## 🔐 Security Features
+## Authentication & Authorization
 
-### Authentication & Authorization
+### JWT Tokens
 
-**JWT Tokens:**
-- Access token: 15 minutes expiry
-- Refresh token: 7 days expiry
+- Access token: 15-minute expiry
+- Refresh token: 7-day expiry
 - Token rotation on refresh
-- Secure token storage (httpOnly cookies recommended for production)
+- Tokens returned in response body (Bearer scheme)
 
-**Password Security:**
+### Password Security
+
 - Bcrypt hashing (12 rounds)
 - Minimum 8 characters
 - Required: uppercase, lowercase, number, special character
-- Password reset with time-limited tokens
 
-**Two-Factor Authentication:**
-- TOTP (Time-based One-Time Password)
-- QR code generation for authenticator apps
-- 6-digit codes
-- 2-step window for clock skew tolerance
+### Two-Factor Authentication (2FA)
 
-### API Security
+Implemented with `speakeasy` (TOTP) and `qrcode` for QR generation.
 
-**Rate Limiting:**
-- Auth endpoints: 100 requests/minute
-- API endpoints: 300 requests/minute
-- Redis-based sliding window
-- IP-based tracking
+- `POST /auth/2fa/generate` - generates 32-char base32 secret, returns secret + QR code data URL
+- `POST /auth/2fa/enable` - verifies TOTP code against stored secret, activates 2FA
+- `POST /auth/2fa/disable` - requires valid TOTP code to disable
+- Login flow: if 2FA enabled, returns `requires2FA: true` without tokens unless a valid code is provided
+- Clock skew tolerance: 2-step window (60 seconds)
+- `twoFaSecret` is excluded from all serialized responses
 
-**Input Validation:**
-- class-validator on all DTOs
-- Whitelist validation
-- Type transformation
-- SQL injection prevention
+## API Security
 
-**Headers:**
-- Helmet.js for security headers
-- CORS configuration
-- CSRF protection
-- XSS prevention
+### Rate Limiting
 
-### Data Security
+Redis-backed `ThrottlerGuard` applied globally via `APP_GUARD`. Per-endpoint overrides:
 
-**Encryption:**
-- Financial data: AES-256-GCM (ready for implementation)
-- Passwords: bcrypt
-- 2FA secrets: encrypted storage
-- Sensitive data exclusion from logs
+| Scope | Limit | Window |
+|-------|-------|--------|
+| Global default | 300 req | 60 sec |
+| Auth controller baseline | 100 req | 60 sec |
+| `POST /auth/register` | 10 req | 60 sec |
+| `POST /auth/login` | 20 req | 60 sec |
+| `POST /auth/change-password` | 5 req | 60 sec |
+| `POST /auth/forgot-password` | 5 req | 60 sec |
+| `POST /auth/reset-password` | 10 req | 60 sec |
+| `PATCH /users/me`, `DELETE /users/me` | 5 req | 60 sec |
+| `POST /users/me/import` | 5 req | 60 sec |
+| `POST /expenses` (mutations) | 30 req | 60 sec |
+| `POST /expenses/:id/receipt` | 10 req | 60 sec |
 
-**Database:**
+Global limits are configurable via `THROTTLE_TTL` and `THROTTLE_LIMIT_API` environment variables.
+
+### Input Validation
+
+- `class-validator` on all DTOs with `whitelist: true` and `forbidNonWhitelisted: true`
+- Type transformation enabled (`enableImplicitConversion`)
+- Parameterized queries via TypeORM (SQL injection prevention)
+
+### Security Headers
+
+Helmet.js configured with:
+
+- Content-Security-Policy (self-only defaults, inline styles/scripts for Swagger UI)
+- HSTS (max-age 31536000, includeSubDomains, preload)
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+- `x-powered-by` header disabled
+
+### CORS
+
+Configured in `main.ts`. Origin read from `CORS_ORIGIN` env var (comma-separated for multiple origins). Allowed headers include `X-Idempotency-Key`, `X-Client-Timestamp`, and `X-Client-Id` for offline sync and idempotency support.
+
+### Idempotency Middleware
+
+Applied to `POST` and `PATCH` requests on `/expenses` and `/income` routes. Reads `X-Idempotency-Key` header. Cached responses are replayed within a 5-minute TTL. Concurrent duplicate requests return HTTP 409. In-process cache with 60-second cleanup interval.
+
+## Data Security
+
+### Encryption
+
+- **AES-256-GCM encryption service** (`common/services/encryption.service.ts`): uses Node.js `crypto` module, 12-byte IV, 16-byte auth tag, output format `iv:authTag:ciphertext` (base64). Key loaded from `ENCRYPTION_KEY` env var (32-byte hex = 64 hex characters), validated at startup. Registered globally in `CommonModule`.
+- **Passwords**: bcrypt (12 rounds)
+- **2FA secrets**: stored in database, excluded from serialization via `@Exclude()`
+- **Sensitive data**: passwords and 2FA secrets stripped from all API responses
+
+### Database
+
 - Parameterized queries (TypeORM)
-- Foreign key constraints
-- Indexes for performance
-- Soft delete for data retention
+- Foreign key constraints with cascading deletes where appropriate
+- Indexes on frequently queried fields
+- Soft delete for perimeters (data retention)
 
-### Access Control
+### File Uploads
 
-**Role-Based Access Control (RBAC):**
+Receipt upload pipeline (`POST /expenses/:id/receipt`):
+
+1. Multer file interceptor, max 5 MB
+2. MIME type check: `image/jpeg`, `image/png`, `application/pdf` only
+3. Image optimization via `sharp` (max 1200px width, graceful fallback if sharp not installed)
+4. Virus scanning via ClamAV (`clamscan --no-summary`); infected files deleted immediately. Graceful degradation if ClamAV is not installed (logs warning, passes files through)
+5. Stored at `uploads/receipts/{userId}/{uuid}{ext}`
+6. Path traversal protection via `path.resolve()` comparison
+
+## Access Control
+
+### Role-Based Access Control (RBAC)
+
 - User roles: admin, user
-- Perimeter roles: owner, manager, contributor, viewer
-- Permission matrix enforcement
-- Guard-based protection
+- Perimeter (category) roles: owner, manager, contributor, viewer
+- Permission matrix enforced on every service call via `checkPermission(userId, perimeterId, action, resource)`
+- Owner bypasses permission matrix entirely
+- Non-owners without a share record get HTTP 403
 
-**Permission Matrix:**
+### Permission Matrix
+
 ```
-Resource      | Owner | Manager | Contributor | Viewer
-------------- |-------|---------|-------------|-------
-View          | ✓     | ✓       | ✓           | ✓
-Add Expenses  | ✓     | ✓       | ✓           | ✗
-Edit          | ✓     | ✓       | ✗           | ✗
-Share         | ✓     | ✓       | ✗           | ✗
-Delete        | ✓     | ✗       | ✗           | ✗
-```
-
-## 🛡️ GDPR Compliance
-
-### Data Rights
-
-**Right to Access:**
-- GET /users/me - User profile
-- GET /users/export - Full data export (TODO)
-
-**Right to Rectification:**
-- PATCH /users/me - Update profile
-- Full edit capabilities for own data
-
-**Right to Erasure:**
-- DELETE /users/me - Account deletion
-- Cascade delete on all related data
-- 30-day grace period (TODO)
-
-**Right to Data Portability:**
-- JSON export of all user data (TODO)
-- CSV export option (TODO)
-
-### Data Processing
-
-**Consent Management:**
-- Explicit consent on registration
-- Cookie consent (TODO)
-- Privacy policy acceptance (TODO)
-
-**Data Minimization:**
-- Only collect necessary data
-- No tracking without consent
-- Anonymous analytics (TODO)
-
-**Data Retention:**
-- Active user data: Indefinite
-- Deleted accounts: 30-day grace period (TODO)
-- Audit logs: 90 days
-- Backup retention: 30 days
-
-## 🔒 Security Best Practices
-
-### Development
-
-1. **Never commit secrets**
-   - Use environment variables
-   - .env in .gitignore
-   - Separate configs for dev/prod
-
-2. **Input validation**
-   - Validate all user input
-   - Use DTOs with class-validator
-   - Sanitize output
-
-3. **Error handling**
-   - Don't expose stack traces
-   - Generic error messages
-   - Detailed logging server-side
-
-4. **Dependencies**
-   - Regular updates
-   - Snyk security scanning
-   - Lock files committed
-
-### Production
-
-1. **Environment**
-   - NODE_ENV=production
-   - DB_SYNCHRONIZE=false
-   - Strong secrets (64+ chars)
-   - HTTPS only
-
-2. **Database**
-   - Read-only users for analytics
-   - Connection pooling
-   - Regular backups
-   - Encrypted connections
-
-3. **Monitoring**
-   - Error tracking (Sentry)
-   - Access logs
-   - Audit trail
-   - Performance metrics
-
-4. **Updates**
-   - Security patches immediately
-   - Regular dependency updates
-   - Penetration testing quarterly
-
-## 🚨 Security Checklist
-
-### Pre-Deployment
-
-- [ ] All secrets in environment variables
-- [ ] HTTPS enforced
-- [ ] CORS properly configured
-- [ ] Rate limiting enabled
-- [ ] Helmet.js configured
-- [ ] SQL injection tests passed
-- [ ] XSS prevention verified
-- [ ] CSRF protection enabled
-- [ ] Input validation on all endpoints
-- [ ] Authentication on protected routes
-- [ ] Admin routes protected
-- [ ] File upload restrictions
-- [ ] Error messages sanitized
-- [ ] Logging configured
-- [ ] Backup strategy in place
-
-### Post-Deployment
-
-- [ ] Security scan (Snyk)
-- [ ] Penetration testing
-- [ ] SSL certificate valid
-- [ ] Monitoring active
-- [ ] Audit logs enabled
-- [ ] Incident response plan
-- [ ] Regular security reviews
-- [ ] Dependency updates scheduled
-
-## 🔍 Vulnerability Management
-
-### Reporting
-
-**Security Issues:**
-- Email: security@fintrack.pro
-- Encrypted: PGP key (TODO)
-- Response time: 24 hours
-- Disclosure: Responsible disclosure policy
-
-### Common Vulnerabilities (OWASP Top 10)
-
-**A01: Broken Access Control**
-- ✅ RBAC implemented
-- ✅ Permission checks on all operations
-- ✅ User isolation
-
-**A02: Cryptographic Failures**
-- ✅ Bcrypt for passwords
-- ⚠️ AES-256 for financial data (TODO)
-- ✅ HTTPS in production
-
-**A03: Injection**
-- ✅ Parameterized queries
-- ✅ Input validation
-- ✅ Output encoding
-
-**A04: Insecure Design**
-- ✅ Security by design
-- ✅ Threat modeling
-- ✅ Security reviews
-
-**A05: Security Misconfiguration**
-- ✅ Secure defaults
-- ✅ Helmet.js
-- ✅ Production config separate
-
-**A06: Vulnerable Components**
-- ✅ Regular updates
-- ✅ Snyk scanning
-- ✅ Lock files
-
-**A07: Authentication Failures**
-- ✅ Strong password policy
-- ✅ 2FA available
-- ✅ Session management
-- ✅ Rate limiting
-
-**A08: Software and Data Integrity**
-- ✅ CI/CD pipeline
-- ✅ Code review required
-- ✅ Dependency verification
-
-**A09: Logging Failures**
-- ✅ Comprehensive logging
-- ⚠️ Audit trail (partial)
-- ⚠️ Monitoring (TODO)
-
-**A10: Server-Side Request Forgery**
-- ✅ Input validation
-- ✅ URL whitelist
-- ✅ No user-controlled URLs
-
-## 📝 Audit Log
-
-**Logged Events:**
-- User registration/login/logout
-- Password changes
-- 2FA enable/disable
-- Expense/Income creation (TODO)
-- Admin actions (TODO)
-- Permission changes (TODO)
-
-**Log Format:**
-```json
-{
-  "timestamp": "2026-02-17T10:30:00Z",
-  "userId": "uuid",
-  "action": "login",
-  "ipAddress": "127.0.0.1",
-  "userAgent": "Mozilla/5.0...",
-  "success": true,
-  "metadata": {}
-}
+Resource         | Owner | Manager | Contributor | Viewer
+-----------------|-------|---------|-------------|-------
+View summary     | Y     | Y       | Y           | Y
+View totals      | Y     | Y       | Y           | Y
+View own expenses| Y     | Y       | Y           | N
+Write expenses   | Y     | Y       | Y           | N
+Edit perimeter   | Y     | Y       | N           | N
+Manage shares    | Y     | Y       | N           | N
+Delete perimeter | Y     | N       | N           | N
+Revoke shares    | Y     | Y       | N           | N
 ```
 
-## 🔐 Production Security Hardening
+## GDPR Compliance
 
-1. **Database:**
-   - Disable public access
-   - Use connection pooling
-   - Enable SSL/TLS
-   - Regular backups
-   - Point-in-time recovery
+### Data Export
 
-2. **API:**
-   - Use reverse proxy (nginx)
-   - Enable rate limiting
-   - Add WAF (Web Application Firewall)
-   - DDoS protection
-   - API key rotation
+`GET /users/me/export?format=json|csv`
 
-3. **Frontend:**
-   - CSP headers
-   - Subresource integrity
-   - Secure cookies
-   - HTTPS only
-   - HSTS enabled
+Exports: user profile (excluding password and 2FA secret), all expenses, all incomes, and perimeters. Supports JSON and CSV (multi-section CSV with section headers).
 
-4. **Infrastructure:**
-   - Firewall rules
-   - VPN access for admin
-   - Separate staging/production
-   - Container security scanning
-   - Secrets management (Vault)
+### Data Import
 
-## 🎯 Security Roadmap
+`POST /users/me/import`
 
-**Immediate (Week 18):**
-- [ ] Financial data encryption
-- [ ] Audit log implementation
-- [ ] GDPR export/erasure
-- [ ] Security audit
-- [ ] Penetration testing
+Accepts JSON body with `expenses[]` and `incomes[]` arrays (validated via `ImportDataDto`). Rate-limited to 5 requests per minute.
 
-**Short-term (Month 2-3):**
-- [ ] OAuth integration
-- [ ] Email verification
-- [ ] Session management UI
-- [ ] Security headers optimization
-- [ ] WAF implementation
+### Account Deletion
 
-**Long-term (Month 4-6):**
-- [ ] Bug bounty program
-- [ ] SOC 2 compliance
-- [ ] Regular pen testing
-- [ ] Incident response drills
-- [ ] Security training
+`DELETE /users/me`
+
+Soft-deletes the account: sets `isActive = false` and `scheduledForDeletionAt = now + 30 days`. The `AccountCleanupService` cron runs daily at 03:00 and hard-deletes accounts past the 30-day grace period.
+
+`POST /users/me/cancel-deletion` allows reversal during the grace period.
+
+### Consent
+
+`POST /users/me/consent` - records user consent.
+
+## Audit Logging
+
+Global `AuditLogInterceptor` registered via `APP_INTERCEPTOR` in `CommonModule`. Fires on every request but only persists records for write methods (`POST`, `PUT`, `PATCH`, `DELETE`).
+
+### Logged Fields
+
+| Field | Description |
+|-------|-------------|
+| userId | Authenticated user ID |
+| method | HTTP method |
+| path | Request path |
+| entity | Derived from path (e.g., "expenses") |
+| entityId | From route params |
+| statusCode | HTTP response status |
+| ipAddress | Client IP |
+| userAgent | Client user-agent |
+| changes | Request body (JSONB, null on DELETE) |
+
+### Storage
+
+`audit_logs` table with indexes on `[userId, createdAt]` and `[entity, createdAt]`.
+
+### Admin Access
+
+`GET /api/v1/admin/audit-logs` - paginated, filterable by userId/method/entity. Protected by `JwtAuthGuard` + `AdminGuard`.
+
+## Offline Sync
+
+Last-Write-Wins (LWW) conflict resolution via `X-Client-Timestamp` header.
+
+- On update: if `clientTimestamp` is provided and the server record's `updatedAt` is newer, the update is rejected with `{ data: existingRecord, conflict: true }` in the response
+- On create: `clientTimestamp` field accepted but reserved (no conflict possible on new records)
+- Applied to both expenses and income services
+
+See [OFFLINE_SYNC.md](./OFFLINE_SYNC.md) for the full client-side sync architecture.
+
+## Notification Preferences
+
+Per-user notification preferences stored in `notification_preferences` table (one-to-one with users). Auto-created on first access.
+
+| Preference | Type | Default |
+|------------|------|---------|
+| budgetAlerts | boolean | true |
+| recurringReminders | boolean | true |
+| friendRequests | boolean | true |
+| perimeterShares | boolean | true |
+| preferredChannels | string[] | ["in-app"] |
+| quietHoursStart | string | null |
+| quietHoursEnd | string | null |
+
+The `shouldNotify()` method is checked before every notification creation. System notifications bypass preferences.
+
+Endpoints: `GET /notifications/preferences`, `PATCH /notifications/preferences`.
+
+## OWASP Top 10 Coverage
+
+| Category | Status | Implementation |
+|----------|--------|----------------|
+| A01: Broken Access Control | Covered | RBAC with permission matrix, user isolation, guard-based protection |
+| A02: Cryptographic Failures | Covered | Bcrypt passwords, AES-256-GCM encryption service, HTTPS in production |
+| A03: Injection | Covered | Parameterized queries (TypeORM), class-validator input validation |
+| A04: Insecure Design | Covered | Security by design, threat modeling |
+| A05: Security Misconfiguration | Covered | Helmet.js, production config separate, DB_SYNCHRONIZE=false |
+| A06: Vulnerable Components | Monitored | Lock files committed, regular dependency updates |
+| A07: Authentication Failures | Covered | Strong password policy, 2FA, rate limiting, session management |
+| A08: Software/Data Integrity | Covered | Idempotency middleware, input validation |
+| A09: Logging Failures | Covered | Global audit log interceptor, admin query endpoint |
+| A10: SSRF | Covered | Input validation, no user-controlled URLs |
+
+## Production Hardening
+
+- Nginx reverse proxy with security headers (X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy)
+- Gzip compression at Nginx level
+- `client_max_body_size 10M`
+- WebSocket timeouts: 86400s read/send for long-lived connections
+- PM2 process management with automatic restart
+- Docker-isolated PostgreSQL and Redis
+- Environment variables for all secrets (JWT_SECRET, JWT_REFRESH_SECRET, ENCRYPTION_KEY)
+- `DB_SYNCHRONIZE=false` in production

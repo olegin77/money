@@ -1,226 +1,231 @@
 # FinTrack Pro
 
-**Data Serenity | Modern Finance UX | Enterprise Quality**
+Personal finance management application. Full-stack monorepo with NestJS backend and Next.js frontend.
 
-FinTrack Pro - современное финансовое приложение следующего поколения с концепцией "Data Serenity" (тренд 2026). Полный контроль над финансами с минималистичным дизайном и максимальной функциональностью.
+**Production:** http://104.248.254.226
+**Swagger API docs:** http://104.248.254.226/api/docs
 
-## 🎯 Особенности
+## Tech Stack
 
-- 📊 **Smart Dashboard** - интеллектуальная аналитика расходов и доходов
-- 🎨 **Design System 2026** - Glassmorphism, Dark/Light режимы, micro-interactions
-- 🔐 **Enterprise Security** - JWT, 2FA, AES-256 шифрование, GDPR compliance
-- 👥 **Периметры** - категории расходов с системой прав доступа (viewer/contributor/manager)
-- 🤝 **Друзья** - совместный учёт расходов и общие периметры
-- 📱 **PWA** - offline mode, push-уведомления, нативные возможности
-- 🌍 **Multi-currency** - авто-конвертация валют
-- 📈 **Real-time аналитика** - WebSocket обновления
+| Layer | Technology |
+|-------|-----------|
+| Backend | NestJS 10, TypeORM, PostgreSQL 16, Redis 7, BullMQ, Socket.io |
+| Frontend | Next.js 14 (App Router), React 18, Tailwind CSS, Zustand, React Query, Recharts |
+| Auth | JWT (access/refresh), 2FA (TOTP), bcrypt |
+| Infra | Docker, Nginx, PM2, DigitalOcean |
 
-## 🏗️ Архитектура
+## Project Structure
 
 ```
-fintrack-pro/
-├── backend/          # NestJS API (Modular Monolith)
+money/
+├── backend/                  # NestJS API server
 │   ├── src/
-│   │   ├── auth/           # Аутентификация + JWT + 2FA
-│   │   ├── users/          # Управление пользователями
-│   │   ├── expenses/       # Расходы
-│   │   ├── income/         # Доходы
-│   │   ├── perimeters/     # Периметры (категории)
-│   │   ├── friends/        # Друзья + запросы
-│   │   ├── analytics/      # Аналитика + CQRS
-│   │   ├── notifications/  # Уведомления
-│   │   └── common/         # Общие модули
-│   └── test/
-├── frontend/         # Next.js 14 (App Router)
-│   ├── app/
+│   │   ├── auth/             # JWT + 2FA authentication
+│   │   ├── users/            # User management + GDPR
+│   │   ├── expenses/         # Expenses CRUD + receipt upload
+│   │   ├── income/           # Income CRUD
+│   │   ├── perimeters/       # Categories with sharing & permissions
+│   │   ├── friends/          # Friend requests & friendships
+│   │   ├── analytics/        # CQRS analytics + materialized views
+│   │   ├── notifications/    # Notifications + preferences
+│   │   ├── scheduler/        # BullMQ recurring transactions
+│   │   ├── common/           # Guards, middleware, encryption, events
+│   │   └── database/         # Migrations
+│   ├── scripts/              # backup-db.sh, rollback-last.sh, validate-migration.sh
+│   └── test/                 # E2E tests (auth, expenses)
+├── frontend/
+│   ├── app/                  # Next.js pages (dashboard, expenses, income, etc.)
 │   ├── components/
-│   │   ├── ui/            # shadcn/ui components
-│   │   ├── features/      # Feature components
-│   │   └── layout/        # Layout components
+│   │   ├── ui/               # Design system (shadcn/ui based)
+│   │   ├── layout/           # Sidebar, mobile nav, header
+│   │   ├── expenses/         # Expense form & list
+│   │   ├── income/           # Income form & list
+│   │   ├── analytics/        # Charts & stat cards
+│   │   ├── dashboard/        # Balance hero, getting started
+│   │   ├── friends/          # Friend cards, search
+│   │   ├── notifications/    # Notification bell
+│   │   ├── onboarding/       # Onboarding wizard
+│   │   ├── perimeters/       # Category cards, share dialog
+│   │   └── providers/        # Auth, keyboard shortcuts, RTL
 │   ├── lib/
-│   ├── hooks/
-│   ├── stores/            # Zustand stores
-│   └── public/
-├── shared/           # Общие типы TypeScript
-└── docs/             # Документация
+│   │   ├── api/              # API client modules
+│   │   ├── i18n/             # Translations (EN, RU, AR)
+│   │   └── offline/          # IndexedDB sync queue
+│   ├── hooks/                # Custom React hooks
+│   ├── stores/               # Zustand state stores
+│   └── stories/              # Storybook stories
+└── docs/                     # Documentation
 ```
 
-## 🛠️ Технологический стек
+## Features
 
-### Backend
-- **Framework:** NestJS 10
-- **Database:** PostgreSQL 16
-- **Cache:** Redis 7
-- **Auth:** JWT + Passport + 2FA (speakeasy)
-- **Validation:** class-validator + class-transformer
-- **ORM:** TypeORM
-- **Queue:** BullMQ (для CRON задач)
-- **WebSocket:** Socket.io
+**Core Finance**
+- Expenses & income tracking with categories, recurring transactions, and receipt upload
+- NumPad-based mobile entry with quick presets
+- Multi-currency support with auto-conversion
+- Budget tracking per category with alerts
 
-### Frontend
-- **Framework:** Next.js 14 (App Router)
-- **UI:** React 18 + TypeScript 5
-- **Styling:** Tailwind CSS 3.4 + shadcn/ui
-- **State:** Zustand + React Query (TanStack)
-- **Animation:** Framer Motion
-- **Forms:** React Hook Form + Zod
-- **PWA:** next-pwa + Workbox
-- **Charts:** Recharts
-- **Icons:** Lucide React
+**Analytics (CQRS)**
+- Dashboard with period-over-period comparison
+- Expense breakdown by category (pie chart)
+- Cash flow, income trends, monthly comparison charts
+- CSV/PDF/Excel export
+- Materialized views for fast queries, event-driven cache invalidation
 
-### DevOps
-- **Container:** Docker + Docker Compose
-- **CI/CD:** GitHub Actions
-- **Testing:** Jest + Vitest + Playwright
-- **Security:** Snyk + Helmet.js
-- **Monitoring:** (TBD)
+**Social**
+- Friend system with requests
+- Shared categories (perimeters) with permission matrix: viewer / contributor / manager
+- Real-time updates via WebSocket
 
-## 🎨 Design System
+**Security**
+- JWT access (15min) + refresh (7d) tokens
+- 2FA via TOTP (speakeasy)
+- AES-256-GCM encryption service
+- Rate limiting (30 req/min mutations, 100 req/min auth)
+- Idempotency middleware for POST/PATCH
+- Audit logging, GDPR export/import/deletion with 30-day grace
 
-- **Typography:** Satoshi (headings) + DM Sans (body)
-- **Colors:** Deep Ocean Calm palette (Dark/Light)
-- **Effects:** Glassmorphism Lite, Soft Shadows, Aurora gradients
-- **Animation:** 300ms cubic-bezier transitions
-- **Spacing:** 8px grid system
-- **Border Radius:** 8px (sm) → 24px (2xl)
+**Accessibility & i18n**
+- ARIA labels on all interactive elements, role=progressbar, aria-live regions
+- 3 languages: English, Russian, Arabic (with RTL support)
+- Keyboard shortcuts (Ctrl+N, Ctrl+I, Ctrl+?)
 
-## 🚀 Быстрый старт
+**Mobile**
+- Responsive design (iPhone SE 320px to tablets)
+- Bottom navigation with quick-add overlay
+- Pull-to-refresh, swipe-to-delete
+- Offline queue with Last-Write-Wins sync
 
-### Требования
+## Quick Start
+
+### Prerequisites
+
 - Node.js 20+
 - pnpm 8+
 - PostgreSQL 16+
 - Redis 7+
-- Docker (опционально)
 
-### Установка
+### Local Development
 
 ```bash
-# 1. Клонировать репозиторий
-git clone <repository-url>
-cd fintrack-pro
-
-# 2. Установить зависимости
+git clone https://github.com/olegin77/money.git
+cd money
 pnpm install
 
-# 3. Настроить environment
-cp .env.example .env
-# Отредактировать .env файл
-
-# 4. Запустить PostgreSQL + Redis (Docker)
+# Start PostgreSQL + Redis via Docker
 docker-compose up -d db redis
 
-# 5. Применить миграции
-cd backend && pnpm migration:run
+# Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
 
-# 6. Запустить в dev режиме
+# Run migrations
+cd backend && pnpm migration:run && cd ..
+
+# Start dev servers
 pnpm dev
 ```
 
-Backend: http://localhost:3001/api
-Frontend: http://localhost:3000
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001/api/v1
+- Swagger: http://localhost:3001/api/docs
 
-## 📦 Команды
+### Build
 
 ```bash
-# Development
-pnpm dev              # Запустить backend + frontend
-pnpm dev:backend      # Только backend
-pnpm dev:frontend     # Только frontend
-
-# Build
-pnpm build            # Собрать всё
-pnpm build:backend
-pnpm build:frontend
-
-# Testing
-pnpm test             # Все тесты
-pnpm test:unit        # Unit тесты
-pnpm test:e2e         # E2E тесты
-pnpm test:coverage    # Coverage report
-
-# Linting
-pnpm lint             # Проверить код
-pnpm lint:fix         # Автофикс
-
-# Database
-pnpm migration:generate  # Создать миграцию
-pnpm migration:run       # Применить миграции
-pnpm migration:revert    # Откатить миграцию
-pnpm seed                # Заполнить тестовыми данными
+cd backend && pnpm build    # NestJS compilation
+cd frontend && pnpm build   # Next.js production build
 ```
 
-## 📋 Roadmap
+### Test
 
-### Phase 1: MVP (Недели 1-8)
-- [x] Техническое задание + Design System
-- [ ] Backend setup + Auth module
-- [ ] Database schema + migrations
-- [ ] Frontend setup + Design System
-- [ ] Expenses/Income modules
-- [ ] Dashboard + Analytics
+```bash
+cd backend && pnpm test         # Unit tests
+cd backend && pnpm test:e2e     # E2E tests (auth, expenses)
+```
 
-### Phase 2: Social Features (Недели 9-12)
-- [ ] Perimeters (категории) + права доступа
-- [ ] Friends system
-- [ ] Shared perimeters
-- [ ] Real-time updates (WebSocket)
+## Production Deployment
 
-### Phase 3: Advanced (Недели 13-16)
-- [ ] PWA + Offline mode
-- [ ] Multi-currency + авто-конвертация
-- [ ] Admin panel
-- [ ] Performance optimization
-- [ ] Security audit
+The app runs on a DigitalOcean droplet with Nginx reverse proxy.
 
-### Phase 4: Beta (Недели 17-20)
-- [ ] Beta testing
-- [ ] Bug fixes
-- [ ] Load testing
-- [ ] Production deployment
+```bash
+# On server
+cd /root/money
+git pull
+cd backend && pnpm build
+cd ../frontend && pnpm build
+pm2 restart all
+```
 
-## 🔐 Безопасность
+**Architecture:**
+```
+Client -> Nginx (:80)
+           ├── /api/v1/*    -> NestJS (:3001)
+           ├── /api/docs    -> Swagger UI (:3001)
+           ├── /socket.io/* -> WebSocket (:3001)
+           └── /*           -> Next.js (:3000)
+```
 
-- **Аутентификация:** JWT access/refresh tokens (15мин/7дней)
-- **2FA:** TOTP через speakeasy
-- **Шифрование:** AES-256-GCM для финансовых данных
-- **Rate Limiting:** 100 req/min (auth), 300 req/min (API)
-- **RBAC:** Role-based access control
-- **CSRF Protection:** Helmet.js + CORS whitelist
-- **Audit Log:** Все операции с финансами
-- **GDPR:** Data export, Right to erasure, Consent management
+**Database scripts** (in `backend/scripts/`):
+```bash
+./scripts/backup-db.sh           # pg_dump with timestamp
+./scripts/rollback-last.sh [N]   # Revert N migrations (default: 1)
+./scripts/validate-migration.sh  # Check table integrity
+```
 
-## 📊 Quality Gates
+## API Overview
 
-- ✅ Unit tests coverage > 80%
-- ✅ E2E tests для критических флоу
-- ✅ Lighthouse score > 90
-- ✅ Security scan (Snyk) - 0 high vulnerabilities
-- ✅ Code review + 2 approvals
-- ✅ Performance: LCP < 1.8s, FCP < 1.2s, TTI < 3s
+| Module | Endpoints | Description |
+|--------|-----------|-------------|
+| Auth | `POST /auth/register, /auth/login, /auth/refresh, /auth/2fa/*` | Registration, login, 2FA, token refresh |
+| Users | `GET/PATCH /users/me, POST /users/me/export, /users/me/import` | Profile, GDPR export/import, account deletion |
+| Expenses | `GET/POST/PATCH/DELETE /expenses, POST /expenses/:id/receipt` | CRUD + batch + receipt upload |
+| Income | `GET/POST/PATCH/DELETE /income` | CRUD with recurring support |
+| Categories | `GET/POST/PATCH/DELETE /perimeters, /perimeters/:id/share` | Categories with sharing & budgets |
+| Analytics | `GET /analytics/dashboard, /expenses-by-category, /trend, /cash-flow` | Dashboard & charts |
+| Friends | `POST /friends/request, /friends/accept, GET /friends` | Friend requests & list |
+| Notifications | `GET /notifications, PATCH /notifications/preferences` | Notifications + granular preferences |
 
-## 👥 Команда
+Full API reference with request/response examples: [docs/API.md](docs/API.md)
 
-Проект разработан при участии **79 экспертов** (OLEGIN77 Pipeline):
-- **OLEGIN77TZ** - 35 экспертов по ТЗ
-- **OLEGIN77DEV** - 22 эксперта по разработке
-- **OLEGIN77AUDIT** - 22 аудитора качества
+## Documentation
 
-## 📄 Лицензия
+| File | Description |
+|------|-------------|
+| [docs/API.md](docs/API.md) | API endpoints reference |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Dev setup, code style, project structure |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production deployment guide |
+| [docs/SECURITY.md](docs/SECURITY.md) | Auth, encryption, RBAC, GDPR |
+| [docs/MIGRATIONS.md](docs/MIGRATIONS.md) | Database migration procedures |
+| [docs/ERROR_CODES.md](docs/ERROR_CODES.md) | API error codes & formats |
+| [docs/OFFLINE_SYNC.md](docs/OFFLINE_SYNC.md) | Offline sync & LWW strategy |
 
-MIT License
+## Environment Variables
 
-## 🤝 Контакты
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=...
+DB_DATABASE=fintrack_pro
 
-- **Website:** (TBD)
-- **Email:** support@fintrack.pro
-- **Discord:** (TBD)
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
----
+# Auth
+JWT_SECRET=...
+JWT_REFRESH_SECRET=...
+ENCRYPTION_KEY=...          # 32-byte hex for AES-256-GCM
 
-**Status:** 🚧 In Development
-**Quality:** ✅ Enterprise-grade (8.5/10)
-**Risk Level:** 🟢 LOW
-**Estimated Completion:** 5 months
+# Server
+BACKEND_PORT=3001
+BACKEND_HOST=0.0.0.0
+CORS_ORIGIN=http://localhost:3000
+NODE_ENV=production
+```
 
-Made with ❤️ using Data Serenity principles
+## License
+
+MIT
