@@ -11,7 +11,11 @@ class WebSocketClient {
       return;
     }
 
-    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+    const WS_URL =
+      process.env.NEXT_PUBLIC_WS_URL ||
+      (typeof window !== 'undefined'
+        ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
+        : 'ws://localhost:3001');
 
     this.socket = io(WS_URL, {
       auth: { token },

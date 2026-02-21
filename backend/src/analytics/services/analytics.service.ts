@@ -107,7 +107,7 @@ export class AnalyticsService {
   async getExpensesByCategory(userId: string, startDate: string, endDate: string) {
     const expenses = await this.expenseRepository
       .createQueryBuilder('expense')
-      .leftJoin('perimeters', 'p', 'p.id = expense.category_id')
+      .leftJoin('perimeters', 'p', 'p.id::text = expense.category_id')
       .select('expense.categoryId', 'categoryId')
       .addSelect("COALESCE(p.name, 'Uncategorized')", 'categoryName')
       .addSelect('p.icon', 'categoryIcon')
